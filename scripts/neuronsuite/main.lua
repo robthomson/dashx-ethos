@@ -26,7 +26,7 @@ if not FONT_M then FONT_M = FONT_STD end
 -- Configuration
 --======================
 local config = {
-  toolName = "Rotorflight",
+  toolName = "Neuron Suite",
   icon = lcd.loadMask("app/gfx/icon.png"),
   icon_logtool = lcd.loadMask("app/gfx/icon_logtool.png"),
   icon_unsupported = lcd.loadMask("app/gfx/unsupported.png"),
@@ -128,18 +128,57 @@ end
 -- Core modules
 --======================
 neuronsuite.config.bgTaskName = neuronsuite.config.toolName .. " [Background]"
-neuronsuite.config.bgTaskKey = "rf2bg"
+neuronsuite.config.bgTaskKey = "neurbg"
 
 neuronsuite.compiler = assert(loadfile("lib/compile.lua"))(neuronsuite.config)
+
+-- Shared lazy loader to defer module creation until first use,
+-- but promote to eager-all on first touch.
+local function rf_lazy_module(path, arg, compile_loadfile, post_init)
+  local real  -- actual module table (created on first use)
+  local function ensure()
+    if not real then
+      local chunk = assert(compile_loadfile(path), "failed to load: "..path)
+      real = assert(chunk)(arg)
+      if post_init then post_init(real) end
+      -- First touch of any module => eagerly initialize the rest
+      neuronsuite._try_eager_init("lazy-touch:" .. tostring(path))
+      collectgarbage()
+    end
+  end
+  local proxy = {}
+  proxy.__ensure = ensure
+  proxy.__is_proxy = true
+  return setmetatable(proxy, {
+    __index    = function(_, k) ensure(); return real[k] end,
+    __newindex = function(_, k, v) ensure(); real[k] = v end,
+    __call     = function(_, ...) ensure(); return real(...) end,
+    __pairs    = function() ensure(); return pairs(real) end,
+  })
+end
+
+-- Reentrancy-safe eager init trigger (runs at most once)
+neuronsuite._eager_started = false
+function neuronsuite._try_eager_init(reason)
+  if neuronsuite._eager_started then return end
+  neuronsuite._eager_started = true
+  if neuronsuite.eager_init then
+    neuronsuite.eager_init(reason or "first-touch")
+  else
+    -- If init() hasn't defined eager_init yet, defer until it exists.
+    -- We keep the flag true so subsequent calls don't double-trigger.
+    neuronsuite._pending_eager_reason = reason or "first-touch"
+  end
+end
 
 neuronsuite.i18n = assert(neuronsuite.compiler.loadfile("lib/i18n.lua"))(neuronsuite.config)
 neuronsuite.i18n.load()
 
 neuronsuite.utils = assert(neuronsuite.compiler.loadfile("lib/utils.lua"))(neuronsuite.config)
 
-neuronsuite.app = assert(neuronsuite.compiler.loadfile("app/app.lua"))(neuronsuite.config)
+neuronsuite.app   = rf_lazy_module("app/app.lua",    neuronsuite.config, neuronsuite.compiler.loadfile)
 
-neuronsuite.tasks = assert(neuronsuite.compiler.loadfile("tasks/tasks.lua"))(neuronsuite.config)
+neuronsuite.tasks = rf_lazy_module("tasks/tasks.lua", neuronsuite.config, neuronsuite.compiler.loadfile)
 
 -- Flight mode & session
 neuronsuite.flightmode = { current = "preflight" }
@@ -198,12 +237,17 @@ local function register_main_tool()
 end
 
 local function register_bg_task()
+  -- wrap task init so we can eagerly warm app + widgets when bg task starts
+  local function bg_init_wrapper(...)
+    if neuronsuite.eager_init then neuronsuite.eager_init("bgtask") end
+    return neuronsuite.tasks.init(...)
+  end
   system.registerTask({
     name = neuronsuite.config.bgTaskName,
     key = neuronsuite.config.bgTaskKey,
     wakeup = neuronsuite.tasks.wakeup,
     event = neuronsuite.tasks.event,
-    init = neuronsuite.tasks.init,
+    init = bg_init_wrapper,
     read = neuronsuite.tasks.read,
     write = neuronsuite.tasks.write,
   })
@@ -270,6 +314,7 @@ local function register_widgets(widgetList)
 end
 
 local function init()
+  
   local cfg = neuronsuite.config
 
   -- Bail early if Ethos is too old
@@ -291,7 +336,124 @@ local function init()
     build_widget_cache(widgetList, cacheFile)
   end
 
-  register_widgets(widgetList)
+  neuronsuite._widget_proxies = {}
+
+-- Override register_widgets with a lazy-loading version
+register_widgets = function(widgetList)
+  neuronsuite.widgets = {}
+  local dupCount = {}
+
+  local function make_widget_proxy(path)
+  local mod
+  local function ensure()
+    if not mod then
+      mod = assert(neuronsuite.compiler.loadfile(path))(config)
+      -- First touch of any widget => eagerly initialize the rest
+      neuronsuite._try_eager_init("widget-touch:" .. tostring(path))
+    end
+  end
+  local function opt(name)
+    return function(...)
+      ensure()
+      local f = mod[name]
+      if f then return f(...) end
+    end
+  end
+  local proxy = {
+    event     = opt("event"),
+    create    = opt("create"),
+    paint     = opt("paint"),
+    wakeup    = opt("wakeup"),
+    build     = opt("build"),
+    close     = opt("close"),
+    configure = opt("configure"),
+    read      = opt("read"),
+    write     = opt("write"),
+    get_title = function() ensure(); return mod.title end,
+    get_menu  = function() ensure(); return mod.menu end,
+    get_persistent = function() ensure(); return mod.persistent end,
+  }
+  proxy.__ensure = ensure
+  proxy.__is_proxy = true
+  table.insert(neuronsuite._widget_proxies, proxy)
+  return proxy
 end
+
+  for _, v in ipairs(widgetList) do
+    if v.script then
+      local path = "widgets/" .. v.folder .. "/" .. v.script
+      local proxy = make_widget_proxy(path)
+
+      local base = v.varname or v.script:gsub("%.lua$", "")
+      if neuronsuite.widgets[base] then
+        dupCount[base] = (dupCount[base] or 0) + 1
+        base = string.format("%s_dup%02d", base, dupCount[base])
+      end
+      neuronsuite.widgets[base] = proxy
+
+      system.registerWidget({
+        name       = v.name,
+        key        = v.key,
+        event      = proxy.event,
+        create     = proxy.create,
+        paint      = proxy.paint,
+        wakeup     = proxy.wakeup,
+        build      = proxy.build,
+        close      = proxy.close,
+        configure  = proxy.configure,
+        read       = proxy.read,
+        write      = proxy.write,
+        -- persistent must be a boolean at registration time; default to false
+        -- (if a widget truly needs persistence, we can force an early ensure here and
+        -- read mod.persistent, but most widgets are fine with false)
+        persistent = false,
+
+        -- Defer menu/title to the real module once loaded:
+        menu = function(...)
+          local m = proxy.get_menu and proxy.get_menu()
+          if type(m) == "function" then
+            return m(...)
+          end
+          -- if menu is not a function, Ethos expects nil or a function; return nothing
+        end,
+
+        title = v.title,
+      })
+
+    end
+  end
+end
+
+register_widgets(widgetList)
+
+  ------------------------------------------------------------------
+  -- Eager init: fully load the app + all widgets on bg task start --
+  ------------------------------------------------------------------
+  function neuronsuite.eager_init(reason)
+    -- 1) App module
+    if neuronsuite.app and neuronsuite.app.__ensure then
+      neuronsuite.app.__ensure()
+    end
+    -- 2) All widget modules
+    if neuronsuite._widget_proxies then
+      for _, p in ipairs(neuronsuite._widget_proxies) do
+        if p and p.__ensure then p.__ensure() end
+      end
+    end
+    if neuronsuite.utils and neuronsuite.utils.log then
+      neuronsuite.utils.log(string.format("[init] eager_init (%s): app+widgets ready", tostring(reason)), "info")
+    end
+  end
+
+  -- If a first-touch happened before eager_init existed, honor it now
+  if neuronsuite._eager_started and neuronsuite._pending_eager_reason then
+    local why = neuronsuite._pending_eager_reason
+    neuronsuite._pending_eager_reason = nil
+    neuronsuite.eager_init(why .. " (deferred)")
+  end  
+
+end
+
+
 
 return { init = init }

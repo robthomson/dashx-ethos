@@ -257,7 +257,7 @@ function frsky.wakeup()
       while telemetryPop() do
         n = n + 1
         if n >= 50 then break end
-        if neuronsuite.app.triggers.mspBusy == true then break end
+        if neuronsuite.session.mspBusy == true then break end
         -- If we ran out of actions mid-loop, we can stop early.
         if not hasPendingActions() then break end
       end
