@@ -130,12 +130,6 @@ local sensorTable = {
             sport = {
                 { appId = 0xF010, subId = 0 },
             },
-            crsf = {
-                {crsfId=0x14, subId = 2}
-            },
-            crsfLegacy = {
-                {crsfId=0x14, subIdStart=0, subIdEnd=1}
-            },
         },
     },
 
@@ -153,61 +147,11 @@ local sensorTable = {
             },
             sport = {
                 { appId = 0xF101, subId = 0 },
-                "RSSI",   -- fallback for older versions
-            },
-            crsf = {
-                { crsfId = 0x14, subIdStart = 0, subIdEnd = 1 },
-                "Rx RSSI1", -- fallback for older versions
-            },
-            crsfLegacy = {
-                { crsfId = 0x14, subIdStart = 0, subIdEnd = 1 },
-                "RSSI 1",   -- fallback for older versions
-                "RSSI 2",
             },
         },
     }, 
 
-    -- RSSI Sensors
-    armed = {
-        name = "@i18n(telemetry.sensors.arming_flags)@",
-        mandatory = true,
-        stats = false,
-        switch_alerts = false,
-        unit = UNIT_RAW,
-        unit_string = "",
-        sensors = {
-            sim = {
-                { uid = 0x5FE0, unit = UNIT_RAW, dec = 0,
-                  value = function() return not neurondash.utils.simSensors('armed') end,
-                  min = 0, max = 1 },
-            },
-            crsf = {
-                { appId = 0x5FE0, subId = 0 },
-            },
-        },
-    },        
-
-    -- RSSI Sensors
-    profile = {
-        name = "@i18n(telemetry.sensors.profile)@",
-        mandatory = true,
-        stats = false,
-        switch_alerts = false,
-        unit = UNIT_RAW,
-        unit_string = "",
-        sensors = {
-            sim = {
-                { uid = 0x5FE1, unit = UNIT_RAW, dec = 0,
-                  value = function() return neurondash.utils.simSensors('profile') end,
-                  min = 0, max = 3 },
-            },
-            crsf = {
-                { appId = 0x5FE1, subId = 0 },
-            },
-        },
-    },    
-
-
+        
     -- Voltage Sensors
     voltage = {
         name = "@i18n(telemetry.sensors.voltage)@",
@@ -223,7 +167,9 @@ local sensorTable = {
                   value = function() return neurondash.utils.simSensors('voltage') end,
                   min = 0, max = 3000 },
             },
-            crsf = { "Rx Batt" },
+            sport = {
+                { appId = 0x0B50, subId = 0 },
+            },
         },    
     },
 
@@ -242,7 +188,9 @@ local sensorTable = {
                   value = function() return neurondash.utils.simSensors('rpm') end,
                   min = 0, max = 4000 },
             },
-            crsf = { "GPS alt" },
+            sport = {
+                { appId = 0x0B60, subId = 0 },
+            },
         },
     },
 
@@ -259,7 +207,7 @@ local sensorTable = {
             sim = {
                 { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF },
             },
-            crsf = {
+            sport = {
                 { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF },
             },
         },
@@ -280,7 +228,9 @@ local sensorTable = {
                   value = function() return neurondash.utils.simSensors('current') end,
                   min = 0, max = 300 },
             },
-            crsf = { "Rx Current" },
+            sport = {
+                { appId = 0x0B50, subId = 0 },
+            },
         },
     },
 
@@ -298,7 +248,9 @@ local sensorTable = {
                   value = function() return neurondash.utils.simSensors('temp_esc') end,
                   min = 0, max = 100 },
             },
-            crsf = { "GPS speed" },
+            sport = {
+                { appId = 0x0B70, subId = 0 },
+            },
         },
         localizations = function(value)
             local major = UNIT_DEGREE
@@ -318,60 +270,6 @@ local sensorTable = {
         end,
     },
 
-    -- MCU Temperature Sensors
-    temp_mcu = {
-        name = "@i18n(telemetry.sensors.mcu_temp)@",
-        mandatory = false,
-        stats = true,
-        set_telemetry_sensors = 52,
-        switch_alerts = true,
-        unit = UNIT_DEGREE,
-        sensors = {
-            sim = {
-                { uid = 0x5006, unit = UNIT_DEGREE, dec = 0,
-                  value = function() return neurondash.utils.simSensors('temp_mcu') end,
-                  min = 0, max = 100 },
-            },
-            crsf = { "GPS Sats" },
-        },
-        localizations = function(value)
-            local major = UNIT_DEGREE
-            if value == nil then return nil, major, nil end
-
-            -- Shortcut to the user’s temperature‐unit preference (may be nil)
-            local prefs = neurondash.preferences.localizations
-            local isFahrenheit = prefs and prefs.temperature_unit == 1
-
-            if isFahrenheit then
-                -- Convert from Celsius to Fahrenheit
-                return value * 1.8 + 32, major, "°F"
-            end
-
-            -- Default: return Celsius
-            return value, major, "°C"
-        end,
-    },
-
-    -- Fuel and Capacity Sensors
-    fuel = {
-        name = "@i18n(telemetry.sensors.fuel)@",
-        mandatory = false,
-        stats = true,
-        set_telemetry_sensors = 6,
-        switch_alerts = true,
-        unit = UNIT_PERCENT,
-        unit_string = "%",
-        sensors = {
-            sim = {
-                { 
-                    uid = 0x5007, unit = UNIT_PERCENT, dec = 0,
-                    value = function() return neurondash.utils.simSensors('fuel') end,                   
-                    min = 0, max = 100
-                },
-            },
-            crsf = { "Rx Batt%" },
-        },
-    },
 
     consumption = {
         name = "@i18n(telemetry.sensors.consumption)@",
@@ -387,7 +285,9 @@ local sensorTable = {
                   value = function() return neurondash.utils.simSensors('consumption') end,
                   min = 0, max = 5000 },
             },
-            crsf = { "Rx Cons" },
+            sport = {
+                { appId = 0x0B60, subId = 0 },
+            },
         },
     },
 
@@ -511,9 +411,9 @@ function telemetry.getSensorSource(name)
             end    
         end
 
-    elseif neurondash.session.telemetryType == "crsf" then
-            protocol = "crsf"
-            for _, sensor in ipairs(sensorTable[name].sensors.crsf or {}) do
+    elseif neurondash.session.telemetryType == "sport" then
+            protocol = "sport"
+            for _, sensor in ipairs(sensorTable[name].sensors.sport or {}) do
                 local source = system.getSource(sensor)
                 if source then
                     cache_misses = cache_misses + 1       -- debug: loaded from system.getSource :contentReference[oaicite:1]{index=1}
