@@ -8,11 +8,11 @@ import os
 
 SENSOR_FILE_EXT = ".lua"
 
-# Require config path from NEURONSUITE_CONFIG env var
-CONFIG_PATH = os.environ.get('NEURONSUITE_CONFIG')
+# Require config path from NEURON_CONFIG env var
+CONFIG_PATH = os.environ.get('NEURON_CONFIG')
 
 if not CONFIG_PATH:
-    print("[CONFIG ERROR] Environment variable NEURONSUITE_CONFIG is not set.")
+    print("[CONFIG ERROR] Environment variable NEURON_CONFIG is not set.")
     sys.exit(1)
 
 CONFIG_PATH = Path(CONFIG_PATH)
