@@ -1,1 +1,0 @@
-return math.random(57, 63)

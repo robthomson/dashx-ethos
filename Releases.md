@@ -1,4 +1,3 @@
+# 2.0.0
 
-# 0.0.0-20250915
-
-Initial fork from rotorflight project.
+Release 2.0.0 of NEURON dashboard.  This release includes many of the new speed and memory optimisations that where recently made to rotorflight.

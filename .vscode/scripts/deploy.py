@@ -10,15 +10,165 @@ from tqdm import tqdm
 import re
 import shlex
 import time
-import atexit, signal, tempfile  
+import atexit, signal, tempfile
+import platform
+from hashlib import md5
+from glob import glob
+
+MIN_ETHOSSUITE_VERSION = "1.7.0"
 
 SERIAL_PIDFILE = os.path.join(tempfile.gettempdir(), "rfdeploy-serial.pid")
 DEPLOY_TO_RADIO = False  # flag to control radio-only behavior
 THROTTLE_EXTS = None  # unused when throttling all copies
 THROTTLE_MIN_BYTES = 0  # unused when throttling all copies
-THROTTLE_CHUNK = 16 * 1024          # 16 KiB
+THROTTLE_CHUNK = 32 * 1024          # 16 KiB
 THROTTLE_PAUSE_EVERY = 64 * 1024  # pause+fsync every 64 KiB written
-THROTTLE_PAUSE_S = 0.2             # 200 ms
+THROTTLE_PAUSE_S = 0.1             # 200 ms
+
+# --- single-instance lock helpers --------------------------------------------
+LOCK_DEFAULT_NAME = "rfdeploy.single.lock"
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
+
+def _lock_file(fd):
+    if os.name == "nt":
+        msvcrt.locking(fd.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+def _unlock_file(fd):
+    try:
+        if os.name == "nt":
+            fd.seek(0)
+            msvcrt.locking(fd.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            fcntl.flock(fd.fileno(), fcntl.LOCK_UN)
+    except OSError:
+        pass
+
+def _pid_is_running(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+class SingleInstance:
+    """OS-level file lock + PID metadata to ensure only one deploy.py instance."""
+    def __init__(self, name: str = LOCK_DEFAULT_NAME, force: bool = False):
+        self.lock_path = os.path.join(tempfile.gettempdir(), name)
+        self.force = force
+        self.fd = None
+        self._acquired = False
+
+    def acquire(self):
+        self.fd = open(self.lock_path, "a+")
+        self.fd.seek(0)
+        try:
+            _lock_file(self.fd)
+            self._acquired = True
+        except OSError:
+            # Check if the current holder is stale
+            self.fd.seek(0)
+            holder_pid = -1
+            try:
+                import json as _json
+                meta = (self.fd.read() or "").strip()
+                data = _json.loads(meta) if meta else {}
+                holder_pid = int(data.get("pid", -1))
+            except Exception:
+                pass
+            if holder_pid > 0 and not _pid_is_running(holder_pid):
+                if not self.force:
+                    raise RuntimeError(
+                        f"Another deploy appears to be running (stale lock from PID {holder_pid}). "
+                        f"Re-run with --force to take over. Lock: {self.lock_path}"
+                    )
+                time.sleep(0.2)
+                _lock_file(self.fd)
+                self._acquired = True
+            else:
+                raise RuntimeError(
+                    f"Another deploy is already running (PID {holder_pid if holder_pid>0 else 'unknown'})."
+                )
+        # record metadata
+        try:
+            self.fd.seek(0); self.fd.truncate(0)
+            import json as _json
+            _json.dump({"pid": os.getpid(), "time": time.time(), "host": platform.node()}, self.fd)
+            self.fd.flush(); os.fsync(self.fd.fileno())
+        except Exception:
+            pass
+        atexit.register(self.release)
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            try:
+                signal.signal(sig, self._signal_and_release)
+            except Exception:
+                pass
+
+    def _signal_and_release(self, signum, frame):
+        self.release()
+        signal.signal(signum, signal.SIG_DFL)
+        os.kill(os.getpid(), signum)
+
+    def release(self):
+        if self._acquired and self.fd:
+            try:
+                self.fd.seek(0); self.fd.truncate(0); self.fd.flush()
+                _unlock_file(self.fd)
+            finally:
+                try: self.fd.close()
+                except Exception: pass
+                try: os.remove(self.lock_path)
+                except Exception: pass
+            self._acquired = False
+
+def _lock_path_for_config(config_path: str) -> str:
+    """Compute the exact lock file path used for this project/config."""
+    proj_key = md5(os.path.abspath(config_path).encode("utf-8")).hexdigest()[:8]
+    lock_name = f"rfdeploy-{proj_key}.lock"
+    return os.path.join(tempfile.gettempdir(), lock_name)
+
+def parse_version(v: str):
+    return tuple(map(int, v.split(".")))
+
+def check_ethossuite_version(ethossuite_bin, min_version=MIN_ETHOSSUITE_VERSION):
+    try:
+        res = subprocess.run(
+            [ethossuite_bin, "--version"],
+            text=True,
+            capture_output=True,
+            timeout=10
+        )
+    except FileNotFoundError:
+        print(f"[ERROR] Ethos Suite not found at: {ethossuite_bin}")
+        return False
+    except subprocess.TimeoutExpired:
+        print("[ERROR] Ethos Suite --version timed out.")
+        return False
+
+    if res.returncode != 0:
+        print(f"[ERROR] Ethos Suite exited with code {res.returncode}")
+        return False
+
+    lines = [l.strip() for l in (res.stdout or "").splitlines() if l.strip()]
+    version = next((l for l in lines if re.match(r'^\d+\.\d+\.\d+$', l)), None)
+
+    if not version:
+        print(f"[ERROR] Could not parse Ethos Suite version from output:\n{res.stdout}")
+        return False
+
+    if parse_version(version) < parse_version(min_version):
+        print(f"[ERROR] Ethos Suite version {version} is too old (need >= {min_version})")
+        return False
+
+    print(f"[ETHOS] Detected Ethos Suite version {version} ✓")
+    return True
+
 
 def file_md5(path, chunk=1024 * 1024):
     import hashlib
@@ -780,9 +930,30 @@ def choose_target(targets):
             print("Enter a number")
     return [targets[idx]]
 
+
+def resolve_i18n_tags_in_place(out_dir, lang="en"):
+    # Path to the merged JSON created by step 1
+    json_path = os.path.join(out_dir, "i18n", f"{lang}.json")  # because scripts/neurondash/** got copied already
+    if not os.path.isfile(json_path):
+        # Fallback for local build before copy, if needed:
+        json_path = os.path.join(config['git_src'], "scripts", "neurondash", "i18n", f"{lang}.json")
+    if not os.path.isfile(json_path):
+        print(f"[I18N] Skipping: {lang}.json not found at {json_path}")
+        return
+    # Call the standalone resolver
+    import subprocess, sys
+    resolver = os.path.join(config['git_src'], ".vscode", "scripts", "resolve_i18n_tags.py")
+    if not os.path.isfile(resolver):
+        print(f"[I18N] Skipping: resolver not found at {resolver}")
+        return
+    print(f"[I18N] Resolving @i18n(...)@ tags (lang={lang})…")
+    subprocess.run([sys.executable, resolver, "--json", json_path, "--root", out_dir], check=True)
+
+
+
 # Copy logic
 
-def copy_files(src_override, fileext, targets):
+def copy_files(src_override, fileext, targets, lang="en"):
     global pbar
     git_src = src_override or config['git_src']
     tgt = config['tgt_name']
@@ -792,6 +963,7 @@ def copy_files(src_override, fileext, targets):
         dest = t['dest']; sim = t.get('simulator')
         print(f"[{i}/{len(targets)}] -> {t['name']} @ {dest}")
         out_dir = os.path.join(dest, tgt)
+
 
         # .lua only
         if fileext == '.lua':
@@ -806,6 +978,8 @@ def copy_files(src_override, fileext, targets):
                 for f in files:
                     if f.endswith('.lua'):
                         shutil.copy(os.path.join(r,f), out_dir)
+
+            resolve_i18n_tags_in_place(out_dir, lang)           
 
         # fast
         elif fileext == 'fast':
@@ -883,6 +1057,7 @@ def copy_files(src_override, fileext, targets):
                 for srcf, dstf, rel in to_copy:
                     if DEPLOY_TO_RADIO:
                         throttled_copyfile(srcf, dstf)
+                        # After copy to 'out_dir' for each target:
                         flush_fs()
                         time.sleep(0.05)
                     else:
@@ -893,6 +1068,8 @@ def copy_files(src_override, fileext, targets):
                     bar_update.update(1)
                 bar_update.close()
 
+            resolve_i18n_tags_in_place(out_dir, lang) 
+
             if not copied:
                 print("Fast deploy: nothing to update.")
     
@@ -900,6 +1077,7 @@ def copy_files(src_override, fileext, targets):
         else:
             srcall = os.path.join(git_src, 'scripts', tgt)
             safe_full_copy(srcall, out_dir)
+            resolve_i18n_tags_in_place(out_dir, lang)
             flush_fs()
             time.sleep(2)
 
@@ -983,6 +1161,18 @@ def main():
     p.add_argument('--radio-debug', action='store_true')
     p.add_argument('--minify',    action='store_true')
     p.add_argument('--connect-only', action='store_true')
+    p.add_argument('--lang', default=os.environ.get("NEURON_LANG", "en"),
+                   help='Locale to resolve (e.g. en, de, fr). Defaults to env NEURON_LANG or "en".')
+    p.add_argument('--force', action='store_true',
+                   help='Take over a stale single-instance lock if the previous run crashed.')
+    # maintenance / self-contained “menu” operations
+    p.add_argument('--clear-lock', action='store_true',
+                   help='Delete ONLY the current project lock and exit.')
+    p.add_argument('--clear-all-locks', action='store_true',
+                   help='Delete ALL rfdeploy-*.lock files in the system temp and exit.')
+    p.add_argument('--print-lock', action='store_true',
+                   help='Print the lock file path for this project and exit.')    
+
     args = p.parse_args()
 
     DEPLOY_TO_RADIO = args.radio 
@@ -1000,6 +1190,52 @@ def main():
     if args.config != CONFIG_PATH:
         with open(args.config) as f:
             config.update(json.load(f))
+
+    # --- self-contained maintenance commands (handled BEFORE acquiring lock) ---
+    if args.print_lock:
+        print(_lock_path_for_config(args.config))
+        return 0
+
+    if args.clear_all_locks:
+        tmp = tempfile.gettempdir()
+        removed = 0
+        for f in glob(os.path.join(tmp, "rfdeploy-*.lock")):
+            try:
+                os.remove(f)
+                print(f"Removed: {f}")
+                removed += 1
+            except Exception as e:
+                print(f"Could not remove: {f} — {e}", file=sys.stderr)
+        print(f"Removed {removed} lock file(s) from {tmp}")
+        return 0
+
+    if args.clear_lock:
+        path = _lock_path_for_config(args.config)
+        try:
+            os.remove(path)
+            print(f"Removed: {path}")
+            return 0
+        except FileNotFoundError:
+            print(f"No lock found: {path}")
+            return 0
+        except Exception as e:
+            print(f"Could not remove: {path} — {e}", file=sys.stderr)
+            return 1
+
+
+    # --- acquire single-instance lock (project-scoped by config path) ----------
+    proj_key = md5(os.path.abspath(args.config).encode("utf-8")).hexdigest()[:8]
+    lock_name = f"rfdeploy-{proj_key}.lock"
+    try:
+        SingleInstance(name=lock_name, force=args.force).acquire()
+    except RuntimeError as e:
+        print(str(e), file=sys.stderr)
+        return 1            
+
+    # Sanity check Ethos Suite version
+    ethos_bin = config.get('ethossuite_bin')
+    if ethos_bin and not check_ethossuite_version(ethos_bin, min_version=MIN_ETHOSSUITE_VERSION):
+        sys.exit(1)
 
     # select targets
     if args.radio and args.connect_only:
@@ -1045,7 +1281,7 @@ def main():
         print('No targets.')
         sys.exit(1)
 
-    copy_files(args.src, args.fileext, targets)
+    copy_files(args.src, args.fileext, targets, lang=args.lang)
 
     # After copying to radio, ensure logger runs on real hardware (not only simulator)
     if args.radio:

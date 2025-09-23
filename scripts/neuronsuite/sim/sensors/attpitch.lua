@@ -1,1 +1,0 @@
-return math.random(80, 120)
