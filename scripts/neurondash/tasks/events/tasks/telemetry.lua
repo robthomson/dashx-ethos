@@ -75,14 +75,6 @@ local eventTable = {
         interval = 10
     },
     {
-        sensor = "profile",
-        event = function(value)
-            neurondash.utils.playFile("events", "alerts/profile.wav")
-            system.playNumber(math.floor(value))
-        end,
-        debounce = 0.25
-    },
-    {
         sensor = "armed",
         event = function(value)
             if value == 0 then

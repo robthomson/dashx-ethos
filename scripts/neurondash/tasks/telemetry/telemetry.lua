@@ -138,7 +138,7 @@ local sensorTable = {
         name = "@i18n(telemetry.sensors.link)@",
         mandatory = true,
         stats = true,
-        switch_alerts = true,
+        switch_alerts = false,
         unit = UNIT_DB,
         unit_string = "dB",
         sensors = {
@@ -291,7 +291,26 @@ local sensorTable = {
         },
     },
 
-
+    -- Current Sensors
+    armed = {
+        name = "@i18n(telemetry.sensors.arming_flags)@",
+        mandatory = false,
+        stats = true,
+        set_telemetry_sensors = 18,
+        switch_alerts = true,
+        unit = UNIT_AMPERE,
+        unit_string = "A",
+        sensors = {
+            sim = {
+                { uid = 0x5FE0, unit = UNIT_AMPERE, dec = 0,
+                  value = function() return neurondash.utils.simSensors('armed') end,
+                  min = 0, max = 300 },
+            },
+            sport = {
+                { appId = 0x5FE0, subId = 0 },
+            },
+        },
+    },
     
 }
 
