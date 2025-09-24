@@ -85,7 +85,20 @@ local eventTable = {
             end   
         end,
         debounce = 0.25
-    },    
+    },  
+    {
+        sensor = "idleup",
+        event = function(value)
+            print("Idleup event fired: ", value)
+            if value == 0 then
+                neurondash.utils.playFile("events", "alerts/idleup.wav")
+            end    
+            if value == 1 then
+                neurondash.utils.playFile("events", "alerts/idledown.wav")
+            end   
+        end,
+        debounce = 0.25
+    },     
 }
 
 function telemetry.wakeup()

@@ -334,7 +334,7 @@ return {
         type = "text",
         subtype = "telemetry",
         nosource = "-",
-        source = "profile",
+        source = "temp_esc",
         transform = "floor",
         bgcolor = colorMode.bgcolor,
         titlecolor = colorMode.titlecolor,

@@ -34,8 +34,8 @@
 
  * Possible sensor ids we can use are.
  * 0x5FE1   - smartfuel
- * 0x5FE0
- * 0x5FDF
+ * 0x5FE0   - armed
+ * 0x5FDF   - idleup
  * 0x5FDE
  * 0x5FDD
  * 0x5FDC
@@ -69,62 +69,49 @@ local lastWake = os.clock()
 
 local firstWakeup = true
 
+
+local switchCache = {}
+
 local smart_sensors = {
     armed = {
         name = "Armed",
         appId = 0x5FE0, -- Unique sensor ID
         unit = UNIT_RAW, -- Telemetry unit
-        minimum = -2000,
-        maximum = 2000,
+        minimum = 0,
+        maximum = 1,
         value = function()
-
-            if system:getVersion().simulation then
-                local simValue = neurondash.utils.simSensors('armed')
-                if simValue == nil then
-                    return nil
-                end
-                return simValue == 0 and 1 or 0
+            local settings = neurondash.preferences.model
+            local category, member = settings.armswitch:match("([^:]+):([^:]+)")
+            
+            if not switchCache["armed"] then
+                switchCache["armed"] = system.getSource({category = category, member = member})
             end
 
-            local value = neurondash.session.rx.values['arm'] 
-            if value then
-                if value >= 500 then
-                    return 0
-                else
-                    return 1 
-                end
-            end
+            local state = switchCache["armed"]:state()
+            return(state and 0 or 1)
         end,
     },
-    profile = {
-        name = "Profile",
-        appId = 0x5FE1, -- Unique sensor ID
+    idleup = {
+        name = "Idle up",
+        appId = 0x5FDF, -- Unique sensor ID
         unit = UNIT_RAW, -- Telemetry unit
-        minimum = -2000,
-        maximum = 2000,
+        minimum = 0,
+        maximum = 1,
         value = function()
-
-            if system:getVersion().simulation then
-                local simValue = neurondash.utils.simSensors('profile')
-                return simValue or 1
+            local settings = neurondash.preferences.model
+            local category, member = settings.idleswitch:match("([^:]+):([^:]+)")
+            
+            if not switchCache["idleup"] then
+                switchCache["idleup"] = system.getSource({category = category, member = member})
             end
 
-
-            local value = neurondash.session.rx.values['headspeed']  -- seems odd but is valid
-            if value then
-                if value < -500 then
-                    return 1
-                elseif value > 500 then
-                    return 3
-                else
-                    return 2 
-                end
-            end
+            local state = switchCache["idleup"]:state()
+            return(state and 0 or 1)
         end,
-    },
+    },    
     smartfuel = {
         name = "Smart Fuel",
-        appId = 0x5FDF, -- Unique sensor ID
+        appId = 0x5FE1, -- Unique sensor ID
         unit = UNIT_PERCENT, -- Telemetry unit
         minimum = 0,
         maximum = 100,
@@ -196,6 +183,7 @@ end
 
 function smart.reset()
     sensorCache = {}
+    switchCache = {}
 end
 
 return smart

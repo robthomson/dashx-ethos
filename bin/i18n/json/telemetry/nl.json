@@ -105,6 +105,11 @@
       "translation": "Arming Flags",
       "needs_translation": "false"
     },
+    "idleup": {
+      "english": "Idle Up",
+      "translation": "Idle Up",
+      "needs_translation": true
+    },
     "current": {
       "english": "Current",
       "translation": "Stroom",

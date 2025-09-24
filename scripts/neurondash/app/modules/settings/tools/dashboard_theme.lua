@@ -48,7 +48,7 @@ local function openPage(pageIdx, title, script)
     neurondash.app.ui.fieldHeader(
         "@i18n(app.modules.settings.name)@" .. " / " .. "@i18n(app.modules.settings.dashboard)@" .. " / " .. "@i18n(app.modules.settings.dashboard_theme)@"
     )
-    neurondash.session.formLineCnt = 0
+    neurondash.app.formLineCnt = 0
 
     local formFieldCount = 0
 
@@ -63,10 +63,10 @@ local function openPage(pageIdx, title, script)
 
     -- preflight theme selection
     formFieldCount = formFieldCount + 1
-    neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-    neurondash.app.formLines[neurondash.session.formLineCnt] = global_panel:addLine("@i18n(app.modules.settings.dashboard_theme_preflight)@")
+    neurondash.app.formLineCnt = neurondash.app.formLineCnt + 1
+    neurondash.app.formLines[neurondash.app.formLineCnt] = global_panel:addLine("@i18n(app.modules.settings.dashboard_theme_preflight)@")
             
-    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.session.formLineCnt], nil, 
+    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.app.formLineCnt], nil, 
                                                         formattedThemes, 
                                                         function()
                                                             if neurondash.preferences and neurondash.preferences.dashboard then
@@ -90,10 +90,10 @@ local function openPage(pageIdx, title, script)
 
     -- inflight theme selection                                                          
     formFieldCount = formFieldCount + 1
-    neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-    neurondash.app.formLines[neurondash.session.formLineCnt] = global_panel:addLine("@i18n(app.modules.settings.dashboard_theme_inflight)@")
+    neurondash.app.formLineCnt = neurondash.app.formLineCnt + 1
+    neurondash.app.formLines[neurondash.app.formLineCnt] = global_panel:addLine("@i18n(app.modules.settings.dashboard_theme_inflight)@")
                               
-    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.session.formLineCnt], nil, 
+    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.app.formLineCnt], nil, 
                                                         formattedThemes, 
                                                         function()
                                                             if neurondash.preferences and neurondash.preferences.dashboard then
@@ -118,10 +118,10 @@ local function openPage(pageIdx, title, script)
                                                         
      -- postflight theme selection                                                            
     formFieldCount = formFieldCount + 1
-    neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-    neurondash.app.formLines[neurondash.session.formLineCnt] = global_panel:addLine("@i18n(app.modules.settings.dashboard_theme_postflight)@")
+    neurondash.app.formLineCnt = neurondash.app.formLineCnt + 1
+    neurondash.app.formLines[neurondash.app.formLineCnt] = global_panel:addLine("@i18n(app.modules.settings.dashboard_theme_postflight)@")
                                     
-    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.session.formLineCnt], nil, 
+    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.app.formLineCnt], nil, 
                                                         formattedThemes, 
                                                         function()
                                                             if neurondash.preferences and neurondash.preferences.dashboard then
@@ -143,11 +143,107 @@ local function openPage(pageIdx, title, script)
                                                             end
                                                         end)      
 
+   -- ===========================================================================
+    -- create model theme selection panel
+    -- ===========================================================================
+    local model_panel = form.addExpansionPanel("@i18n(app.modules.settings.dashboard_theme_panel_model)@")
+    model_panel:open(false) 
+
+
+    -- preflight theme selection
+    formFieldCount = formFieldCount + 1
+    neurondash.app.formLineCnt = neurondash.app.formLineCnt + 1
+    neurondash.app.formLines[neurondash.app.formLineCnt] = model_panel:addLine("@i18n(app.modules.settings.dashboard_theme_preflight)@")
+            
+    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.app.formLineCnt], nil, 
+                                                        formattedThemesModel, 
+                                                        function()
+                                                            if neurondash.session.modelPreferences and neurondash.session.modelPreferences then
+                                                                local folderName = settings_model.theme_preflight
+                                                                for _, theme in ipairs(themeList) do
+                                                                    if (theme.source .. "/" .. theme.folder) == folderName then
+                                                                        return theme.idx
+                                                                    end
+                                                                end
+                                                            end
+                                                            return nil
+                                                        end, 
+                                                        function(newValue) 
+                                                            if neurondash.session.modelPreferences and neurondash.session.modelPreferences then
+                                                                local theme = themeList[newValue]
+                                                                if theme then
+                                                                    settings_model.theme_preflight = theme.source .. "/" .. theme.folder
+                                                                else
+                                                                    settings_model.theme_preflight = "nil"    
+                                                                end
+                                                            end
+                                                        end) 
+    neurondash.app.formFields[formFieldCount]:enable(false)                                                        
+
+    -- inflight theme selection                                                          
+    formFieldCount = formFieldCount + 1
+    neurondash.app.formLineCnt = neurondash.app.formLineCnt + 1
+    neurondash.app.formLines[neurondash.app.formLineCnt] = model_panel:addLine("@i18n(app.modules.settings.dashboard_theme_inflight)@")
+                              
+    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.app.formLineCnt], nil, 
+                                                        formattedThemesModel, 
+                                                        function()
+                                                            if neurondash.session.modelPreferences and neurondash.session.modelPreferences then
+                                                                local folderName = settings_model.theme_inflight
+                                                                for _, theme in ipairs(themeList) do
+                                                                    if (theme.source .. "/" .. theme.folder) == folderName then
+                                                                        return theme.idx
+                                                                    end
+                                                                end
+                                                            end
+                                                            return nil
+                                                        end, 
+                                                        function(newValue) 
+                                                            if neurondash.session.modelPreferences and neurondash.session.modelPreferences then
+                                                                local theme = themeList[newValue]
+                                                                if theme then
+                                                                    settings_model.theme_inflight = theme.source .. "/" .. theme.folder
+                                                                else
+                                                                    settings_model.theme_inflight = "nil"    
+                                                                end
+                                                            end
+                                                        end)                                                             
+    neurondash.app.formFields[formFieldCount]:enable(false)  
+                                                        
+     -- postflight theme selection                                                            
+    formFieldCount = formFieldCount + 1
+    neurondash.app.formLineCnt = neurondash.app.formLineCnt + 1
+    neurondash.app.formLines[neurondash.app.formLineCnt] = model_panel:addLine("@i18n(app.modules.settings.dashboard_theme_postflight)@")
+                                    
+    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.app.formLineCnt], nil, 
+                                                        formattedThemesModel, 
+                                                        function()
+                                                            if neurondash.session.modelPreferences and neurondash.session.modelPreferences then
+                                                                local folderName = settings_model.theme_postflight
+                                                                for _, theme in ipairs(themeList) do
+                                                                    if (theme.source .. "/" .. theme.folder) == folderName then
+                                                                        return theme.idx
+                                                                    end
+                                                                end
+                                                            end
+                                                            return nil
+                                                        end, 
+                                                        function(newValue) 
+                                                            if neurondash.preferences and neurondash.preferences.dashboard then
+                                                                local theme = themeList[newValue]
+                                                                if theme then
+                                                                    settings_model.theme_postflight = theme.source .. "/" .. theme.folder
+                                                                else
+                                                                    settings_model.theme_postflight = "nil"    
+                                                                end
+                                                            end
+                                                        end)      
+    neurondash.app.formFields[formFieldCount]:enable(false)  
                                                   
 end
 
 local function onNavMenu()
-    neurondash.app.ui.progressDisplay()
+    neurondash.app.ui.progressDisplay(nil,nil,true)
         neurondash.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.settings.dashboard)@",
@@ -172,6 +268,18 @@ local function onSaveMenu()
                     "SCRIPTS:/" .. neurondash.config.preferences .. "/preferences.ini",
                     neurondash.preferences
                 )
+
+                -- save model dashboard settings
+                if neurondash.session.isConnected and neurondash.session.mcu_id and neurondash.session.modelPreferencesFile then
+                    for key, value in pairs(settings_model) do
+                        neurondash.session.modelPreferences.dashboard[key] = value
+                    end
+                    neurondash.ini.save_ini_file(
+                        neurondash.session.modelPreferencesFile,
+                        neurondash.session.modelPreferences
+                    )
+                end    
+               
 
                 -- update dashboard theme
                 neurondash.widgets.dashboard.reload_themes(true) -- send true to force full reload
@@ -216,6 +324,28 @@ local function wakeup()
         return
     end
 
+    -- current combined state: true only if both are truthy
+    local currState = (neurondash.session.isConnected and neurondash.session.mcu_id) and true or false
+
+    -- only update if state has changed
+    if currState ~= prevConnectedState then
+
+        -- if we're now connected, you can do any repopulation here
+        if currState then
+                generateThemeList()
+                for i = 4, 6 do
+                    neurondash.app.formFields[i]:values(formattedThemesModel)
+                end               
+        end
+
+        -- toggle all three fields together
+        for i = 4, 6 do
+            neurondash.app.formFields[i]:enable(currState)
+        end
+
+        -- remember for next time
+        prevConnectedState = currState
+    end
 end
 
 return {

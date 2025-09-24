@@ -102,6 +102,8 @@ function sensors.reset()
         loadedSensorModule.module.reset()
     end
 
+    smart.reset()
+
     loadedSensorModule = nil  -- Clear loaded sensor module
 
 end

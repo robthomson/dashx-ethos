@@ -105,6 +105,11 @@
       "translation": "Banderas Armado",
       "needs_translation": "false"
     },
+    "idleup": {
+      "english": "Idle Up",
+      "translation": "Idle Up",
+      "needs_translation": true
+    },
     "current": {
       "english": "Current",
       "translation": "Corriente",

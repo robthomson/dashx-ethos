@@ -205,10 +205,10 @@ local sensorTable = {
         unit_string = "%",
         sensors = {
             sim = {
-                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF },
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1 },
             },
             sport = {
-                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF },
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1 },
             },
         },
     },
@@ -229,7 +229,7 @@ local sensorTable = {
                   min = 0, max = 300 },
             },
             sport = {
-                { appId = 0x0B50, subId = 0 },
+                { appId = 0x0B50, subId = 0 },              
             },
         },
     },
@@ -291,26 +291,44 @@ local sensorTable = {
         },
     },
 
-    -- Current Sensors
+    -- Arrmed Sensors
     armed = {
         name = "@i18n(telemetry.sensors.arming_flags)@",
         mandatory = false,
-        stats = true,
-        set_telemetry_sensors = 18,
-        switch_alerts = true,
-        unit = UNIT_AMPERE,
-        unit_string = "A",
+        stats = false,
+        set_telemetry_sensors = nil,
+        switch_alerts = false,
+        unit = UNIT_RAW,
+        unit_string = nil,
         sensors = {
             sim = {
-                { uid = 0x5FE0, unit = UNIT_AMPERE, dec = 0,
-                  value = function() return neurondash.utils.simSensors('armed') end,
-                  min = 0, max = 300 },
+                { appId = 0x5FE0, subId = 0 },
             },
             sport = {
                 { appId = 0x5FE0, subId = 0 },
             },
         },
     },
+
+    -- Idleup Sensors
+    idleup = {
+        name = "@i18n(telemetry.sensors.idleup)@",
+        mandatory = false,
+        stats = false,
+        set_telemetry_sensors = nil,
+        switch_alerts = false,
+        unit = UNIT_RAW,
+        unit_string = nil,
+        sensors = {
+            sim = {
+                { appId = 0x5FDF, subId = 0 },
+            },
+            sport = {
+                { appId = 0x5FDF, subId = 0 },
+            },
+        },
+    },    
+    
     
 }
 

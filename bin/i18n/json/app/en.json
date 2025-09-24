@@ -90,6 +90,33 @@
     "needs_translation": "false"
   },
   "modules": {
+    "model": {
+      "name": {
+        "english": "Model",
+        "translation": "Model",
+        "needs_translation": "false"
+      },
+      "model_armswitch": {
+        "english": "Arm Switch",
+        "translation": "Arm Switch",
+        "needs_translation": "false"
+      },
+      "model_idleswitch": {
+        "english": "Idle Up Switch",
+        "translation": "Idle Up Switch",
+        "needs_translation": "false"
+      },
+      "model_rateswitch": {
+        "english": "Rate Switch",
+        "translation": "Rate Switch",
+        "needs_translation": "false"
+      },
+      "triggers": {
+        "english": "Triggers",
+        "translation": "Triggers",
+        "needs_translation": "false"
+      }
+    },
     "settings": {
       "name": {
         "english": "Settings",
@@ -114,6 +141,11 @@
       "txt_iconsize": {
         "english": "Icon Size",
         "translation": "Icon Size",
+        "needs_translation": "false"
+      },
+      "model": {
+        "english": "Model",
+        "translation": "Model",
         "needs_translation": "false"
       },
       "txt_general": {

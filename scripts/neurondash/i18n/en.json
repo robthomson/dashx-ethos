@@ -2783,6 +2783,33 @@
           "translation": "Tail Idle Thr%"
         }
       },
+      "model": {
+        "model_armswitch": {
+          "english": "Arm Switch",
+          "needs_translation": "false",
+          "translation": "Arm Switch"
+        },
+        "model_idleswitch": {
+          "english": "Idle Up Switch",
+          "needs_translation": "false",
+          "translation": "Idle Up Switch"
+        },
+        "model_rateswitch": {
+          "english": "Rate Switch",
+          "needs_translation": "false",
+          "translation": "Rate Switch"
+        },
+        "name": {
+          "english": "Model",
+          "needs_translation": "false",
+          "translation": "Model"
+        },
+        "triggers": {
+          "english": "Triggers",
+          "needs_translation": "false",
+          "translation": "Triggers"
+        }
+      },
       "msp_exp": {
         "help_p1": {
           "english": "This tool provides the ability to send a custom byte string to the flight controller. It is useful for developers when debugging values.",
@@ -4451,6 +4478,11 @@
           "needs_translation": "false",
           "translation": "Meters"
         },
+        "model": {
+          "english": "Model",
+          "needs_translation": "false",
+          "translation": "Model"
+        },
         "name": {
           "english": "Settings",
           "needs_translation": "false",
@@ -5146,6 +5178,11 @@
         "english": "Headspeed",
         "needs_translation": "false",
         "translation": "Headspeed"
+      },
+      "idleup": {
+        "english": "Idle Up",
+        "needs_translation": "false",
+        "translation": "Idle Up"
       },
       "mcu_temp": {
         "english": "MCU Temperature",
