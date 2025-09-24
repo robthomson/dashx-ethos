@@ -2784,6 +2784,61 @@
         }
       },
       "model": {
+        "battery": {
+          "english": "Battery",
+          "needs_translation": "false",
+          "translation": "Battery"
+        },
+        "battery_capacity": {
+          "english": "Battery Capacity",
+          "needs_translation": "false",
+          "translation": "Battery Capacity"
+        },
+        "battery_cells": {
+          "english": "Battery Cells",
+          "needs_translation": "false",
+          "translation": "Battery Cells"
+        },
+        "battery_consumption_warning_percentage": {
+          "english": "Consumption Warning %",
+          "needs_translation": "false",
+          "translation": "Consumption Warning %"
+        },
+        "battery_full_voltage": {
+          "english": "Cell Full Voltage",
+          "needs_translation": "false",
+          "translation": "Cell Full Voltage"
+        },
+        "battery_max_voltage": {
+          "english": "Cell Maximum Voltage",
+          "needs_translation": "false",
+          "translation": "Cell Maximum Voltage"
+        },
+        "battery_min_voltage": {
+          "english": "Cell Minimum Voltage",
+          "needs_translation": "false",
+          "translation": "Cell Minimum Voltage"
+        },
+        "battery_warning_voltage": {
+          "english": "Cell Warning Voltage",
+          "needs_translation": "false",
+          "translation": "Cell Warning Voltage"
+        },
+        "calcfuel_current": {
+          "english": "Current Sensor",
+          "needs_translation": "false",
+          "translation": "Current Sensor"
+        },
+        "calcfuel_using": {
+          "english": "Calculate Fuel Using",
+          "needs_translation": "false",
+          "translation": "Calculate Fuel Using"
+        },
+        "calcfuel_voltage": {
+          "english": "Voltage Sensor",
+          "needs_translation": "false",
+          "translation": "Voltage Sensor"
+        },
         "model_armswitch": {
           "english": "Arm Switch",
           "needs_translation": "false",

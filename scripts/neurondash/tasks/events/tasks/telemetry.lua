@@ -89,7 +89,6 @@ local eventTable = {
     {
         sensor = "idleup",
         event = function(value)
-            print("Idleup event fired: ", value)
             if value == 0 then
                 neurondash.utils.playFile("events", "alerts/idleup.wav")
             end    

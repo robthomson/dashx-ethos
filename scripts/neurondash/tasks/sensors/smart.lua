@@ -80,15 +80,18 @@ local smart_sensors = {
         minimum = 0,
         maximum = 1,
         value = function()
-            local settings = neurondash.preferences.model
-            local category, member = settings.armswitch:match("([^:]+):([^:]+)")
-            
-            if not switchCache["armed"] then
-                switchCache["armed"] = system.getSource({category = category, member = member})
-            end
+            if neurondash.preferences.model then
+                local settings = neurondash.preferences.model
+                local category, member, options = settings.armswitch:match("([^:]+):([^:]+):([^:]+)")
+                
+                if not switchCache["armed"] then
+                    switchCache["armed"] = system.getSource({category = category, member = member, options = options})
+                end
 
-            local state = switchCache["armed"]:state()
-            return(state and 0 or 1)
+                local state = switchCache["armed"]:state()
+                return(state and 0 or 1)
+            end
+            return false     
         end,
     },
     idleup = {
@@ -98,15 +101,18 @@ local smart_sensors = {
         minimum = 0,
         maximum = 1,
         value = function()
-            local settings = neurondash.preferences.model
-            local category, member = settings.idleswitch:match("([^:]+):([^:]+)")
-            
-            if not switchCache["idleup"] then
-                switchCache["idleup"] = system.getSource({category = category, member = member})
-            end
+            if neurondash.preferences.model then
+                local settings = neurondash.preferences.model
+                local category, member, options = settings.idleswitch:match("([^:]+):([^:]+):([^:]+)")
+                
+                if not switchCache["idleup"] then
+                    switchCache["idleup"] = system.getSource({category = category, member = member, options = options})
+                end
 
-            local state = switchCache["idleup"]:state()
-            return(state and 0 or 1)
+                local state = switchCache["idleup"]:state()
+                return(state and 0 or 1)
+            end    
+            return false
         end,
     },    
     smartfuel = {

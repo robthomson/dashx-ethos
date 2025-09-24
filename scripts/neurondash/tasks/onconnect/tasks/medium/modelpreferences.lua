@@ -35,6 +35,17 @@ local modelpref_defaults ={
         idleswitch = false,
         rateswitch = false,
     },
+    battery = {
+            fuelSensor = 0,
+            batteryCapacity = 2200,
+            batteryCellCount = 3,
+            vbatwarningcellvoltage = 35,
+            vbatmincellvoltage = 33,
+            vbatmaxcellvoltage = 43,
+            vbatfullcellvoltage = 41,
+            lvcPercentage = 30,
+            consumptionWarningPercentage = 30   
+    }
 }
 
 function modelpreferences.wakeup()

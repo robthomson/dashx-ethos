@@ -96,6 +96,61 @@
         "translation": "Model",
         "needs_translation": true
       },
+      "calcfuel_using": {
+        "english": "Calculate Fuel Using",
+        "translation": "Calculate Fuel Using",
+        "needs_translation": true
+      },
+      "calcfuel_current": {
+        "english": "Current Sensor",
+        "translation": "Current Sensor",
+        "needs_translation": true
+      },
+      "battery_capacity": {
+        "english": "Battery Capacity",
+        "translation": "Battery Capacity",
+        "needs_translation": true
+      },
+      "battery_cells": {
+        "english": "Battery Cells",
+        "translation": "Battery Cells",
+        "needs_translation": true
+      },
+      "battery_warning_voltage": {
+        "english": "Cell Warning Voltage",
+        "translation": "Cell Warning Voltage",
+        "needs_translation": true
+      },
+      "battery_min_voltage": {
+        "english": "Cell Minimum Voltage",
+        "translation": "Cell Minimum Voltage",
+        "needs_translation": true
+      },
+      "battery_consumption_warning_percentage": {
+        "english": "Consumption Warning %",
+        "translation": "Consumption Warning %",
+        "needs_translation": true
+      },
+      "battery_full_voltage": {
+        "english": "Cell Full Voltage",
+        "translation": "Cell Full Voltage",
+        "needs_translation": true
+      },
+      "battery_max_voltage": {
+        "english": "Cell Maximum Voltage",
+        "translation": "Cell Maximum Voltage",
+        "needs_translation": true
+      },
+      "calcfuel_voltage": {
+        "english": "Voltage Sensor",
+        "translation": "Voltage Sensor",
+        "needs_translation": true
+      },
+      "battery": {
+        "english": "Battery",
+        "translation": "Battery",
+        "needs_translation": true
+      },
       "model_armswitch": {
         "english": "Arm Switch",
         "translation": "Arm Switch",

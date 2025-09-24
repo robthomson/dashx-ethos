@@ -2,6 +2,7 @@
 
 local S_PAGES = {
     {name = "@i18n(app.modules.model.triggers)@", script = "triggers.lua", image = "triggers.png"},
+    {name = "@i18n(app.modules.model.battery)@", script = "battery.lua", image = "battery.png"},
 }
 
 local function openPage(pidx, title, script)

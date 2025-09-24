@@ -1,4 +1,5 @@
-local settings = {}
+
+local enableWakeup = false
 
 local function openPage(pageIdx, title, script)
     enableWakeup = true
@@ -18,7 +19,7 @@ local function openPage(pageIdx, title, script)
     neurondash.app.formLines = {}
     neurondash.app.formFields = {}
 
-    settings = neurondash.preferences.model
+
 
     -- Arm Switch
     formFieldCount = formFieldCount + 1
@@ -29,10 +30,12 @@ local function openPage(pageIdx, title, script)
         nil,
         function()
             if neurondash.session.modelPreferences then
-                local category, member = settings.armswitch:match("([^:]+):([^:]+)")
-                if category and member then
-                    return system.getSource({category = category, member = member})
-                end
+                if neurondash.preferences.model.armswitch  then
+                    local category, member, options = neurondash.preferences.model.armswitch:match("([^:]+):([^:]+):([^:]+)")
+                    if category and member then
+                        return system.getSource({category = category, member = member, options = options})
+                    end
+                end    
             end
             return nil
         end,
@@ -40,10 +43,12 @@ local function openPage(pageIdx, title, script)
             if neurondash.session.modelPreferences then
                 local member = newValue:member()
                 local category = newValue:category()
-                settings.armswitch = category .. ":" .. member
+                local options = newValue:options()
+                neurondash.preferences.model.armswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
+    neurondash.app.formFields[formFieldCount]:enable(false)
 
     -- Idle Switch
     formFieldCount = formFieldCount + 1
@@ -54,10 +59,12 @@ local function openPage(pageIdx, title, script)
         nil,
         function()
             if neurondash.session.modelPreferences then
-                local category, member = settings.idleswitch:match("([^:]+):([^:]+)")
-                if category and member then
-                    return system.getSource({category = category, member = member})
-                end
+                if neurondash.preferences.model.idleswitch  then
+                    local category, member, options = neurondash.preferences.model.idleswitch:match("([^:]+):([^:]+):([^:]+)")
+                    if category and member then
+                        return system.getSource({category = category, member = member, options = options})
+                    end
+                end    
             end
             return nil
         end,
@@ -65,10 +72,12 @@ local function openPage(pageIdx, title, script)
             if neurondash.session.modelPreferences then
                 local member = newValue:member()
                 local category = newValue:category()
-                settings.idleswitch = category .. ":" .. member
+                local options = newValue:options()
+                neurondash.preferences.model.idleswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
+    neurondash.app.formFields[formFieldCount]:enable(false)
 
     --[[
     -- Rate Switch
@@ -80,7 +89,7 @@ local function openPage(pageIdx, title, script)
         nil,
         function()
             if neurondash.session.modelPreferences then
-                local category, member = settings.rateswitch:match("([^:]+):([^:]+)")
+                local category, member = neurondash.preferences.model.rateswitch:match("([^:]+):([^:]+)")
                 if category and member then
                     return system.getSource({category = category, member = member})
                 end
@@ -91,7 +100,7 @@ local function openPage(pageIdx, title, script)
             if neurondash.session.modelPreferences then
                 local member = newValue:member()
                 local category = newValue:category()
-                settings.rateswitch = category .. ":" .. member
+                neurondash.preferences.model.rateswitch = category .. ":" .. member
             end
         end
     )
@@ -115,9 +124,9 @@ local function onSaveMenu()
                 local msg = "@i18n(app.modules.profile_select.save_prompt_local)@"
                 neurondash.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
 
-                -- save model dashboard settings
-                if neurondash.session.isConnected and neurondash.session.mcu_id and neurondash.session.modelPreferencesFile then
-                    for key, value in pairs(settings) do
+                -- save model dashboard neurondash.preferences.model
+                if neurondash.session.mcu_id and neurondash.session.modelPreferencesFile then
+                    for key, value in pairs(neurondash.preferences.model) do
                         neurondash.session.modelPreferences.model[key] = value
                     end
 
@@ -147,7 +156,7 @@ local function onSaveMenu()
 
     form.openDialog({
         width   = nil,
-        title   = "@i18n(app.modules.profile_select.save_settings)@",
+        title   = "@i18n(app.modules.profile_select.save_neurondash.preferences.model)@",
         message = "@i18n(app.modules.profile_select.save_prompt_local)@",
         buttons = buttons,
         wakeup  = function() end,
@@ -168,6 +177,30 @@ local function event(widget, category, value, x, y)
     end
 end
 
+local runOnce = false
+local function wakeup()
+    if enableWakeup then
+
+
+
+            if neurondash.session.isConnected then
+                  if runOnce == false then
+                    for i,v in ipairs(neurondash.app.formFields) do
+                        neurondash.app.formFields[i]:enable(true)
+                    end
+                    neurondash.preferences.model = neurondash.session and neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery
+                    runOnce = true
+                else
+                    runOnce = false        
+            end
+
+
+
+        end   
+
+
+    end
+end
 return {
     event      = event,
     openPage   = openPage,
