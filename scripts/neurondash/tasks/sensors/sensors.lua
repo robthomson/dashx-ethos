@@ -93,7 +93,6 @@ function sensors.wakeup()
         smart.wakeup()
     end   
 
-
 end
 
 function sensors.reset()

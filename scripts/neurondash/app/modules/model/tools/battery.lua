@@ -290,7 +290,7 @@ local function event(widget, category, value, x, y)
         neurondash.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.model.name)@",
-            "models/models.lua"
+            "model/model.lua"
         )
         return true
     end

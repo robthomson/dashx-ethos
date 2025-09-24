@@ -59,6 +59,7 @@
 local smart = {}
 
 local smartfuel = assert(neurondash.compiler.loadfile("tasks/sensors/lib/smartfuel.lua"))()
+local smartfuelvoltage = assert(neurondash.compiler.loadfile("tasks/sensors/lib/smartfuelvoltage.lua"))()
 
 -- container vars
 local log
@@ -69,6 +70,21 @@ local lastWake = os.clock()
 
 local firstWakeup = true
 
+
+local function calculateFuel()
+    -- work out what type of sensor we are running and use 
+    -- the appropriate calculation method
+    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.fuelSensor then
+         if neurondash.session.modelPreferences.battery.fuelSensor == 1 then
+            return smartfuelvoltage.calculate()
+         else
+            return smartfuel.calculate()
+         end
+    else
+            return smartfuel.calculate()
+    end
+
+end
 
 local switchCache = {}
 
@@ -82,14 +98,16 @@ local smart_sensors = {
         value = function()
             if neurondash.preferences.model then
                 local settings = neurondash.preferences.model
-                local category, member, options = settings.armswitch:match("([^:]+):([^:]+):([^:]+)")
-                
-                if not switchCache["armed"] then
-                    switchCache["armed"] = system.getSource({category = category, member = member, options = options})
-                end
-                local state = switchCache["armed"]:state()
+                if settings.armswitch then
+                    local category, member, options = settings.armswitch:match("([^:]+):([^:]+):([^:]+)")
+                    
+                    if not switchCache["armed"] then
+                        switchCache["armed"] = system.getSource({category = category, member = member, options = options})
+                    end
+                    local state = switchCache["armed"]:state()
 
-                return(state and 0 or 1)
+                    return(state and 0 or 1)
+                end    
             end
             return false     
         end,
@@ -103,14 +121,15 @@ local smart_sensors = {
         value = function()
             if neurondash.preferences.model then
                 local settings = neurondash.preferences.model
-                local category, member, options = settings.idleswitch:match("([^:]+):([^:]+):([^:]+)")
-                
-                if not switchCache["idleup"] then
-                    switchCache["idleup"] = system.getSource({category = category, member = member, options = options})
+                if settings.idleswitch then
+                    local category, member, options = settings.idleswitch:match("([^:]+):([^:]+):([^:]+)")
+                    
+                    if not switchCache["idleup"] then
+                        switchCache["idleup"] = system.getSource({category = category, member = member, options = options})
+                    end
+                    local state = switchCache["idleup"]:state()
+                    return(state and 0 or 1)
                 end
-                local state = switchCache["idleup"]:state()
-
-                return(state and 0 or 1)
             end    
             return false
         end,
@@ -121,7 +140,7 @@ local smart_sensors = {
         unit = UNIT_PERCENT, -- Telemetry unit
         minimum = 0,
         maximum = 100,
-        value = smartfuel.calculate,
+        value = calculateFuel,
     },    
 }
 
@@ -183,7 +202,6 @@ function smart.wakeup()
             value = meta.value  -- Assume value is already calculated
         end    
         createOrUpdateSensor(meta.appId, meta, value)
-
     end
 end
 
