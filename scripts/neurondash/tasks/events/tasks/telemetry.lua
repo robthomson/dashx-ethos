@@ -77,24 +77,26 @@ local eventTable = {
     {
         sensor = "armed",
         event = function(value)
-            if value == 0 then
-                neurondash.utils.playFile("events", "alerts/armed.wav")
-            end    
-            if value == 1 then
-                neurondash.utils.playFile("events", "alerts/disarmed.wav")
-            end   
+                if value == 0 then
+                    neurondash.utils.playFile("events", "alerts/armed.wav")
+                end    
+                if value == 1 then
+                    neurondash.utils.playFile("events", "alerts/disarmed.wav")
+                end    
         end,
         debounce = 0.25
     },  
     {
         sensor = "idleup",
         event = function(value)
-            if value == 0 then
-                neurondash.utils.playFile("events", "alerts/idleup.wav")
-            end    
-            if value == 1 then
-                neurondash.utils.playFile("events", "alerts/idledown.wav")
-            end   
+            if neurondash.tasks.telemetry.getSensorSource("armed"):value() == 0 then
+                if value == 0 then
+                    neurondash.utils.playFile("events", "alerts/idleup.wav")
+                end    
+                if value == 1 then
+                    neurondash.utils.playFile("events", "alerts/idledown.wav")
+                end   
+            end
         end,
         debounce = 0.25
     },     

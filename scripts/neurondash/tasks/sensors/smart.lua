@@ -87,8 +87,8 @@ local smart_sensors = {
                 if not switchCache["armed"] then
                     switchCache["armed"] = system.getSource({category = category, member = member, options = options})
                 end
-
                 local state = switchCache["armed"]:state()
+
                 return(state and 0 or 1)
             end
             return false     
@@ -108,8 +108,8 @@ local smart_sensors = {
                 if not switchCache["idleup"] then
                     switchCache["idleup"] = system.getSource({category = category, member = member, options = options})
                 end
-
                 local state = switchCache["idleup"]:state()
+
                 return(state and 0 or 1)
             end    
             return false
