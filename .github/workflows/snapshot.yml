@@ -52,7 +52,7 @@ jobs:
       - name: Resolve i18n tags (locale=${{ matrix.lang }})
         run: |
           python .vscode/scripts/resolve_i18n_tags.py \
-            --json "${{ env.STAGE }}/neurondash/i18n/${{ matrix.lang }}.json" \
+            --json "${{ env.STAGE }}/dashx/i18n/${{ matrix.lang }}.json" \
             --root "${{ env.STAGE }}"
 
       - name: Copy sound pack (locale=${{ matrix.lang }})
@@ -63,7 +63,7 @@ jobs:
             echo "[AUDIO] $SRC not found; falling back to bin/sound-generator/soundpack/en"
             SRC="bin/sound-generator/soundpack/en"
           fi
-          DEST="${{ env.STAGE }}/neurondash/audio/${{ matrix.lang }}"
+          DEST="${{ env.STAGE }}/dashx/audio/${{ matrix.lang }}"
           rm -rf "$DEST"
           mkdir -p "$DEST"
           cp -a "$SRC/." "$DEST/"
@@ -72,13 +72,13 @@ jobs:
       - name: Update version and config in staged main.lua
         shell: bash
         run: |
-          sed -E -i 's/(version[[:space:]]*=[[:space:]]*\{[^}]*suffix[[:space:]]*=[[:space:]]*")[^"]*(")/\1'${{ env.GIT_VER }}'\2/' "${{ env.STAGE }}/neurondash/main.lua"
-          grep 'config\.' "${{ env.STAGE }}/neurondash/main.lua" || true
+          sed -E -i 's/(version[[:space:]]*=[[:space:]]*\{[^}]*suffix[[:space:]]*=[[:space:]]*")[^"]*(")/\1'${{ env.GIT_VER }}'\2/' "${{ env.STAGE }}/dashx/main.lua"
+          grep 'config\.' "${{ env.STAGE }}/dashx/main.lua" || true
 
       - name: Create snapshot ZIP (locale=${{ matrix.lang }})
         shell: bash
         run: |
-          ART="neurondash-${{ env.GIT_VER }}-${{ matrix.lang }}.zip"
+          ART="dashx-${{ env.GIT_VER }}-${{ matrix.lang }}.zip"
           (cd "build/${{ matrix.lang }}" && zip -q -r -9 "../$ART" scripts)
           mv "build/${{ matrix.lang }}/../$ART" .
           echo "ARTIFACT=$ART" >> $GITHUB_ENV
@@ -86,7 +86,7 @@ jobs:
       - name: Upload per-locale artifact
         uses: actions/upload-artifact@v4
         with:
-          name: neurondash-${{ env.GIT_VER }}-${{ matrix.lang }}
+          name: dashx-${{ env.GIT_VER }}-${{ matrix.lang }}
           path: ${{ env.ARTIFACT }}
           if-no-files-found: error
 
@@ -127,4 +127,4 @@ jobs:
         shell: bash
         run: |
           cd dist
-          gh release create "${{ env.GIT_TAG }}" --prerelease --notes-file ../Notes.md --title "NEURON Dashboard - Snapshot ${{ env.GIT_VER }}" *.zip
+          gh release create "${{ env.GIT_TAG }}" --prerelease --notes-file ../Notes.md --title "DASHX Dashboard - Snapshot ${{ env.GIT_VER }}" *.zip

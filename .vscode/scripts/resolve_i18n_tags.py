@@ -69,10 +69,10 @@ Notes:
 CLI examples
 ------------
   # Preview changes without writing:
-  python resolve_i18n_tags.py --json scripts/neurondash/i18n/en.json --root src --dry-run
+  python resolve_i18n_tags.py --json scripts/dashx/i18n/en.json --root src --dry-run
 
   # Apply replacements in-place:
-  python resolve_i18n_tags.py --json scripts/neurondash/i18n/en.json --root src
+  python resolve_i18n_tags.py --json scripts/dashx/i18n/en.json --root src
 """
 #!/usr/bin/env python3
 import argparse, json, re, sys, os

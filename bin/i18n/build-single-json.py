@@ -7,8 +7,8 @@ from collections import defaultdict
 # Source root: i18n/json/**/<locale>.json
 JSON_ROOT = Path(__file__).parent / "json"
 
-# Output root: scripts/neurondash/i18n/<locale>.json
-OUT_DIR = (Path(__file__).parent / ".." / ".." / "scripts" / "neurondash" / "i18n").resolve()
+# Output root: scripts/dashx/i18n/<locale>.json
+OUT_DIR = (Path(__file__).parent / ".." / ".." / "scripts" / "dashx" / "i18n").resolve()
 
 def insert_nested(root: dict, rel_dir: str, leaf: dict) -> None:
     """Place the leaf dict under nested keys derived from rel_dir (e.g. 'widgets/dashboard')."""
