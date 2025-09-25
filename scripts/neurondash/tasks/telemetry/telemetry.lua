@@ -215,6 +215,17 @@ local sensorTable = {
         },
     },
 
+    smartconsumption = {
+        name = "@i18n(sensors.smartconsumption)@",
+        mandatory = false,
+        stats = true,
+        switch_alerts = true,
+        unit = UNIT_MILLIAMPERE_HOUR, unit_string = "mAh",
+        sensors = { sim = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDE }, },
+                    sport= { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDE }, },
+                     },
+    },
+
     -- Current Sensors
     current = {
         name = "@i18n(telemetry.sensors.current)@",

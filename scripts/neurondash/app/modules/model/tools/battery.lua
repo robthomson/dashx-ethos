@@ -30,13 +30,13 @@ local function openPage(pageIdx, title, script)
         {{"@i18n(app.modules.model.calcfuel_current)@", 0}, {"@i18n(app.modules.model.calcfuel_voltage)@", 1}},
         function()
             if neurondash.session.modelPreferences then
-                return neurondash.session.modelPreferences.battery.fuelSensor
+                return neurondash.session.modelPreferences.battery.calc_local
             end
             return nil
         end,
         function(newValue)
             if neurondash.session.modelPreferences then
-                neurondash.session.modelPreferences.battery.fuelSensor = newValue
+                neurondash.session.modelPreferences.battery.calc_local = newValue
             end
         end
     )
@@ -310,7 +310,7 @@ local function wakeup()
                     end
 
                     if not neurondash.tasks.telemetry.getSensorSource("consumption")  then
-                        neurondash.session.modelPreferences.battery.fuelSensor = 1
+                        neurondash.session.modelPreferences.battery.calc_local = 1
                         neurondash.app.formFields[1]:enable(false)
                     end
 

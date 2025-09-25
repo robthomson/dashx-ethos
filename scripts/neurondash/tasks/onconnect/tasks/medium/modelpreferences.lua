@@ -36,7 +36,7 @@ local modelpref_defaults ={
         rateswitch = false,
     },
     battery = {
-            fuelSensor = 0,
+            calc_local = 0,
             batteryCapacity = 2200,
             batteryCellCount = 3,
             vbatwarningcellvoltage = 35,
