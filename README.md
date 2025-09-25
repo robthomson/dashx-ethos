@@ -1,6 +1,8 @@
 **DASHX FOR ETHOS**
 
-DASHX for ethos is a port of the core parts of rotorflight dashboard to support DASHX on ethos - running ELRS mode.
+DASHX for ethos is a port of the dashboard code from Rotorflight to work for stand-alone models aircraft.
+
+Its particually suited to people with neuron esc; however should work with any esc that provides the necessary telemetry.
 
 <img src="https://github.com/robthomson/dashx-ethos/blob/main/.github/gfx/dash.png?raw=true" width="800" alt="MAIN PAGE">
 
