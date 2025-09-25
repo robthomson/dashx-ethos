@@ -759,9 +759,11 @@ function app.close()
         app.Page.close()
     end
 
+    if app.ui then
     if app.dialogs.progress then app.ui.progressDisplayClose() end
     if app.dialogs.save then app.ui.progressDisplaySaveClose() end
     if app.dialogs.noLink then app.ui.progressNolinkDisplayClose() end
+    end
 
 
     -- Reset configuration and compiler flags

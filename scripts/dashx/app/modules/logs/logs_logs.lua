@@ -180,6 +180,10 @@ local function openPage(pidx, title, script, displaymode)
                                 dashx.app.formFields[pidx]:focus()
                             end
 
+                            if not dashx.tasks or not dashx.tasks.active() then
+                                dashx.app.formFields[pidx]:enable(false)
+                            end
+
                             lc = (lc + 1) % numPerRow
 
                 end
