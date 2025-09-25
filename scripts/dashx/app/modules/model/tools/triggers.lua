@@ -30,7 +30,7 @@ local function openPage(pageIdx, title, script)
         nil,
         function()
             if dashx.session.modelPreferences then
-                if dashx.preferences.model.armswitch  then
+                if dashx.preferences.model and dashx.preferences.model.armswitch  then
                     local category, member, options = dashx.preferences.model.armswitch:match("([^:]+):([^:]+):([^:]+)")
                     if category and member then
                         return system.getSource({category = category, member = member, options = options})
@@ -50,17 +50,17 @@ local function openPage(pageIdx, title, script)
     )
     dashx.app.formFields[formFieldCount]:enable(false)
 
-    -- Idle Switch
+    -- Inflight Switch
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1
-    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_idleswitch)@")
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_inflightswitch)@")
     dashx.app.formFields[formFieldCount] = form.addSwitchField(
         dashx.app.formLines[formLineCnt],
         nil,
         function()
             if dashx.session.modelPreferences then
-                if dashx.preferences.model.idleswitch  then
-                    local category, member, options = dashx.preferences.model.idleswitch:match("([^:]+):([^:]+):([^:]+)")
+                if dashx.preferences.model and dashx.preferences.model.inflightswitch  then
+                    local category, member, options = dashx.preferences.model.inflightswitch:match("([^:]+):([^:]+):([^:]+)")
                     if category and member then
                         return system.getSource({category = category, member = member, options = options})
                     end
@@ -73,11 +73,40 @@ local function openPage(pageIdx, title, script)
                 local member = newValue:member()
                 local category = newValue:category()
                 local options = newValue:options()
-                dashx.preferences.model.idleswitch = category .. ":" .. member .. ":" .. options
+                dashx.preferences.model.inflightswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
     dashx.app.formFields[formFieldCount]:enable(false)
+
+    -- Inflight Switch
+    formFieldCount = formFieldCount + 1
+    formLineCnt = formLineCnt + 1
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_inflightswitch_delay)@")
+    dashx.app.formFields[formFieldCount] = form.addNumberField(
+        dashx.app.formLines[formLineCnt],
+        nil,
+        0,
+        120,
+        function()
+            if dashx.session.modelPreferences then
+                if dashx.preferences.model and dashx.preferences.model.inflightswitch_delay  then
+                        return dashx.preferences.model.inflightswitch_delay
+                end    
+            else
+                return 10    
+            end
+            return nil
+        end,
+        function(newValue)
+            if dashx.session.modelPreferences then
+                dashx.preferences.model.inflightswitch_delay = newValue
+            end
+        end
+    )
+    dashx.app.formFields[formFieldCount]:enable(false)
+    dashx.app.formFields[formFieldCount]:suffix("s")
+    dashx.app.formFields[formFieldCount]:default(20)
 
     --[[
     -- Rate Switch

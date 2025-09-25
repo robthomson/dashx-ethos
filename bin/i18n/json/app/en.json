@@ -156,9 +156,14 @@
         "translation": "Arm Switch",
         "needs_translation": "false"
       },
-      "model_idleswitch": {
-        "english": "Idle Up Switch",
-        "translation": "Idle Up Switch",
+      "model_inflightswitch": {
+        "english": "Inflight Switch",
+        "translation": "Inflight Switch",
+        "needs_translation": "false"
+      },
+      "model_inflightswitch_delay": {
+        "english": "Inflight Switch Delay",
+        "translation": "Inflight Switch Delay",
         "needs_translation": "false"
       },
       "model_rateswitch": {

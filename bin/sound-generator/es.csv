@@ -1,11 +1,6 @@
 #app,#text to play
 app/timeout.wav,Tiempo agotado,,
-app/powercycleesc.wav,Apague y encienda el variador de velocidad,,
-app/soverideen.wav,Toma de servo - activada,,
-app/soveridedis.wav,Toma de servo - desactivada,,
-app/eraseflash.wav,Borrando memoria flash,,
-app/moverideen.wav,Toma de mezclador - activada,,
-app/moveridedis.wav,Toma de mezclador - desactivada,,
+
 
 #alerts,#text to play
 events/alerts/lowvoltage.wav,Bajo Voltaje,,
@@ -14,8 +9,7 @@ events/alerts/armed.wav,Armado,,
 events/alerts/disarmed.wav,Desarmado,,
 events/alerts/profile.wav,Perfil,,
 events/alerts/rates.wav,Tasas,,
-events/alerts/idleup.wav,Idle Up,,
-events/alerts/idledown.wav,Idle Down,,
+
 
 
 #status,#text to play

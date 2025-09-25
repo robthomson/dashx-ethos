@@ -32,7 +32,8 @@ local modelpref_defaults ={
     },
     model = {
         armswitch = false,
-        idleswitch = false,
+        inflightswitch = false,
+        inflightswitch_delay = 10,
         rateswitch = false,
     },
     battery = {
