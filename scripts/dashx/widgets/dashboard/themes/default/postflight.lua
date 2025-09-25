@@ -16,7 +16,7 @@
 ]]--
 
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local boxes_cache = nil
 local themeconfig = nil
 local lastScreenW = nil
@@ -53,7 +53,7 @@ local lightMode = {
 
 -- User voltage min/max override support
 local function getUserVoltageOverride(which)
-  local prefs = neurondash.session and neurondash.session.modelPreferences
+  local prefs = dashx.session and dashx.session.modelPreferences
   if prefs and prefs["system/@default"] then
     local v = tonumber(prefs["system/@default"][which])
     -- Only use override if it is present and different from the default 6S values
@@ -179,8 +179,8 @@ local themeOptions = {
 }
 
 local function getThemeValue(key)
-    if neurondash and neurondash.session and neurondash.session.modelPreferences and neurondash.session.modelPreferences[theme_section] then
-        local val = neurondash.session.modelPreferences[theme_section][key]
+    if dashx and dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences[theme_section] then
+        local val = dashx.session.modelPreferences[theme_section][key]
         val = tonumber(val)
         if val ~= nil then return val end
     end
@@ -195,8 +195,8 @@ local headeropts = utils.getHeaderOptions()
 
 -- Theme Layout
 local layout = {
-    cols    = 3,
-    rows    = 3,
+    cols    = 2,
+    rows    = 2,
     padding = 1,
     --showgrid = lcd.RGB(100, 100, 100)  -- or any color you prefer
 }
@@ -219,17 +219,10 @@ return {
     -- Flight info and RPM info
     {col = 1, row = 1, type = "time", subtype = "flight", title = "Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
     {col = 1, row = 2, type = "time", subtype = "total", title = "Total Model Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 1, row = 3, type = "text", subtype = "stats", source = "rpm", title = "RPM Max", unit = " rpm", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
 
     -- Flight max/min stats 1
-    {col = 2, row = 1, type = "text", subtype = "stats", source = "current", title = "Current Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 2, row = 2, type = "text", subtype = "stats", source = "temp_esc", title = "ESC Temp Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 2, row = 3, type = "text", subtype = "watts", source = "max", title = "Max Watts", unit = "W", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-
-    -- Flight max/min stats 2
-    {col = 3, row = 1, type = "text", subtype = "stats", stattype = "max", source = "smartconsumption", title = "Consumed mAh", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 3, row = 2, type = "text", subtype = "telemetry", source = "smartfuel", title = "Fuel Remaining", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 3, row = 3, type = "text", subtype = "stats", stattype = "min", source = "rssi", title = "Link Min", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor}
+    {col = 2, row = 1, type = "text", subtype = "stats", source = "voltage", title = "Voltage Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+    {col = 2, row = 2, type = "text", subtype = "stats", stattype = "min", source = "voltage", title = "Voltage Min", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
 
 }
 end
@@ -321,7 +314,7 @@ local header_boxes = {
 }
 
 local function boxes()
-    local config = neurondash and neurondash.session and neurondash.session.modelPreferences and neurondash.session.modelPreferences[theme_section]
+    local config = dashx and dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences[theme_section]
     local W = lcd.getWindowSize()
     if boxes_cache == nil or themeconfig ~= config or lastScreenW ~= W then
         boxes_cache = buildBoxes(W)

@@ -31,8 +31,8 @@ local voltageThreshold    = 0.15      -- Maximum allowed voltage variation withi
 local preStabiliseDelay   = 1.5       -- Minimum seconds to wait after configuration or telemetry update before checking for stabilisation.
 
 local telemetry                       -- Reference to the telemetry task, used to access sensor data.
-local lastMode = neurondash.flightmode.current or "preflight" -- Last flight mode to detect changes.
-local currentMode = neurondash.flightmode.current or "preflight"
+local lastMode = dashx.flightmode.current or "preflight" -- Last flight mode to detect changes.
+local currentMode = dashx.flightmode.current or "preflight"
 local lastSensorMode
 
 -- Discharge curve with 0.01V per cell resolution from 3.00V to 4.20V (121 points)
@@ -115,16 +115,16 @@ local function smartFuelCalc()
 
     -- Assign this here as it may not be available in the global scope at intialisation
     if not telemetry then
-        telemetry = neurondash.tasks.telemetry
+        telemetry = dashx.tasks.telemetry
     end
 
     -- quick exit and cleanup
-    if not neurondash.session.isConnected or not neurondash.session.batteryConfig then 
+    if not dashx.session.isConnected or not dashx.session.batteryConfig then 
         resetVoltageTracking()
         return nil 
     end
 
-    local bc = neurondash.session.batteryConfig
+    local bc = dashx.session.batteryConfig
 
     local configSig = table.concat({
         bc.batteryCellCount,
@@ -145,10 +145,10 @@ local function smartFuelCalc()
     end
 
     -- make sure we reset the method if the sensor mode changes
-    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
-        if lastSensorMode ~= neurondash.session.modelPreferences.battery.calc_local then
+    if dashx.session.modelPreferences and dashx.session.modelPreferences.battery and dashx.session.modelPreferences.battery.calc_local then
+        if lastSensorMode ~= dashx.session.modelPreferences.battery.calc_local then
             resetVoltageTracking()
-            lastSensorMode = neurondash.session.modelPreferences.battery.calc_local
+            lastSensorMode = dashx.session.modelPreferences.battery.calc_local
         end
     end
 
@@ -166,7 +166,7 @@ local function smartFuelCalc()
 
     --**Preemptive reset**: bail out _before_ any recalculation
     if currentMode ~= lastMode then
-        neurondash.utils.log("Flight mode changed – resetting voltage & fuel state", "info")
+        dashx.utils.log("Flight mode changed – resetting voltage & fuel state", "info")
         -- clear starting references
         fuelStartingPercent     = nil
         fuelStartingConsumption = nil
@@ -198,23 +198,23 @@ local function smartFuelCalc()
     -- wait until we have N consistent readings within threshold
     if not voltageStabilised then
         if isVoltageStable() then
-            neurondash.utils.log("Voltage stabilized at: " .. voltage,"info")
+            dashx.utils.log("Voltage stabilized at: " .. voltage,"info")
             voltageStabilised = true
         else
-            neurondash.utils.log("Waiting for voltage to stabilize...","info")
+            dashx.utils.log("Waiting for voltage to stabilize...","info")
             return nil
         end
     end
 
     -- Detect voltage increase after stabilization if not yet flying, Only allow this reset whilst in preflight & disarmed.
-    local isDisarmed  = (neurondash and neurondash.session and neurondash.session.isArmed == false)
-    local isPreflight = (neurondash and neurondash.flightmode and neurondash.flightmode.current == "preflight")
+    local isDisarmed  = (dashx and dashx.session and dashx.session.isArmed == false)
+    local isPreflight = (dashx and dashx.flightmode and dashx.flightmode.current == "preflight")
 
     -- Need at least 2 samples because we read (#lastVoltages - 1)
     if lastVoltages and #lastVoltages >= 2 and isPreflight and isDisarmed then
         local prev = lastVoltages[#lastVoltages - 1]
         if voltage > prev + voltageThreshold then
-            neurondash.utils.log("Voltage increased after stabilization – resetting...", "info")
+            dashx.utils.log("Voltage increased after stabilization – resetting...", "info")
             fuelStartingPercent = nil
             fuelStartingConsumption = nil
             resetVoltageTracking()

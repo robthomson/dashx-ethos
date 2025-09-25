@@ -1586,8 +1586,8 @@
         "needs_translation": true
       },
       "disabled_message": {
-        "english": "neurondash governor is not enabled",
-        "translation": "neurondash governor is not enabled",
+        "english": "dashx governor is not enabled",
+        "translation": "dashx governor is not enabled",
         "needs_translation": true
       },
       "help_p3": {
@@ -2637,8 +2637,8 @@
         "needs_translation": true
       },
       "opener": {
-        "english": "neurondash is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help.",
-        "translation": "neurondash is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help.",
+        "english": "dashx is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help.",
+        "translation": "dashx is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help.",
         "needs_translation": true
       },
       "version": {
@@ -2652,8 +2652,8 @@
         "needs_translation": true
       },
       "credits": {
-        "english": "Notable contributors to both the neurondash firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!",
-        "translation": "Notable contributors to both the neurondash firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!",
+        "english": "Notable contributors to both the dashx firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!",
+        "translation": "Notable contributors to both the dashx firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!",
         "needs_translation": true
       },
       "msp_transport": {

@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -28,21 +28,21 @@ local config = arg[1]
 -- @param title The title of the progress dialog (optional, default is "Loading").
 -- @param message The message of the progress dialog (optional, default is "Loading data from flight controller...").
 function ui.progressDisplay(title, message)
-    if neurondash.app.dialogs.progressDisplay then return end
+    if dashx.app.dialogs.progressDisplay then return end
 
     title = title or "@i18n(app.msg_loading)@"
     message = message or "@i18n(app.msg_loading_from_fbl)@"
 
-    neurondash.app.dialogs.progressDisplay = true
-    neurondash.app.dialogs.progressWatchDog = os.clock()
-    neurondash.app.dialogs.progress = form.openProgressDialog(
+    dashx.app.dialogs.progressDisplay = true
+    dashx.app.dialogs.progressWatchDog = os.clock()
+    dashx.app.dialogs.progress = form.openProgressDialog(
                                 {
                                 title = title, 
                                 message = message,
                                 close = function()
                                 end,
                                 wakeup = function()
-                                        local app = neurondash.app
+                                        local app = dashx.app
                                         app.dialogs.progress:value(app.dialogs.progressCounter)
                                         if not app.triggers.closeProgressLoader then
                                             app.dialogs.progressCounter = app.dialogs.progressCounter + 10
@@ -59,9 +59,9 @@ function ui.progressDisplay(title, message)
                                 }
                                 )
 
-    neurondash.app.dialogs.progressCounter = 0
+    dashx.app.dialogs.progressCounter = 0
 
-    local progress = neurondash.app.dialogs.progress
+    local progress = dashx.app.dialogs.progress
     if progress then
         progress:value(0)
         progress:closeAllowed(false)
@@ -75,20 +75,20 @@ end
     The dialog is configured to disallow closing and initializes the progress value to 0.
 ]]
 function ui.progressNolinkDisplay()
-    neurondash.app.dialogs.nolinkDisplay = true
-    --neurondash.app.dialogs.noLink = form.openProgressDialog(, )
+    dashx.app.dialogs.nolinkDisplay = true
+    --dashx.app.dialogs.noLink = form.openProgressDialog(, )
 
-    neurondash.app.dialogs.noLink = form.openProgressDialog(
+    dashx.app.dialogs.noLink = form.openProgressDialog(
                                 {
                                 title = "@i18n(app.msg_connecting)@", 
                                 message = "@i18n(app.msg_connecting_to_fbl)@",
                                 close = function()
                                 end,
                                 wakeup = function()
-                                    local app = neurondash.app
-                                    local utils = neurondash.utils
+                                    local app = dashx.app
+                                    local utils = dashx.utils
 
-                                    local apiStr = tostring(neurondash.session.apiVersion)
+                                    local apiStr = tostring(dashx.session.apiVersion)
                                     local moduleEnabled = model.getModule(0):enable() or model.getModule(1):enable()
                                     local sensorSport = system.getSource({appId=0xF101})
                                     local sensorElrs  = system.getSource({crsfId=0x14, subIdStart=0, subIdEnd=1})
@@ -96,8 +96,8 @@ function ui.progressNolinkDisplay()
                                     local invalid, abort = false, false
                                     local msg = "@i18n(app.msg_connecting_to_fbl)@"
                                     if not utils.ethosVersionAtLeast() then
-                                    msg = string.format("%s < V%d.%d.%d", string.upper("@i18n(ethos)@"), table.unpack(neurondash.config.ethosVersion))
-                                    elseif not neurondash.tasks.active() then
+                                    msg = string.format("%s < V%d.%d.%d", string.upper("@i18n(ethos)@"), table.unpack(dashx.config.ethosVersion))
+                                    elseif not dashx.tasks.active() then
                                     msg, invalid, abort = "@i18n(app.check_bg_task)@", true, true
                                     elseif not moduleEnabled and not app.offlineMode then
                                     msg, invalid = "@i18n(app.check_rf_module_on)@", true
@@ -107,13 +107,13 @@ function ui.progressNolinkDisplay()
                                     app.triggers.invalidConnectionSetup = invalid
                                     local step = invalid and 10 or 15
                                     app.dialogs.nolinkValueCounter = app.dialogs.nolinkValueCounter + step
-                                    neurondash.app.dialogs.noLink:value(app.dialogs.nolinkValueCounter)
-                                    neurondash.app.dialogs.noLink:message(msg)
+                                    dashx.app.dialogs.noLink:value(app.dialogs.nolinkValueCounter)
+                                    dashx.app.dialogs.noLink:message(msg)
                                     if invalid and app.dialogs.nolinkValueCounter == 15 then app.audio.playBufferWarn = true end
                                     if app.dialogs.nolinkValueCounter >= 100 then
                                       app.dialogs.nolinkDisplay = false
                                       app.triggers.wasConnected    = true
-                                     neurondash.app.dialogs.noLink:close()
+                                     dashx.app.dialogs.noLink:close()
                                       if abort then app.close() end
                                     end
                                 end     
@@ -121,17 +121,17 @@ function ui.progressNolinkDisplay()
                                 )
 
 
-    neurondash.app.dialogs.noLink:closeAllowed(false)
-    neurondash.app.dialogs.noLink:value(0)
+    dashx.app.dialogs.noLink:closeAllowed(false)
+    dashx.app.dialogs.noLink:value(0)
 end
 
 
 --- Closes the "No Link" progress dialog if it is currently open.
--- This function checks if the `noLink` dialog exists in `neurondash.app.dialogs`.
+-- This function checks if the `noLink` dialog exists in `dashx.app.dialogs`.
 -- If it does, it calls the `close` method on the dialog to close it.
 function ui.progressNolinkDisplayClose()
-    if not neurondash.app.dialogs.noLink then return end
-    neurondash.app.dialogs.noLink:close()
+    if not dashx.app.dialogs.noLink then return end
+    dashx.app.dialogs.noLink:close()
 end
 
 --[[
@@ -141,21 +141,21 @@ end
                  and configures the progress dialog with initial values.
 ]]
 function ui.progressDisplaySave(message)
-    neurondash.app.dialogs.saveDisplay = true
-    neurondash.app.dialogs.saveWatchDog = os.clock()
+    dashx.app.dialogs.saveDisplay = true
+    dashx.app.dialogs.saveWatchDog = os.clock()
     local title = "@i18n(app.msg_saving)@"
     if not message then
         message = "@i18n(app.msg_saving_to_fbl)@"
     end   
 
-    neurondash.app.dialogs.save = form.openProgressDialog(
+    dashx.app.dialogs.save = form.openProgressDialog(
                                 {
                                 title = title, 
                                 message = message,
                                 close = function()
                                 end,
                                 wakeup = function()
-                                        local app = neurondash.app
+                                        local app = dashx.app
                                         app.dialogs.save:value(app.dialogs.saveProgressCounter)
                                         if not app.dialogs.saveProgressCounter then                  
                                             app.dialogs.saveProgressCounter = app.dialogs.saveProgressCounter + 5
@@ -173,8 +173,8 @@ function ui.progressDisplaySave(message)
                                 }
                                 )
 
-    neurondash.app.dialogs.save:value(0)
-    neurondash.app.dialogs.save:closeAllowed(false)
+    dashx.app.dialogs.save:value(0)
+    dashx.app.dialogs.save:closeAllowed(false)
 end
 
 
@@ -184,20 +184,20 @@ end
     @param value (number) - The progress value to display. If the value is 100 or more, the progress is updated immediately.
     @param message (string, optional) - An optional message to display along with the progress value.
     
-    The function ensures that the progress display is updated at a rate limited by `neurondash.app.dialogs.progressRate`.
+    The function ensures that the progress display is updated at a rate limited by `dashx.app.dialogs.progressRate`.
 ]]
 function ui.progressDisplayValue(value, message)
     if value >= 100 then
-        neurondash.app.dialogs.progress:value(value)
-        if message then neurondash.app.dialogs.progress:message(message) end
+        dashx.app.dialogs.progress:value(value)
+        if message then dashx.app.dialogs.progress:message(message) end
         return
     end
 
     local now = os.clock()
-    if (now - neurondash.app.dialogs.progressRateLimit) >= neurondash.app.dialogs.progressRate then
-        neurondash.app.dialogs.progressRateLimit = now
-        neurondash.app.dialogs.progress:value(value)
-        if message then neurondash.app.dialogs.progress:message(message) end
+    if (now - dashx.app.dialogs.progressRateLimit) >= dashx.app.dialogs.progressRate then
+        dashx.app.dialogs.progressRateLimit = now
+        dashx.app.dialogs.progress:value(value)
+        if message then dashx.app.dialogs.progress:message(message) end
     end
 end
 
@@ -210,20 +210,20 @@ end
 ]]
 function ui.progressDisplaySaveValue(value, message)
     if value >= 100 then
-        if neurondash.app.dialogs.save then
-            neurondash.app.dialogs.save:value(value)
+        if dashx.app.dialogs.save then
+            dashx.app.dialogs.save:value(value)
         end    
-        if message then neurondash.app.dialogs.save:message(message) end
+        if message then dashx.app.dialogs.save:message(message) end
         return
     end
 
     local now = os.clock()
-    if (now - neurondash.app.dialogs.saveRateLimit) >= neurondash.app.dialogs.saveRate then
-        neurondash.app.dialogs.saveRateLimit = now
-        if neurondash.app.dialogs.save then
-            neurondash.app.dialogs.save:value(value)
+    if (now - dashx.app.dialogs.saveRateLimit) >= dashx.app.dialogs.saveRate then
+        dashx.app.dialogs.saveRateLimit = now
+        if dashx.app.dialogs.save then
+            dashx.app.dialogs.save:value(value)
         end    
-        if message then neurondash.app.dialogs.save:message(message) end
+        if message then dashx.app.dialogs.save:message(message) end
     end
 end
 
@@ -231,17 +231,17 @@ end
 -- This function checks if the progress dialog exists, closes it, 
 -- and updates the progress display status to false.
 function ui.progressDisplayClose()
-    local progress = neurondash.app.dialogs.progress
+    local progress = dashx.app.dialogs.progress
     if progress then
         progress:close()
-        neurondash.app.dialogs.progressDisplay = false
+        dashx.app.dialogs.progressDisplay = false
     end
 end
 
 -- Closes the progress display if allowed by the given status.
 -- @param status A boolean indicating whether closing the progress display is allowed.
 function ui.progressDisplayCloseAllowed(status)
-    local progress = neurondash.app.dialogs.progress
+    local progress = dashx.app.dialogs.progress
     if progress then
         progress:closeAllowed(status)
     end
@@ -250,7 +250,7 @@ end
 -- Displays a progress message in the UI.
 -- @param message The message to be displayed in the progress dialog.
 function ui.progressDisplayMessage(message)
-    local progress = neurondash.app.dialogs.progress
+    local progress = dashx.app.dialogs.progress
     if progress then
         progress:message(message)
     end
@@ -260,15 +260,15 @@ end
 -- This function checks if the save dialog exists, closes it if it does,
 -- and then sets the save display status to false.
 function ui.progressDisplaySaveClose()
-    local saveDialog = neurondash.app.dialogs.save
+    local saveDialog = dashx.app.dialogs.save
     if saveDialog then saveDialog:close() end
-    neurondash.app.dialogs.saveDisplay = false
+    dashx.app.dialogs.saveDisplay = false
 end
 
 --- Displays a save message in the progress dialog.
 -- @param message The message to be displayed in the save dialog.
 function ui.progressDisplaySaveMessage(message)
-    local saveDialog = neurondash.app.dialogs.save
+    local saveDialog = dashx.app.dialogs.save
     if saveDialog then saveDialog:message(message) end
 end
 
@@ -276,7 +276,7 @@ end
     Function: ui.progressDisplaySaveCloseAllowed
 
     Description:
-    This function updates the closeAllowed status of the save dialog in the neurondash application.
+    This function updates the closeAllowed status of the save dialog in the dashx application.
 
     Parameters:
     status (boolean) - The status to set for allowing the save dialog to close.
@@ -286,25 +286,25 @@ end
     ui.progressDisplaySaveCloseAllowed(false) -- Prevents the save dialog from closing.
 ]]
 function ui.progressDisplaySaveCloseAllowed(status)
-    local saveDialog = neurondash.app.dialogs.save
+    local saveDialog = dashx.app.dialogs.save
     if saveDialog then saveDialog:closeAllowed(status) end
 end
 
--- Disables all form fields in the neurondash application.
+-- Disables all form fields in the dashx application.
 -- Iterates through the formFields array and disables each field if it is of type "userdata".
 function ui.disableAllFields()
-    for i = 1, #neurondash.app.formFields do 
-        local field = neurondash.app.formFields[i]
+    for i = 1, #dashx.app.formFields do 
+        local field = dashx.app.formFields[i]
         if type(field) == "userdata" then
             field:enable(false) 
         end
     end
 end
 
--- Enables all form fields in the neurondash application.
+-- Enables all form fields in the dashx application.
 -- Iterates through the formFields table and enables each field if it is of type "userdata".
 function ui.enableAllFields()
-    for _, field in ipairs(neurondash.app.formFields) do 
+    for _, field in ipairs(dashx.app.formFields) do 
         if type(field) == "userdata" then
             field:enable(true) 
         end
@@ -312,10 +312,10 @@ function ui.enableAllFields()
 end
 
 -- Disables all navigation fields in the form except the currently active one.
--- Iterates through the `formNavigationFields` table in the `neurondash.app` namespace
+-- Iterates through the `formNavigationFields` table in the `dashx.app` namespace
 -- and disables each field by calling its `enable` method with `false` as the argument.
 function ui.disableAllNavigationFields()
-    for i, v in pairs(neurondash.app.formNavigationFields) do
+    for i, v in pairs(dashx.app.formNavigationFields) do
         if x ~= v then
             v:enable(false)
         end
@@ -323,9 +323,9 @@ function ui.disableAllNavigationFields()
 end
 
 -- Enables all navigation fields in the form except the one specified by 'x'.
--- Iterates through 'neurondash.app.formNavigationFields' and calls 'enable(true)' on each field.
+-- Iterates through 'dashx.app.formNavigationFields' and calls 'enable(true)' on each field.
 function ui.enableAllNavigationFields()
-    for i, v in pairs(neurondash.app.formNavigationFields) do
+    for i, v in pairs(dashx.app.formNavigationFields) do
         if x ~= v then
             v:enable(true)
         end
@@ -335,14 +335,14 @@ end
 -- Enables a navigation field based on the given index.
 -- @param x The index of the navigation field to enable.
 function ui.enableNavigationField(x)
-    local field = neurondash.app.formNavigationFields[x]
+    local field = dashx.app.formNavigationFields[x]
     if field then field:enable(true) end
 end
 
 -- Disables the navigation field at the specified index.
 -- @param x The index of the navigation field to disable.
 function ui.disableNavigationField(x)
-    local field = neurondash.app.formNavigationFields[x]
+    local field = dashx.app.formNavigationFields[x]
     if field then field:enable(false) end
 end
 
@@ -352,11 +352,11 @@ end
     @return boolean True if any of the progress, save, no link, or bad version displays are active; otherwise, false.
 ]]
 function ui.progressDisplayIsActive()
-    return neurondash.app.dialogs.progressDisplay or 
-           neurondash.app.dialogs.saveDisplay or 
-           neurondash.app.dialogs.progressDisplayEsc or 
-           neurondash.app.dialogs.nolinkDisplay or 
-           neurondash.app.dialogs.badversionDisplay
+    return dashx.app.dialogs.progressDisplay or 
+           dashx.app.dialogs.saveDisplay or 
+           dashx.app.dialogs.progressDisplayEsc or 
+           dashx.app.dialogs.nolinkDisplay or 
+           dashx.app.dialogs.badversionDisplay
 end
 
 --[[
@@ -378,57 +378,57 @@ function ui.openMainMenu()
 
 
 
-    neurondash.app.formFields = {}
-    neurondash.app.formLines = {}
-    neurondash.session.lastLabel = nil
-    neurondash.app.isOfflinePage = false
+    dashx.app.formFields = {}
+    dashx.app.formLines = {}
+    dashx.session.lastLabel = nil
+    dashx.app.isOfflinePage = false
 
     -- clear old icons
-    for i in pairs(neurondash.app.gfx_buttons) do
+    for i in pairs(dashx.app.gfx_buttons) do
         if i ~= "mainmenu" then
-            neurondash.app.gfx_buttons[i] = nil
+            dashx.app.gfx_buttons[i] = nil
         end
     end
 
     -- hard exit on error
-    if not neurondash.utils.ethosVersionAtLeast(config.ethosVersion) then
+    if not dashx.utils.ethosVersionAtLeast(config.ethosVersion) then
         return
     end    
 
-    local MainMenu = neurondash.app.MainMenu
+    local MainMenu = dashx.app.MainMenu
 
     -- Clear all navigation variables
-    neurondash.app.lastIdx = nil
-    neurondash.app.lastTitle = nil
-    neurondash.app.lastScript = nil
-    neurondash.session.lastPage = nil
-    neurondash.app.triggers.isReady = false
-    neurondash.app.uiState = neurondash.app.uiStatus.mainMenu
-    neurondash.app.triggers.disableRssiTimeout = false
+    dashx.app.lastIdx = nil
+    dashx.app.lastTitle = nil
+    dashx.app.lastScript = nil
+    dashx.session.lastPage = nil
+    dashx.app.triggers.isReady = false
+    dashx.app.uiState = dashx.app.uiStatus.mainMenu
+    dashx.app.triggers.disableRssiTimeout = false
 
     -- Determine button size based on preferences
-    neurondash.preferences.general.iconsize = tonumber(neurondash.preferences.general.iconsize) or 1
+    dashx.preferences.general.iconsize = tonumber(dashx.preferences.general.iconsize) or 1
 
     local buttonW, buttonH, padding, numPerRow
 
-    if neurondash.preferences.general.iconsize == 0 then
+    if dashx.preferences.general.iconsize == 0 then
         -- Text icons
-        padding = neurondash.app.radio.buttonPaddingSmall
-        buttonW = (neurondash.session.lcdWidth - padding) / neurondash.app.radio.buttonsPerRow - padding
-        buttonH = neurondash.app.radio.navbuttonHeight
-        numPerRow = neurondash.app.radio.buttonsPerRow
-    elseif neurondash.preferences.general.iconsize == 1 then
+        padding = dashx.app.radio.buttonPaddingSmall
+        buttonW = (dashx.session.lcdWidth - padding) / dashx.app.radio.buttonsPerRow - padding
+        buttonH = dashx.app.radio.navbuttonHeight
+        numPerRow = dashx.app.radio.buttonsPerRow
+    elseif dashx.preferences.general.iconsize == 1 then
         -- Small icons
-        padding = neurondash.app.radio.buttonPaddingSmall
-        buttonW = neurondash.app.radio.buttonWidthSmall
-        buttonH = neurondash.app.radio.buttonHeightSmall
-        numPerRow = neurondash.app.radio.buttonsPerRowSmall
-    elseif neurondash.preferences.general.iconsize == 2 then
+        padding = dashx.app.radio.buttonPaddingSmall
+        buttonW = dashx.app.radio.buttonWidthSmall
+        buttonH = dashx.app.radio.buttonHeightSmall
+        numPerRow = dashx.app.radio.buttonsPerRowSmall
+    elseif dashx.preferences.general.iconsize == 2 then
         -- Large icons
-        padding = neurondash.app.radio.buttonPadding
-        buttonW = neurondash.app.radio.buttonWidth
-        buttonH = neurondash.app.radio.buttonHeight
-        numPerRow = neurondash.app.radio.buttonsPerRow
+        padding = dashx.app.radio.buttonPadding
+        buttonW = dashx.app.radio.buttonWidth
+        buttonH = dashx.app.radio.buttonHeight
+        numPerRow = dashx.app.radio.buttonsPerRow
     end
 
     local sc
@@ -436,13 +436,13 @@ function ui.openMainMenu()
 
     form.clear()
 
-    neurondash.app.gfx_buttons["mainmenu"] = neurondash.app.gfx_buttons["mainmenu"] or {}
-    neurondash.preferences.menulastselected["mainmenu"] = neurondash.preferences.menulastselected["mainmenu"] or 1
+    dashx.app.gfx_buttons["mainmenu"] = dashx.app.gfx_buttons["mainmenu"] or {}
+    dashx.preferences.menulastselected["mainmenu"] = dashx.preferences.menulastselected["mainmenu"] or 1
 
     for idx, section in ipairs(MainMenu.sections) do
-        local hideSection = (section.ethosversion and neurondash.session.ethosRunningVersion < section.ethosversion) or
-                            (section.mspversion and (neurondash.session.apiVersion or 1) < section.mspversion) or
-                            (section.developer and not neurondash.preferences.developer.devtools)
+        local hideSection = (section.ethosversion and dashx.session.ethosRunningVersion < section.ethosversion) or
+                            (section.mspversion and (dashx.session.apiVersion or 1) < section.mspversion) or
+                            (section.developer and not dashx.preferences.developer.devtools)
 
         if not hideSection then
             form.addLine(section.title)
@@ -450,39 +450,39 @@ function ui.openMainMenu()
 
             for pidx, page in ipairs(MainMenu.pages) do
                 if page.section == idx then
-                    local hideEntry = (page.ethosversion and not neurondash.utils.ethosVersionAtLeast(page.ethosversion)) or
-                                      (page.mspversion and (neurondash.session.apiVersion or 1) < page.mspversion) or
-                                      (page.developer and not neurondash.preferences.developer.devtools)
+                    local hideEntry = (page.ethosversion and not dashx.utils.ethosVersionAtLeast(page.ethosversion)) or
+                                      (page.mspversion and (dashx.session.apiVersion or 1) < page.mspversion) or
+                                      (page.developer and not dashx.preferences.developer.devtools)
 
                     local offline = page.offline
 
                     if not hideEntry then
                         if lc == 0 then
-                            y = form.height() + (neurondash.preferences.general.iconsize == 2 and neurondash.app.radio.buttonPadding or neurondash.app.radio.buttonPaddingSmall)
+                            y = form.height() + (dashx.preferences.general.iconsize == 2 and dashx.app.radio.buttonPadding or dashx.app.radio.buttonPaddingSmall)
                         end
 
                         local x = (buttonW + padding) * lc
-                        if neurondash.preferences.general.iconsize ~= 0 then
-                            neurondash.app.gfx_buttons["mainmenu"][pidx] = neurondash.app.gfx_buttons["mainmenu"][pidx] or lcd.loadMask("app/modules/" .. page.folder .. "/" .. page.image)
+                        if dashx.preferences.general.iconsize ~= 0 then
+                            dashx.app.gfx_buttons["mainmenu"][pidx] = dashx.app.gfx_buttons["mainmenu"][pidx] or lcd.loadMask("app/modules/" .. page.folder .. "/" .. page.image)
                         else
-                            neurondash.app.gfx_buttons["mainmenu"][pidx] = nil
+                            dashx.app.gfx_buttons["mainmenu"][pidx] = nil
                         end
 
-                        neurondash.app.formFields[pidx] = form.addButton(line, {x = x, y = y, w = buttonW, h = buttonH}, {
+                        dashx.app.formFields[pidx] = form.addButton(line, {x = x, y = y, w = buttonW, h = buttonH}, {
                             text = page.title,
-                            icon = neurondash.app.gfx_buttons["mainmenu"][pidx],
+                            icon = dashx.app.gfx_buttons["mainmenu"][pidx],
                             options = FONT_S,
                             paint = function() end,
                             press = function()
-                                neurondash.preferences.menulastselected["mainmenu"] = pidx
-                                neurondash.app.ui.progressDisplay()
-                                neurondash.app.isOfflinePage = offline
-                                neurondash.app.ui.openPage(pidx, page.title, page.folder .. "/" .. page.script)                          
+                                dashx.preferences.menulastselected["mainmenu"] = pidx
+                                dashx.app.ui.progressDisplay()
+                                dashx.app.isOfflinePage = offline
+                                dashx.app.ui.openPage(pidx, page.title, page.folder .. "/" .. page.script)                          
                             end
                         })
 
-                        if neurondash.preferences.menulastselected["mainmenu"] == pidx then
-                            neurondash.app.formFields[pidx]:focus()
+                        if dashx.preferences.menulastselected["mainmenu"] == pidx then
+                            dashx.app.formFields[pidx]:focus()
                         end
 
                         lc = (lc + 1) % numPerRow
@@ -493,7 +493,7 @@ function ui.openMainMenu()
     end
 
     collectgarbage()
-    neurondash.utils.reportMemoryUsage("MainMenu")
+    dashx.utils.reportMemoryUsage("MainMenu")
 end
 
 
@@ -531,7 +531,7 @@ end
     6. Disables the field if specified.
 ]]
 function ui.fieldChoice(i)
-    local app      = neurondash.app
+    local app      = dashx.app
     local page     = app.Page
     local fields   = page.fields
     local f        = fields[i]
@@ -544,10 +544,10 @@ function ui.fieldChoice(i)
         if radioText == 2 and f.t2 then
             f.t = f.t2
         end
-        local p = neurondash.app.utils.getInlinePositions(f, page)
+        local p = dashx.app.utils.getInlinePositions(f, page)
         posText  = p.posText
         posField = p.posField
-        form.addStaticText(formLines[neurondash.session.formLineCnt], posText, f.t)
+        form.addStaticText(formLines[dashx.session.formLineCnt], posText, f.t)
     else
         if f.t then
             if radioText == 2 and f.t2 then
@@ -557,13 +557,13 @@ function ui.fieldChoice(i)
                 f.t = "        " .. f.t
             end
         end
-        neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-        formLines[neurondash.session.formLineCnt] = form.addLine(f.t)
+        dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+        formLines[dashx.session.formLineCnt] = form.addLine(f.t)
         posField = f.position or nil
     end
 
-    local tbldata = f.table and neurondash.app.utils.convertPageValueTable(f.table, f.tableIdxInc) or {}
-    formFields[i] = form.addChoiceField(formLines[neurondash.session.formLineCnt], posField, tbldata,
+    local tbldata = f.table and dashx.app.utils.convertPageValueTable(f.table, f.tableIdxInc) or {}
+    formFields[i] = form.addChoiceField(formLines[dashx.session.formLineCnt], posField, tbldata,
         function()
             if not fields or not fields[i] then
                 ui.disableAllFields()
@@ -571,12 +571,12 @@ function ui.fieldChoice(i)
                 ui.enableNavigationField('menu')
                 return nil
             end
-            return neurondash.app.utils.getFieldValue(fields[i])
+            return dashx.app.utils.getFieldValue(fields[i])
         end,
         function(value)
             if f.postEdit then f.postEdit(page, value) end
             if f.onChange then f.onChange(page, value) end
-            f.value = neurondash.app.utils.saveFieldValue(fields[i], value)
+            f.value = dashx.app.utils.saveFieldValue(fields[i], value)
         end
     )
 
@@ -606,7 +606,7 @@ end
     - Enables or disables instant change based on the field configuration.
 ]]
 function ui.fieldNumber(i)
-    local app    = neurondash.app
+    local app    = dashx.app
     local page   = app.Page
     local fields = page.fields
     local f      = fields[i]
@@ -616,10 +616,10 @@ function ui.fieldNumber(i)
     local posField, posText
 
     if f.inline and f.inline >= 1 and f.label then
-        local p = neurondash.app.utils.getInlinePositions(f, page)
+        local p = dashx.app.utils.getInlinePositions(f, page)
         posText  = p.posText
         posField = p.posField
-        form.addStaticText(formLines[neurondash.session.formLineCnt], posText, f.t)
+        form.addStaticText(formLines[dashx.session.formLineCnt], posText, f.t)
     else
         if f.t then
             if f.label then
@@ -629,8 +629,8 @@ function ui.fieldNumber(i)
             f.t = ""
         end
 
-        neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-        formLines[neurondash.session.formLineCnt] = form.addLine(f.t)
+        dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+        formLines[dashx.session.formLineCnt] = form.addLine(f.t)
         posField = f.position or nil
     end
 
@@ -639,8 +639,8 @@ function ui.fieldNumber(i)
         if f.max then f.max = f.max + f.offset end
     end
 
-    local minValue = neurondash.app.utils.scaleValue(f.min, f)
-    local maxValue = neurondash.app.utils.scaleValue(f.max, f)
+    local minValue = dashx.app.utils.scaleValue(f.min, f)
+    local maxValue = dashx.app.utils.scaleValue(f.max, f)
 
     if f.mult then
         if minValue then minValue = minValue * f.mult end
@@ -650,7 +650,7 @@ function ui.fieldNumber(i)
     minValue = minValue or 0
     maxValue = maxValue or 0
 
-    formFields[i] = form.addNumberField(formLines[neurondash.session.formLineCnt], posField, minValue, maxValue,
+    formFields[i] = form.addNumberField(formLines[dashx.session.formLineCnt], posField, minValue, maxValue,
         function()
             if not (page.fields and page.fields[i]) then
                 ui.disableAllFields()
@@ -658,12 +658,12 @@ function ui.fieldNumber(i)
                 ui.enableNavigationField('menu')
                 return nil
             end
-            return neurondash.app.utils.getFieldValue(page.fields[i])
+            return dashx.app.utils.getFieldValue(page.fields[i])
         end,
         function(value)
             if f.postEdit then f.postEdit(page) end
             if f.onChange then f.onChange(page) end
-            f.value = neurondash.app.utils.saveFieldValue(page.fields[i], value)
+            f.value = dashx.app.utils.saveFieldValue(page.fields[i], value)
         end
     )
 
@@ -675,7 +675,7 @@ function ui.fieldNumber(i)
 
     if f.default then
         if f.offset then f.default = f.default + f.offset end
-        local default = f.default * neurondash.app.utils.decimalInc(f.decimals)
+        local default = f.default * dashx.app.utils.decimalInc(f.decimals)
         if f.mult then default = default * f.mult end
         local str = tostring(default)
         if str:match("%.0$") then default = math.ceil(default) end
@@ -722,7 +722,7 @@ end
         - Sets up focus, decimals, unit, and step properties if they are defined for the field.
 --]]
 function ui.fieldStaticText(i)
-    local app       = neurondash.app
+    local app       = dashx.app
     local page      = app.Page
     local fields    = page.fields
     local f         = fields[i]
@@ -735,10 +735,10 @@ function ui.fieldStaticText(i)
         if radioText == 2 and f.t2 then
             f.t = f.t2
         end
-        local p = neurondash.app.utils.getInlinePositions(f, page)
+        local p = dashx.app.utils.getInlinePositions(f, page)
         posText  = p.posText
         posField = p.posField
-        form.addStaticText(formLines[neurondash.session.formLineCnt], posText, f.t)
+        form.addStaticText(formLines[dashx.session.formLineCnt], posText, f.t)
     else
         if radioText == 2 and f.t2 then
             f.t = f.t2
@@ -750,8 +750,8 @@ function ui.fieldStaticText(i)
         else
             f.t = ""
         end
-        neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-        formLines[neurondash.session.formLineCnt] = form.addLine(f.t)
+        dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+        formLines[dashx.session.formLineCnt] = form.addLine(f.t)
         posField = f.position or nil
     end
 
@@ -759,7 +759,7 @@ function ui.fieldStaticText(i)
         -- posField = {x = 2000, y = 0, w = 20, h = 20}
     end
 
-    formFields[i] = form.addStaticText(formLines[neurondash.session.formLineCnt], posField, neurondash.app.utils.getFieldValue(fields[i]))
+    formFields[i] = form.addStaticText(formLines[dashx.session.formLineCnt], posField, dashx.app.utils.getFieldValue(fields[i]))
     local currentField = formFields[i]
 
     if f.onFocus then
@@ -787,7 +787,7 @@ end
     None
 ]]
 function ui.fieldText(i)
-    local app         = neurondash.app
+    local app         = dashx.app
     local page        = app.Page
     local fields      = page.fields
     local f           = fields[i]
@@ -800,10 +800,10 @@ function ui.fieldText(i)
         if radioText == 2 and f.t2 then
             f.t = f.t2
         end
-        local p = neurondash.app.utils.getInlinePositions(f, page)
+        local p = dashx.app.utils.getInlinePositions(f, page)
         posText  = p.posText
         posField = p.posField
-        form.addStaticText(formLines[neurondash.session.formLineCnt], posText, f.t)
+        form.addStaticText(formLines[dashx.session.formLineCnt], posText, f.t)
     else
         if radioText == 2 and f.t2 then
             f.t = f.t2
@@ -817,12 +817,12 @@ function ui.fieldText(i)
             f.t = ""
         end
 
-        neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-        formLines[neurondash.session.formLineCnt] = form.addLine(f.t)
+        dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+        formLines[dashx.session.formLineCnt] = form.addLine(f.t)
         posField = f.position or nil
     end
 
-    formFields[i] = form.addTextField(formLines[neurondash.session.formLineCnt], posField,
+    formFields[i] = form.addTextField(formLines[dashx.session.formLineCnt], posField,
         function()
             if not fields or not fields[i] then
                 ui.disableAllFields()
@@ -830,13 +830,13 @@ function ui.fieldText(i)
                 ui.enableNavigationField('menu')
                 return nil
             end
-            return neurondash.app.utils.getFieldValue(fields[i])
+            return dashx.app.utils.getFieldValue(fields[i])
         end,
         function(value)
             if f.postEdit then f.postEdit(page) end
             if f.onChange then f.onChange(page) end
 
-            f.value = neurondash.app.utils.saveFieldValue(fields[i], value)
+            f.value = dashx.app.utils.saveFieldValue(fields[i], value)
         end
     )
 
@@ -880,7 +880,7 @@ end
     it adds a new line to the form and updates the session's lastLabel and formLineCnt.
 ]]
 function ui.fieldLabel(f, i, l)
-    local app = neurondash.app
+    local app = dashx.app
 
     if f.t then
         if f.t2 then 
@@ -899,12 +899,12 @@ function ui.fieldLabel(f, i, l)
         end
         local labelName = f.t and labelValue or "unknown"
 
-        if f.label ~= neurondash.session.lastLabel then
+        if f.label ~= dashx.session.lastLabel then
             label.type = label.type or 0
-            neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-            app.formLines[neurondash.session.formLineCnt] = form.addLine(labelName)
-            form.addStaticText(app.formLines[neurondash.session.formLineCnt], nil, "")
-            neurondash.session.lastLabel = f.label
+            dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+            app.formLines[dashx.session.formLineCnt] = form.addLine(labelName)
+            form.addStaticText(app.formLines[dashx.session.formLineCnt], nil, "")
+            dashx.session.lastLabel = f.label
         end
     end
 end
@@ -918,11 +918,11 @@ end
     Returns: None
 ]]
 function ui.fieldHeader(title)
-    local app    = neurondash.app
-    local utils  = neurondash.utils
+    local app    = dashx.app
+    local utils  = dashx.utils
     local radio  = app.radio
     local formFields = app.formFields
-    local lcdWidth   = neurondash.session.lcdWidth
+    local lcdWidth   = dashx.session.lcdWidth
 
     local w, h = utils.getWindowSize()
     local padding = 5
@@ -951,7 +951,7 @@ end
 -- @param extra5 Additional parameter 5.
 -- @param extra6 Additional parameter 6.
 function ui.openPageRefresh(idx, title, script, extra1, extra2, extra3, extra5, extra6)
-    neurondash.app.triggers.isReady = false
+    dashx.app.triggers.isReady = false
 end
 
 -- Cache for help modules to avoid repeated file_exists and loadfile
@@ -959,9 +959,9 @@ ui._helpCache = ui._helpCache or {}
 local function getHelpData(section)
   if ui._helpCache[section] == nil then
     local helpPath = "app/modules/" .. section .. "/help.lua"
-    if neurondash.utils.file_exists(helpPath) then
+    if dashx.utils.file_exists(helpPath) then
       local ok, helpData = pcall(function()
-        return assert(neurondash.compiler.loadfile(helpPath))()
+        return assert(dashx.compiler.loadfile(helpPath))()
       end)
       ui._helpCache[section] = (ok and type(helpData)=="table") and helpData or false
     else
@@ -996,111 +996,111 @@ end
 function ui.openPage(idx, title, script, extra1, extra2, extra3, extra5, extra6)
 
     -- Initialize global UI state and clear form data
-    neurondash.app.uiState = neurondash.app.uiStatus.pages
-    neurondash.app.triggers.isReady = false
-    neurondash.app.formFields = {}
-    neurondash.app.formLines = {}
-    neurondash.session.lastLabel = nil
+    dashx.app.uiState = dashx.app.uiStatus.pages
+    dashx.app.triggers.isReady = false
+    dashx.app.formFields = {}
+    dashx.app.formLines = {}
+    dashx.session.lastLabel = nil
 
     -- Load the module
     local modulePath = "app/modules/" .. script
 
-    neurondash.app.Page = assert(neurondash.compiler.loadfile(modulePath))(idx)
+    dashx.app.Page = assert(dashx.compiler.loadfile(modulePath))(idx)
 
     -- Load the help file if it exists
     local section = script:match("([^/]+)")
     local helpData = getHelpData(section)
-    neurondash.app.fieldHelpTxt = helpData and helpData.fields or nil
+    dashx.app.fieldHelpTxt = helpData and helpData.fields or nil
 
-   -- neurondash.app.Page = assert(neurondash.compiler.loadfile(modulePath))(idx)
+   -- dashx.app.Page = assert(dashx.compiler.loadfile(modulePath))(idx)
     -- If the Page has its own openPage function, use it and return early
-    if neurondash.app.Page.openPage then
-        neurondash.app.Page.openPage(idx, title, script, extra1, extra2, extra3, extra5, extra6)
-        neurondash.utils.reportMemoryUsage(title)
+    if dashx.app.Page.openPage then
+        dashx.app.Page.openPage(idx, title, script, extra1, extra2, extra3, extra5, extra6)
+        dashx.utils.reportMemoryUsage(title)
         return
     end
 
     -- Fallback behavior if no custom openPage exists
-    neurondash.app.lastIdx = idx
-    neurondash.app.lastTitle = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx = idx
+    dashx.app.lastTitle = title
+    dashx.app.lastScript = script
 
     form.clear()
-    neurondash.session.lastPage = script
+    dashx.session.lastPage = script
 
-    local pageTitle = neurondash.app.Page.pageTitle or title
-    neurondash.app.ui.fieldHeader(pageTitle)
+    local pageTitle = dashx.app.Page.pageTitle or title
+    dashx.app.ui.fieldHeader(pageTitle)
 
-    if neurondash.app.Page.headerLine then
+    if dashx.app.Page.headerLine then
         local headerLine = form.addLine("")
         form.addStaticText(headerLine, {
             x = 0,
-            y = neurondash.app.radio.linePaddingTop,
-            w = neurondash.session.lcdWidth,
-            h = neurondash.app.radio.navbuttonHeight
-        }, neurondash.app.Page.headerLine)
+            y = dashx.app.radio.linePaddingTop,
+            w = dashx.session.lcdWidth,
+            h = dashx.app.radio.navbuttonHeight
+        }, dashx.app.Page.headerLine)
     end
 
-    neurondash.session.formLineCnt = 0
+    dashx.session.formLineCnt = 0
 
-    neurondash.utils.log("Merging form data from mspapi", "debug")
-    neurondash.app.Page.fields = neurondash.app.Page.apidata.formdata.fields
-    neurondash.app.Page.labels = neurondash.app.Page.apidata.formdata.labels
+    dashx.utils.log("Merging form data from mspapi", "debug")
+    dashx.app.Page.fields = dashx.app.Page.apidata.formdata.fields
+    dashx.app.Page.labels = dashx.app.Page.apidata.formdata.labels
 
-    if neurondash.app.Page.fields then
-        for i, field in ipairs(neurondash.app.Page.fields) do
+    if dashx.app.Page.fields then
+        for i, field in ipairs(dashx.app.Page.fields) do
 
-            local label = neurondash.app.Page.labels
-            local version = neurondash.utils.round(neurondash.session.apiVersion,2)
+            local label = dashx.app.Page.labels
+            local version = dashx.utils.round(dashx.session.apiVersion,2)
             if version == nil then return end
-            local valid = (field.apiversion    == nil or neurondash.utils.round(field.apiversion,2)    <= version) and
-                          (field.apiversionlt  == nil or neurondash.utils.round(field.apiversionlt,2)  >  version) and
-                          (field.apiversiongt  == nil or neurondash.utils.round(field.apiversiongt,2)  <  version) and
-                          (field.apiversionlte == nil or neurondash.utils.round(field.apiversionlte,2) >= version) and
-                          (field.apiversiongte == nil or neurondash.utils.round(field.apiversiongte,2) <= version) and
+            local valid = (field.apiversion    == nil or dashx.utils.round(field.apiversion,2)    <= version) and
+                          (field.apiversionlt  == nil or dashx.utils.round(field.apiversionlt,2)  >  version) and
+                          (field.apiversiongt  == nil or dashx.utils.round(field.apiversiongt,2)  <  version) and
+                          (field.apiversionlte == nil or dashx.utils.round(field.apiversionlte,2) >= version) and
+                          (field.apiversiongte == nil or dashx.utils.round(field.apiversiongte,2) <= version) and
                           (field.enablefunction == nil or field.enablefunction())
 
             if field.hidden ~= true and valid then
-                neurondash.app.ui.fieldLabel(field, i, label)
+                dashx.app.ui.fieldLabel(field, i, label)
                 if field.type == 0 then
-                    neurondash.app.ui.fieldStaticText(i)
+                    dashx.app.ui.fieldStaticText(i)
                 elseif field.table or field.type == 1 then
-                    neurondash.app.ui.fieldChoice(i)
+                    dashx.app.ui.fieldChoice(i)
                 elseif field.type == 2 then
-                    neurondash.app.ui.fieldNumber(i)
+                    dashx.app.ui.fieldNumber(i)
                 elseif field.type == 3 then
-                    neurondash.app.ui.fieldText(i)
+                    dashx.app.ui.fieldText(i)
                 else
-                    neurondash.app.ui.fieldNumber(i)
+                    dashx.app.ui.fieldNumber(i)
                 end
             else
-                neurondash.app.formFields[i] = {}
+                dashx.app.formFields[i] = {}
             end
         end
     end
-    neurondash.utils.reportMemoryUsage(title)
+    dashx.utils.reportMemoryUsage(title)
 end
 
 function ui.openPageDashboard(idx, title, script, source, folder)
     -- Initialize global UI state and clear form data
-    neurondash.app.uiState = neurondash.app.uiStatus.pages
-    neurondash.app.triggers.isReady = false
-    neurondash.app.formFields = {}
-    neurondash.app.formLines = {}
-    neurondash.session.lastLabel = nil
+    dashx.app.uiState = dashx.app.uiStatus.pages
+    dashx.app.triggers.isReady = false
+    dashx.app.formFields = {}
+    dashx.app.formLines = {}
+    dashx.session.lastLabel = nil
 
-    neurondash.session.dashboardEditingTheme = source .. "/" .. folder
+    dashx.session.dashboardEditingTheme = source .. "/" .. folder
 
     -- Load the module
     local modulePath =  script
 
-    neurondash.app.Page = assert(neurondash.compiler.loadfile(modulePath))(idx)
+    dashx.app.Page = assert(dashx.compiler.loadfile(modulePath))(idx)
 
     -- load up the menu
-    local w, h = neurondash.utils.getWindowSize()
+    local w, h = dashx.utils.getWindowSize()
     local windowWidth = w
     local windowHeight = h
-    local padding = neurondash.app.radio.buttonPadding
+    local padding = dashx.app.radio.buttonPadding
 
     local sc
     local panel   
@@ -1112,31 +1112,31 @@ function ui.openPageDashboard(idx, title, script, source, folder)
     buttonW = 100
     local x = windowWidth - (buttonW * 2) - 15
 
-    neurondash.app.formNavigationFields['menu'] = form.addButton(line, {x = x, y = neurondash.app.radio.linePaddingTop, w = buttonW, h = neurondash.app.radio.navbuttonHeight}, {
+    dashx.app.formNavigationFields['menu'] = form.addButton(line, {x = x, y = dashx.app.radio.linePaddingTop, w = buttonW, h = dashx.app.radio.navbuttonHeight}, {
         text = "@i18n(app.navigation_menu)@",
         icon = nil,
         options = FONT_S,
         paint = function()
         end,
         press = function()
-            neurondash.app.lastIdx = nil
-            neurondash.session.lastPage = nil
+            dashx.app.lastIdx = nil
+            dashx.session.lastPage = nil
 
-            if neurondash.app.Page and neurondash.app.Page.onNavMenu then neurondash.app.Page.onNavMenu(neurondash.app.Page) end
+            if dashx.app.Page and dashx.app.Page.onNavMenu then dashx.app.Page.onNavMenu(dashx.app.Page) end
 
 
-            neurondash.app.ui.openPage(
+            dashx.app.ui.openPage(
                 pageIdx,
                 "@i18n(app.modules.settings.dashboard)@",
                 "settings/tools/dashboard_settings.lua"
             )
         end
     })
-    neurondash.app.formNavigationFields['menu']:focus()
+    dashx.app.formNavigationFields['menu']:focus()
 
 
     local x = windowWidth - buttonW - 10
-    neurondash.app.formNavigationFields['save'] = form.addButton(line, {x = x, y = neurondash.app.radio.linePaddingTop, w = buttonW, h = neurondash.app.radio.navbuttonHeight}, {
+    dashx.app.formNavigationFields['save'] = form.addButton(line, {x = x, y = dashx.app.radio.linePaddingTop, w = buttonW, h = dashx.app.radio.navbuttonHeight}, {
         text = "SAVE",
         icon = nil,
         options = FONT_S,
@@ -1149,13 +1149,13 @@ function ui.openPageDashboard(idx, title, script, source, folder)
                         label  = "@i18n(app.btn_ok_long)@",
                         action = function()
                             local msg = "@i18n(app.modules.profile_select.save_prompt_local)@"
-                            neurondash.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
-                            if neurondash.app.Page.write then
-                                neurondash.app.Page.write()
+                            dashx.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
+                            if dashx.app.Page.write then
+                                dashx.app.Page.write()
                             end    
                             -- update dashboard theme
-                            neurondash.widgets.dashboard.reload_themes()
-                            neurondash.app.triggers.closeSave = true
+                            dashx.widgets.dashboard.reload_themes()
+                            dashx.app.triggers.closeSave = true
                             return true
                         end,
                     },
@@ -1179,15 +1179,15 @@ function ui.openPageDashboard(idx, title, script, source, folder)
 
         end
     })
-    neurondash.app.formNavigationFields['menu']:focus()
+    dashx.app.formNavigationFields['menu']:focus()
 
 
     
     -- If the Page has its own openPage function, use it and return early
-    if neurondash.app.Page.configure then
-        neurondash.app.Page.configure(idx, title, script, extra1, extra2, extra3, extra5, extra6)
-        neurondash.utils.reportMemoryUsage(title)
-        neurondash.app.triggers.closeProgressLoader = true
+    if dashx.app.Page.configure then
+        dashx.app.Page.configure(idx, title, script, extra1, extra2, extra3, extra5, extra6)
+        dashx.utils.reportMemoryUsage(title)
+        dashx.app.triggers.closeProgressLoader = true
         return
     end
 
@@ -1208,7 +1208,7 @@ end
     - h (number): The height of the buttons.
 
     Notes:
-    - The function checks the visibility of each button from `neurondash.app.Page.navButtons`.
+    - The function checks the visibility of each button from `dashx.app.Page.navButtons`.
     - If a button is visible, it calculates its offset and adds it to the form.
     - Each button has a specific action defined in its `press` function.
     - The Help button attempts to load a help file and displays relevant help content.
@@ -1225,10 +1225,10 @@ function ui.navigationButtons(x, y, w, h)
     local menuOffset = 0
 
     local navButtons
-    if neurondash.app.Page.navButtons == nil then
+    if dashx.app.Page.navButtons == nil then
         navButtons = {menu = true, save = true, reload = true, help = true}
     else
-        navButtons = neurondash.app.Page.navButtons
+        navButtons = dashx.app.Page.navButtons
     end
 
     -- calc all offsets
@@ -1253,37 +1253,37 @@ function ui.navigationButtons(x, y, w, h)
     -- MENU BTN
     if navButtons.menu ~= nil and navButtons.menu == true then
 
-        neurondash.app.formNavigationFields['menu'] = form.addButton(line, {x = menuOffset, y = y, w = w, h = h}, {
+        dashx.app.formNavigationFields['menu'] = form.addButton(line, {x = menuOffset, y = y, w = w, h = h}, {
             text = "@i18n(app.navigation_menu)@",
             icon = nil,
             options = FONT_S,
             paint = function()
             end,
             press = function()
-                if neurondash.app.Page and neurondash.app.Page.onNavMenu then
-                    neurondash.app.Page.onNavMenu(neurondash.app.Page)
+                if dashx.app.Page and dashx.app.Page.onNavMenu then
+                    dashx.app.Page.onNavMenu(dashx.app.Page)
                 else
-                    neurondash.app.ui.openMainMenu()
+                    dashx.app.ui.openMainMenu()
                 end
             end
         })
-        neurondash.app.formNavigationFields['menu']:focus()
+        dashx.app.formNavigationFields['menu']:focus()
     end
 
     -- SAVE BTN
     if navButtons.save ~= nil and navButtons.save == true then
 
-        neurondash.app.formNavigationFields['save'] = form.addButton(line, {x = saveOffset, y = y, w = w, h = h}, {
+        dashx.app.formNavigationFields['save'] = form.addButton(line, {x = saveOffset, y = y, w = w, h = h}, {
             text = "@i18n(app.navigation_save)@",
             icon = nil,
             options = FONT_S,
             paint = function()
             end,
             press = function()
-                if neurondash.app.Page and neurondash.app.Page.onSaveMenu then
-                    neurondash.app.Page.onSaveMenu(neurondash.app.Page)
+                if dashx.app.Page and dashx.app.Page.onSaveMenu then
+                    dashx.app.Page.onSaveMenu(dashx.app.Page)
                 else
-                    neurondash.app.triggers.triggerSave = true
+                    dashx.app.triggers.triggerSave = true
                 end
             end
         })
@@ -1292,7 +1292,7 @@ function ui.navigationButtons(x, y, w, h)
     -- RELOAD BTN
     if navButtons.reload ~= nil and navButtons.reload == true then
 
-        neurondash.app.formNavigationFields['reload'] = form.addButton(line, {x = reloadOffset, y = y, w = w, h = h}, {
+        dashx.app.formNavigationFields['reload'] = form.addButton(line, {x = reloadOffset, y = y, w = w, h = h}, {
             text = "@i18n(app.navigation_reload)@",
             icon = nil,
             options = FONT_S,
@@ -1300,10 +1300,10 @@ function ui.navigationButtons(x, y, w, h)
             end,
             press = function()
 
-                if neurondash.app.Page and neurondash.app.Page.onReloadMenu then
-                    neurondash.app.Page.onReloadMenu(neurondash.app.Page)
+                if dashx.app.Page and dashx.app.Page.onReloadMenu then
+                    dashx.app.Page.onReloadMenu(dashx.app.Page)
                 else
-                        neurondash.app.triggers.triggerReload = true
+                        dashx.app.triggers.triggerReload = true
                 end
                 return true
             end
@@ -1312,42 +1312,42 @@ function ui.navigationButtons(x, y, w, h)
 
     -- TOOL BUTTON
     if navButtons.tool ~= nil and navButtons.tool == true then
-        neurondash.app.formNavigationFields['tool'] = form.addButton(line, {x = toolOffset, y = y, w = wS, h = h}, {
+        dashx.app.formNavigationFields['tool'] = form.addButton(line, {x = toolOffset, y = y, w = wS, h = h}, {
             text = "@i18n(app.navigation_tools)@",
             icon = nil,
             options = FONT_S,
             paint = function()
             end,
             press = function()
-                neurondash.app.Page.onToolMenu()
+                dashx.app.Page.onToolMenu()
             end
         })
     end
 
     -- HELP BUTTON
     if navButtons.help ~= nil and navButtons.help == true then
-        local section = neurondash.app.lastScript:match("([^/]+)")
-        local script = neurondash.app.lastScript:match("/([^/]+)%.lua$")
+        local section = dashx.app.lastScript:match("([^/]+)")
+        local script = dashx.app.lastScript:match("/([^/]+)%.lua$")
         -- Load help module with caching
         local help = getHelpData(section)
         if help then
 
             -- Execution of the file succeeded
-            neurondash.app.formNavigationFields['help'] = form.addButton(line, {x = helpOffset, y = y, w = wS, h = h}, {
+            dashx.app.formNavigationFields['help'] = form.addButton(line, {x = helpOffset, y = y, w = wS, h = h}, {
                 text = "@i18n(app.navigation_help)@",
                 icon = nil,
                 options = FONT_S,
                 paint = function()
                 end,
                 press = function()
-                    if neurondash.app.Page and neurondash.app.Page.onHelpMenu then
-                        neurondash.app.Page.onHelpMenu(neurondash.app.Page)
+                    if dashx.app.Page and dashx.app.Page.onHelpMenu then
+                        dashx.app.Page.onHelpMenu(dashx.app.Page)
                     else
                         -- choose default or custom
                         if help.help[script] then
-                            neurondash.app.ui.openPageHelp(help.help[script], section)
+                            dashx.app.ui.openPageHelp(help.help[script], section)
                         else
-                            neurondash.app.ui.openPageHelp(help.help['default'], section)
+                            dashx.app.ui.openPageHelp(help.help['default'], section)
                         end
                     end
                 end
@@ -1355,11 +1355,11 @@ function ui.navigationButtons(x, y, w, h)
 
         else
             -- No help available
-            neurondash.app.formNavigationFields['help'] = form.addButton(line, {x = helpOffset, y = y, w = wS, h = h}, {
+            dashx.app.formNavigationFields['help'] = form.addButton(line, {x = helpOffset, y = y, w = wS, h = h}, {
                 text = "@i18n(app.navigation_help)@",
                 icon = nil, options = FONT_S, paint = function() end, press = function() end
             })
-            neurondash.app.formNavigationFields['help']:enable(false)
+            dashx.app.formNavigationFields['help']:enable(false)
         end
     end
 
@@ -1377,8 +1377,8 @@ function ui.openPageHelp(txtData, section)
     local message = table.concat(txtData, "\r\n\r\n")
 
     form.openDialog({
-        width = neurondash.session.lcdWidth,
-        title = "Help - " .. neurondash.app.lastTitle,
+        width = dashx.session.lcdWidth,
+        title = "Help - " .. dashx.app.lastTitle,
         message = message,
         buttons = {{
             label = "@i18n(app.btn_close)@",
@@ -1410,7 +1410,7 @@ end
     - help: Help text.
 ]]
 function ui.injectApiAttributes(formField, f, v)
-    local utils = neurondash.utils
+    local utils = dashx.utils
     local log = utils.log
 
     if v.decimals and not f.decimals then
@@ -1472,7 +1472,7 @@ function ui.injectApiAttributes(formField, f, v)
         if f.offset then 
             f.default = f.default + f.offset 
         end
-        local default = f.default * neurondash.app.utils.decimalInc(f.decimals)
+        local default = f.default * dashx.app.utils.decimalInc(f.decimals)
         if f.mult then 
             default = default * f.mult 
         end
@@ -1492,7 +1492,7 @@ function ui.injectApiAttributes(formField, f, v)
     if v.table and not f.table then 
         f.table = v.table 
         local idxInc = f.tableIdxInc or v.tableIdxInc
-        local tbldata = neurondash.app.utils.convertPageValueTable(v.table, idxInc)       
+        local tbldata = dashx.app.utils.convertPageValueTable(v.table, idxInc)       
         if f.type == 1 then   
             log("Injecting table: {}", "debug")                   
             formField:values(tbldata)

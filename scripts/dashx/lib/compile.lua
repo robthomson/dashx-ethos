@@ -1,25 +1,25 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * compile.lua - Deferred/Throttled Lua Script Compilation and Caching for neurondash Suite (Ethos)
+ * compile.lua - Deferred/Throttled Lua Script Compilation and Caching for dashx Suite (Ethos)
 
  * Usage:
- *   local compile = require("neurondash.lib.compile")
+ *   local compile = require("dashx.lib.compile")
  *   local chunk = compile.loadfile("myscript.lua")
  *   chunk() -- executes the loaded script
  *   -- Or use compile.dofile / compile.require as drop-in replacements
 
 ]] --
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
- * compile.lua - Deferred/Throttled Lua Script Compilation and Caching for neurondash Suite (Ethos)
+ * compile.lua - Deferred/Throttled Lua Script Compilation and Caching for dashx Suite (Ethos)
 
  * Usage:
- *   local compile = require("neurondash.lib.compile")
+ *   local compile = require("dashx.lib.compile")
  *   local chunk = compile.loadfile("myscript.lua")
  *   chunk() -- executes the loaded script
  *   -- Or use compile.dofile / compile.require as drop-in replacements
@@ -31,11 +31,11 @@ local arg = {...}
 compile._startTime = os.clock()
 compile._startupDelay = 15 -- seconds before starting any compiles
 
--- Configuration: expects neurondash.config to be globally available
+-- Configuration: expects dashx.config to be globally available
 local logTimings = true
-if neurondash and neurondash.config then
-  if type(neurondash.preferences.developer.compilerTiming) == "boolean" then
-    logTimings = neurondash.preferences.developer.compilerTiming or false
+if dashx and dashx.config then
+  if type(dashx.preferences.developer.compilerTiming) == "boolean" then
+    logTimings = dashx.preferences.developer.compilerTiming or false
   end
 end
 
@@ -170,11 +170,11 @@ function compile.wakeup()
       disk_cache[entry.cache_fname] = true
     end)
     compile._lastCompile = now
-    if neurondash and neurondash.utils and log then
+    if dashx and dashx.utils and log then
       if ok then
-        neurondash.utils.log("Deferred-compiled (throttled): " .. entry.script, "info")
+        dashx.utils.log("Deferred-compiled (throttled): " .. entry.script, "info")
       else
-        neurondash.utils.log("Deferred-compile error: " .. tostring(err), "debug")
+        dashx.utils.log("Deferred-compile error: " .. tostring(err), "debug")
       end
     end
   end
@@ -194,7 +194,7 @@ function compile.loadfile(script)
   if loader then
     which = "in-memory"
   else
-    if not neurondash.preferences.developer.compile then
+    if not dashx.preferences.developer.compile then
       loader = loadfile(script)
       which = "raw"
     else
@@ -234,7 +234,7 @@ function compile.require(modname)
   local path     = cachename(raw_path)
   local chunk
 
-  if not neurondash.preferences.developer.compile then
+  if not dashx.preferences.developer.compile then
     chunk = assert(loadfile(path))
   else
     chunk = compile.loadfile(path)

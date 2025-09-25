@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -19,10 +19,10 @@
 
 ]] --
 local pages = {}
-local sections = neurondash.compiler.loadfile("app/modules/sections.lua")()
+local sections = dashx.compiler.loadfile("app/modules/sections.lua")()
 
 -- find the modules (this should already have been done in the tasks/tasks.lua script but we catch and retry on the offchance it hasn't)
-if neurondash.app.moduleList == nil then neurondash.app.moduleList = neurondash.utils.findModules() end
+if dashx.app.moduleList == nil then dashx.app.moduleList = dashx.utils.findModules() end
 
 -- Helper function to find section index
 local function findSectionIndex(sectionTitle)
@@ -31,12 +31,12 @@ local function findSectionIndex(sectionTitle)
 end
 
 -- Populate pages with mapped modules
-for _, module in ipairs(neurondash.app.moduleList) do
+for _, module in ipairs(dashx.app.moduleList) do
     local sectionIndex = findSectionIndex(module.section)
     if sectionIndex then
         pages[#pages + 1] = {title = module.title, section = sectionIndex, script = module.script, order = module.order or 0, image = module.image, folder = module.folder, ethosversion = module.ethosversion, mspversion = module.mspversion, apiform = module.apiform, offline = module.offline or false}
     else
-        neurondash.utils.log("Warning: Section '" .. module.section .. "' not found for module '" .. module.title .. "'","debug")
+        dashx.utils.log("Warning: Section '" .. module.section .. "' not found for module '" .. module.title .. "'","debug")
     end
 end
 

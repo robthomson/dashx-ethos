@@ -8,8 +8,8 @@ function utils.resolveModelName(foldername)
         return "Unknown" 
     end
 
-    local iniName = "LOGS:neurondash/telemetry/" .. foldername .. "/logs.ini"
-    local iniData = neurondash.ini.load_ini_file(iniName) or {}
+    local iniName = "LOGS:dashx/telemetry/" .. foldername .. "/logs.ini"
+    local iniData = dashx.ini.load_ini_file(iniName) or {}
 
     if iniData["model"] and iniData["model"].name then
         return iniData["model"].name
@@ -23,8 +23,8 @@ function utils.hasModelName(foldername)
         return false
     end
 
-    local iniName = "LOGS:neurondash/telemetry/" .. foldername .. "/logs.ini"
-    local iniData = neurondash.ini.load_ini_file(iniName) or {}
+    local iniName = "LOGS:dashx/telemetry/" .. foldername .. "/logs.ini"
+    local iniData = dashx.ini.load_ini_file(iniName) or {}
 
     if iniData["model"] and iniData["model"].name then
         return true
@@ -81,14 +81,14 @@ end
 function utils.getLogPath()
     -- Create directory hierarchy
     os.mkdir("LOGS:")
-    os.mkdir("LOGS:/neurondash")
-    os.mkdir("LOGS:/neurondash/telemetry")
+    os.mkdir("LOGS:/dashx")
+    os.mkdir("LOGS:/dashx/telemetry")
     
     -- Return active directory if available
-    --if neurondash.session.activeLogDir then
-    --    return string.format("LOGS:/neurondash/telemetry/%s/", neurondash.session.activeLogDir)
+    --if dashx.session.activeLogDir then
+    --    return string.format("LOGS:/dashx/telemetry/%s/", dashx.session.activeLogDir)
     --end
-    return "LOGS:/neurondash/telemetry/"
+    return "LOGS:/dashx/telemetry/"
 end
 
 --- Gets or creates a specific log directory
@@ -97,18 +97,18 @@ end
 function utils.getLogDir(dirname)
     -- Ensure base directories exist
     os.mkdir("LOGS:")
-    os.mkdir("LOGS:/neurondash")
-    os.mkdir("LOGS:/neurondash/telemetry")
+    os.mkdir("LOGS:/dashx")
+    os.mkdir("LOGS:/dashx/telemetry")
     
     -- Handle default case (MCU ID directory)
     if not dirname then
-        local defaultDir = "LOGS:/neurondash/telemetry/" 
+        local defaultDir = "LOGS:/dashx/telemetry/" 
         os.mkdir(defaultDir)
         return defaultDir
     end
 
     -- Return requested directory
-    return "LOGS:/neurondash/telemetry/"
+    return "LOGS:/dashx/telemetry/"
 end
 
 --- Lists non-hidden subdirectories in a directory

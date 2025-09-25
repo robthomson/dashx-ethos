@@ -1,8 +1,8 @@
 local wrapper = {}
 
-local renders = neurondash.widgets.dashboard.renders
-local folder = "SCRIPTS:/" .. neurondash.config.baseDir .. "/widgets/dashboard/objects/dial/"
-local utils = neurondash.widgets.dashboard.utils
+local renders = dashx.widgets.dashboard.renders
+local folder = "SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/objects/dial/"
+local utils = dashx.widgets.dashboard.utils
 
 function wrapper.paint(x, y, w, h, box)
     local subtype = box.subtype or "image"
@@ -39,7 +39,7 @@ function wrapper.wakeup(box)
 
     if not renders[subtype] then
         local path = folder .. subtype .. ".lua"
-        local loader = neurondash.compiler.loadfile(path)
+        local loader = dashx.compiler.loadfile(path)
         if loader then
             renders[subtype] = loader()
         else

@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -23,7 +23,7 @@ local triggered = false
 local lastBeepTime = nil
 
 function timer.wakeup()
-    local session = neurondash.session
+    local session = dashx.session
     local modelFlightTime = session and session.modelFlightTime
     local batteryConfig = session and session.batteryConfig
     local targetSeconds = batteryConfig and batteryConfig.modelFlightTime or 0
@@ -36,7 +36,7 @@ function timer.wakeup()
     end
 
     -- Only trigger if we are armed / inflight
-    if neurondash.flightmode.current ~= "inflight" then
+    if dashx.flightmode.current ~= "inflight" then
         triggered = false
         lastBeepTime = nil
         return
@@ -46,11 +46,11 @@ function timer.wakeup()
     if modelFlightTime >= targetSeconds then
         local now = os.clock()
         if not triggered then
-            neurondash.utils.playFileCommon("beep.wav")
+            dashx.utils.playFileCommon("beep.wav")
             triggered = true
             lastBeepTime = now
         elseif lastBeepTime and (now - lastBeepTime) >= 10 then
-            neurondash.utils.playFileCommon("beep.wav")
+            dashx.utils.playFileCommon("beep.wav")
             lastBeepTime = now
         end
     else

@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -24,14 +24,14 @@ local lastEventTimes = {}
 local lastValues     = {}
 local lastPlayTime   = {}
 
-local userpref = neurondash.preferences
+local userpref = dashx.preferences
 local enabledEvents = (userpref and userpref.events) or {}
 
 local eventTable = {
     {
         sensor = "voltage",
         event = function(value)
-            local session = neurondash.session
+            local session = dashx.session
             if not session.batteryConfig then return end
 
             local cellCount   = session.batteryConfig.batteryCellCount
@@ -59,7 +59,7 @@ local eventTable = {
             --end
 
             if cellVoltage < warnVoltage then
-                neurondash.utils.playFile("events", "alerts/lowvoltage.wav")
+                dashx.utils.playFile("events", "alerts/lowvoltage.wav")
             end
         end,
         interval = 10
@@ -69,7 +69,7 @@ local eventTable = {
         event = function(value)
             -- Play the alert every interval if fuel is 10% or below
             if value and value <= 10 then
-                neurondash.utils.playFile("events", "alerts/lowfuel.wav")
+                dashx.utils.playFile("events", "alerts/lowfuel.wav")
             end
         end,
         interval = 10
@@ -78,10 +78,10 @@ local eventTable = {
         sensor = "armed",
         event = function(value)
                 if value == 0 then
-                    neurondash.utils.playFile("events", "alerts/armed.wav")
+                    dashx.utils.playFile("events", "alerts/armed.wav")
                 end    
                 if value == 1 then
-                    neurondash.utils.playFile("events", "alerts/disarmed.wav")
+                    dashx.utils.playFile("events", "alerts/disarmed.wav")
                 end    
         end,
         debounce = 0.25
@@ -89,12 +89,12 @@ local eventTable = {
     {
         sensor = "idleup",
         event = function(value)
-            if neurondash.tasks.telemetry.getSensorSource("armed"):value() == 0 then
+            if dashx.tasks.telemetry.getSensorSource("armed"):value() == 0 then
                 if value == 0 then
-                    neurondash.utils.playFile("events", "alerts/idleup.wav")
+                    dashx.utils.playFile("events", "alerts/idleup.wav")
                 end    
                 if value == 1 then
-                    neurondash.utils.playFile("events", "alerts/idledown.wav")
+                    dashx.utils.playFile("events", "alerts/idledown.wav")
                 end   
             end
         end,
@@ -109,7 +109,7 @@ function telemetry.wakeup()
         local key = item.sensor
         if not enabledEvents[key] then goto continue end
 
-        local source = neurondash.tasks.telemetry.getSensorSource(key)
+        local source = dashx.tasks.telemetry.getSensorSource(key)
         if not source then goto continue end
 
         local value = source:value()

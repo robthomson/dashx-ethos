@@ -1618,9 +1618,9 @@
     "modules": {
       "about": {
         "credits": {
-          "english": "Notable contributors to both the neurondash firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!",
+          "english": "Notable contributors to both the dashx firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!",
           "needs_translation": true,
-          "translation": "Notable contributors to both the neurondash firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!"
+          "translation": "Notable contributors to both the dashx firmware and this software are: Petri Mattila, Egon Lubbers, Rob Thomson, Rob Gayle, Phil Kaighin, Robert Burrow, Keith Williams, Bertrand Songis, Venbs Zhou... and many more who have spent hours testing and providing feedback!"
         },
         "ethos_version": {
           "english": "Ethos Version",
@@ -1663,9 +1663,9 @@
           "translation": "About"
         },
         "opener": {
-          "english": "neurondash is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help.",
+          "english": "dashx is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help.",
           "needs_translation": true,
-          "translation": "neurondash is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help."
+          "translation": "dashx is an open source project. Contribution from other like minded people, keen to assist in making this software even better, is welcomed and encouraged. You do not have to be a hardcore programmer to help."
         },
         "simulation": {
           "english": "Simulation",
@@ -3130,9 +3130,9 @@
           "translation": "D"
         },
         "disabled_message": {
-          "english": "neurondash governor is not enabled",
+          "english": "dashx governor is not enabled",
           "needs_translation": true,
-          "translation": "neurondash governor is not enabled"
+          "translation": "dashx governor is not enabled"
         },
         "f": {
           "english": "F",

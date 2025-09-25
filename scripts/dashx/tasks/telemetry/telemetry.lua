@@ -1,5 +1,5 @@
 --[[ 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -164,7 +164,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5002, unit = UNIT_VOLT, dec = 2,
-                  value = function() return neurondash.utils.simSensors('voltage') end,
+                  value = function() return dashx.utils.simSensors('voltage') end,
                   min = 0, max = 3000 },
             },
             sport = {
@@ -186,7 +186,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5003, unit = UNIT_RPM, dec = nil,
-                  value = function() return neurondash.utils.simSensors('rpm') end,
+                  value = function() return dashx.utils.simSensors('rpm') end,
                   min = 0, max = 4000 },
             },
             sport = {
@@ -207,7 +207,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5007, unit = UNIT_PERCENT, dec = 0,
-                  value = function() return neurondash.utils.simSensors('fuel') end,
+                  value = function() return dashx.utils.simSensors('fuel') end,
                   min = 0, max = 100 },
             },
             sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0600 }, },
@@ -258,7 +258,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5004, unit = UNIT_AMPERE, dec = 0,
-                  value = function() return neurondash.utils.simSensors('current') end,
+                  value = function() return dashx.utils.simSensors('current') end,
                   min = 0, max = 300 },
             },
             sport = {
@@ -279,7 +279,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5005, unit = UNIT_DEGREE, dec = 0,
-                  value = function() return neurondash.utils.simSensors('temp_esc') end,
+                  value = function() return dashx.utils.simSensors('temp_esc') end,
                   min = 0, max = 100 },
             },
             sport = {
@@ -291,7 +291,7 @@ local sensorTable = {
             if value == nil then return nil, major, nil end
 
             -- Shortcut to the user’s temperature‐unit preference (may be nil)
-            local prefs = neurondash.preferences.localizations
+            local prefs = dashx.preferences.localizations
             local isFahrenheit = prefs and prefs.temperature_unit == 1
 
             if isFahrenheit then
@@ -316,7 +316,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5008, unit = UNIT_MILLIAMPERE_HOUR, dec = 0,
-                  value = function() return neurondash.utils.simSensors('consumption') end,
+                  value = function() return dashx.utils.simSensors('consumption') end,
                   min = 0, max = 5000 },
             },
             sport = {
@@ -440,14 +440,14 @@ function telemetry.getSensorSource(name)
     end
 
     local function checkCondition(sensorEntry)
-        if not (neurondash.session and neurondash.session.apiVersion) then
+        if not (dashx.session and dashx.session.apiVersion) then
             return true
         end
-        local roundedApiVersion = neurondash.utils.round(neurondash.session.apiVersion, 2)
+        local roundedApiVersion = dashx.utils.round(dashx.session.apiVersion, 2)
         if sensorEntry.mspgt then
-            return roundedApiVersion >= neurondash.utils.round(sensorEntry.mspgt, 2)
+            return roundedApiVersion >= dashx.utils.round(sensorEntry.mspgt, 2)
         elseif sensorEntry.msplt then
-            return roundedApiVersion <= neurondash.utils.round(sensorEntry.msplt, 2)
+            return roundedApiVersion <= dashx.utils.round(sensorEntry.msplt, 2)
         end
         return true
     end
@@ -483,7 +483,7 @@ function telemetry.getSensorSource(name)
             end    
         end
 
-    elseif neurondash.session.telemetryType == "sport" then
+    elseif dashx.session.telemetryType == "sport" then
             protocol = "sport"
             for _, sensor in ipairs(sensorTable[name].sensors.sport or {}) do
                 local source = system.getSource(sensor)
@@ -568,7 +568,7 @@ function telemetry.validateSensors(returnValid)
     end
     lastValidationTime = now
 
-    if not neurondash.session.telemetryState then
+    if not dashx.session.telemetryState then
         local allSensors = {}
         for key, sensor in pairs(sensorTable) do
             table.insert(allSensors, { key = key, name = sensor.name })
@@ -625,7 +625,7 @@ end
         - boolean: true if in simulation mode or telemetry is active, false otherwise.
 ]]
 function telemetry.active()
-    return neurondash.session.telemetryState or false
+    return dashx.session.telemetryState or false
 end
 
 --- Clears all cached sources and state.
@@ -687,7 +687,7 @@ function telemetry.wakeup()
 
 
     -- Reset if telemetry is inactive or telemetry type changed
-    if not neurondash.session.telemetryState or neurondash.session.telemetryTypeChanged then
+    if not dashx.session.telemetryState or dashx.session.telemetryTypeChanged then
         telemetry.reset()
     end
 end

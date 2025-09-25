@@ -47,7 +47,7 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 
@@ -80,14 +80,14 @@ local function resolveDialAsset(value, basePath)
     return nil
 end
 
-neurondash.session.dialImageCache = neurondash.session.dialImageCache or {}
+dashx.session.dialImageCache = dashx.session.dialImageCache or {}
 local function loadDialPanelCached(dialId)
     local key = tostring(dialId or "panel1")
-    if not neurondash.session.dialImageCache[key] then
+    if not dashx.session.dialImageCache[key] then
         local panelPath = resolveDialAsset(dialId, "widgets/dashboard/gfx/dials") or "widgets/dashboard/gfx/dials/panel1.png"
-        neurondash.session.dialImageCache[key] = neurondash.utils.loadImage(panelPath)
+        dashx.session.dialImageCache[key] = dashx.utils.loadImage(panelPath)
     end
-    return neurondash.session.dialImageCache[key]
+    return dashx.session.dialImageCache[key]
 end
 
 local function calDialAngle(percent, startAngle, sweepAngle)
@@ -108,7 +108,7 @@ end
 
 function render.wakeup(box)
 
-    local telemetry = neurondash.tasks.telemetry
+    local telemetry = dashx.tasks.telemetry
 
     -- Value extraction
     local source = getParam(box, "source")

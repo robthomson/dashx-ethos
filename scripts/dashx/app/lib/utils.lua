@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -35,14 +35,14 @@ local config = arg[1]
 ]]
 function utils.getRSSI()
 
-    if neurondash.simevent.rflink == 1 then
+    if dashx.simevent.rflink == 1 then
         return 0
     end
 
-    if neurondash.app.offlineMode == true then return 100 end
+    if dashx.app.offlineMode == true then return 100 end
 
 
-    if neurondash.session.telemetryState then
+    if dashx.session.telemetryState then
         return 100
     else
         return 0
@@ -98,7 +98,7 @@ function utils.getFieldValue(f)
     local v = f.value or 0
 
     if f.decimals then
-        v = neurondash.utils.round(v * neurondash.app.utils.decimalInc(f.decimals),2)
+        v = dashx.utils.round(v * dashx.app.utils.decimalInc(f.decimals),2)
     end
 
     if f.offset then
@@ -128,11 +128,11 @@ function utils.saveFieldValue(f, value)
     if value then
         if f.offset then value = value - f.offset end
         if f.decimals then
-            f.value = value / neurondash.app.utils.decimalInc(f.decimals)
+            f.value = value / dashx.app.utils.decimalInc(f.decimals)
         else
             f.value = value
         end
-        if f.postEdit then f.postEdit(neurondash.app.Page) end
+        if f.postEdit then f.postEdit(dashx.app.Page) end
     end
 
     if f.mult then f.value = f.value / f.mult end
@@ -148,9 +148,9 @@ end
 -- @return The scaled value, rounded to the nearest integer, or nil if the input value is nil.
 function utils.scaleValue(value, f)
     if not value then return nil end
-    local v = value * neurondash.app.utils.decimalInc(f.decimals)
+    local v = value * dashx.app.utils.decimalInc(f.decimals)
     if f.scale then v = v / f.scale end
-    return neurondash.utils.round(v)
+    return dashx.utils.round(v)
 end
 
 
@@ -191,16 +191,16 @@ end
 ]]
 function utils.getInlinePositions(f, lPage)
     -- Compute inline size in one step.
-    local inline_size = utils.getInlineSize(f.label, lPage) * neurondash.app.radio.inlinesize_mult
+    local inline_size = utils.getInlineSize(f.label, lPage) * dashx.app.radio.inlinesize_mult
 
     -- Get LCD dimensions.
-    local w, h = neurondash.utils.getWindowSize()
+    local w, h = dashx.utils.getWindowSize()
 
     local padding = 5
     local fieldW = (w * inline_size) / 100
     local eW = fieldW - padding
-    local eH = neurondash.app.radio.navbuttonHeight
-    local eY = neurondash.app.radio.linePaddingTop
+    local eH = dashx.app.radio.navbuttonHeight
+    local eY = dashx.app.radio.linePaddingTop
 
     -- Set default text and compute its dimensions.
     f.t = f.t or ""

@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -20,9 +20,9 @@
 ]] --
 local app = {}
 
-local utils = neurondash.utils
+local utils = dashx.utils
 local log = utils.log
-local compile = neurondash.compiler.loadfile
+local compile = dashx.compiler.loadfile
 
 local arg = {...}
 
@@ -300,7 +300,7 @@ end
 function app.updateTelemetryState()
 
     if system:getVersion().simulation ~= true then
-        if not neurondash.session.telemetrySensor then
+        if not dashx.session.telemetrySensor then
             app.triggers.telemetryState = app.telemetryStatus.noSensor
         elseif app.utils.getRSSI() == 0 then
             app.triggers.telemetryState = app.telemetryStatus.noTelemetry
@@ -326,7 +326,7 @@ end
 --[[
 app._uiTasks
 
-A table containing a sequence of functions, each representing a logical UI update or task for the neurondash Ethos Suite application. These tasks are executed in order to manage UI state, handle dialogs, process telemetry, and respond to user or system triggers.
+A table containing a sequence of functions, each representing a logical UI update or task for the dashx Ethos Suite application. These tasks are executed in order to manage UI state, handle dialogs, process telemetry, and respond to user or system triggers.
 
 Each function in the table is responsible for a specific aspect of the application's UI logic, including but not limited to:
 
@@ -474,7 +474,7 @@ app._uiTasks = {
           app.triggers.saveFailed          = false
           app.dialogs.saveProgressCounter  = 0
           app.ui.progressDisplaySave()
-          neurondash.tasks.msp.mspQueue.retryCount = 0
+          dashx.tasks.msp.mspQueue.retryCount = 0
         end
 
         app.ui.progressDisplaySaveValue(app.dialogs.saveProgressCounter, "@i18n(app.pageStatus.saving)")
@@ -495,7 +495,7 @@ app._uiTasks = {
     app.updateTelemetryState()
     if app.uiState == app.uiStatus.mainMenu then
       invalidatePages()
-    elseif app.triggers.isReady and neurondash.tasks.msp.mspQueue:isProcessed()
+    elseif app.triggers.isReady and dashx.tasks.msp.mspQueue:isProcessed()
            and app.Page and app.Page.values then
       app.triggers.isReady           = false
       app.triggers.closeProgressLoader = true
@@ -589,20 +589,20 @@ function app.create_logtool()
     triggers.showUnderUsedBufferWarning = false
     triggers.showOverUsedBufferWarning = false
 
-    -- neurondash.session.apiVersion = nil
+    -- dashx.session.apiVersion = nil
     config.environment = system.getVersion()
     config.ethosRunningVersion = {config.environment.major, config.environment.minor, config.environment.revision}
 
-    neurondash.session.lcdWidth, neurondash.session.lcdHeight = utils.getWindowSize()
+    dashx.session.lcdWidth, dashx.session.lcdHeight = utils.getWindowSize()
     app.radio = assert(compile("app/radios.lua"))()
 
     app.uiState = app.uiStatus.init
 
-    neurondash.preferences.menulastselected["mainmenu"] = pidx
-    neurondash.app.ui.progressDisplay()
+    dashx.preferences.menulastselected["mainmenu"] = pidx
+    dashx.app.ui.progressDisplay()
 
-    neurondash.app.offlineMode = true
-    neurondash.app.ui.openPage(1, "Logs", "logs/logs.lua", 1) -- final param says to load in standalone mode
+    dashx.app.offlineMode = true
+    dashx.app.ui.openPage(1, "Logs", "logs/logs.lua", 1) -- final param says to load in standalone mode
 end
 
 --[[
@@ -624,11 +624,11 @@ function app.create()
 
     app.ui = assert(compile("app/lib/ui.lua"))(config)
 
-    -- neurondash.session.apiVersion = nil
+    -- dashx.session.apiVersion = nil
     config.environment = system.getVersion()
     config.ethosRunningVersion = {config.environment.major, config.environment.minor, config.environment.revision}
 
-    neurondash.session.lcdWidth, neurondash.session.lcdHeight = utils.getWindowSize()
+    dashx.session.lcdWidth, dashx.session.lcdHeight = utils.getWindowSize()
     app.radio = assert(compile("app/radios.lua"))()
 
     app.uiState = app.uiStatus.init
@@ -701,16 +701,16 @@ function app.event(widget, category, value, x, y)
 
         -- long press on enter should result in a save dialog box
         if value == KEY_ENTER_LONG then
-            if neurondash.app.Page.navButtons and neurondash.app.Page.navButtons.save == false then
+            if dashx.app.Page.navButtons and dashx.app.Page.navButtons.save == false then
                 return true
             end
             log("EVT_ENTER_LONG (PAGES)", "info")
             if app.dialogs.progressDisplay then app.ui.progressDisplayClose() end
             if app.dialogs.saveDisplay then app.ui.progressDisplaySaveClose() end
-            if neurondash.app.Page and neurondash.app.Page.onSaveMenu then
-                neurondash.app.Page.onSaveMenu(neurondash.app.Page)
+            if dashx.app.Page and dashx.app.Page.onSaveMenu then
+                dashx.app.Page.onSaveMenu(dashx.app.Page)
             else
-                neurondash.app.triggers.triggerSave = true
+                dashx.app.triggers.triggerSave = true
             end
             system.killEvents(KEY_ENTER_BREAK)
             return true
@@ -745,11 +745,11 @@ Returns:
 ]]
 function app.close()
 
-    neurondash.utils.reportMemoryUsage("closing application: start")
+    dashx.utils.reportMemoryUsage("closing application: start")
 
     -- save user preferences
-    local userpref_file = "SCRIPTS:/" .. neurondash.config.preferences .. "/preferences.ini"
-    neurondash.ini.save_ini_file(userpref_file, neurondash.preferences)
+    local userpref_file = "SCRIPTS:/" .. dashx.config.preferences .. "/preferences.ini"
+    dashx.ini.save_ini_file(userpref_file, dashx.preferences)
 
     app.guiIsRunning = false
     app.offlineMode = false
@@ -766,7 +766,7 @@ function app.close()
 
     -- Reset configuration and compiler flags
     config.useCompiler = true
-    neurondash.config.useCompiler = true
+    dashx.config.useCompiler = true
 
     -- Reset page and navigation state
     pageLoaded = 100
@@ -805,12 +805,12 @@ function app.close()
     CRSF_PAUSE_TELEMETRY = false
 
     -- Reset profile/rate state
-    neurondash.app.triggers.profileswitchLast = nil
-    neurondash.session.activeProfileLast = nil
-    neurondash.session.activeProfile = nil
-    neurondash.session.activeRateProfile = nil
-    neurondash.session.activeRateProfileLast = nil
-    neurondash.session.activeRateTable = nil
+    dashx.app.triggers.profileswitchLast = nil
+    dashx.session.activeProfileLast = nil
+    dashx.session.activeProfile = nil
+    dashx.session.activeRateProfile = nil
+    dashx.session.activeRateProfileLast = nil
+    dashx.session.activeRateTable = nil
 
     -- Cleanup
     collectgarbage()
@@ -818,11 +818,11 @@ function app.close()
 
     -- print out whats left
     --log("Application closed. Remaining tables:", "info")
-    --for i,v in pairs(neurondash.app) do
+    --for i,v in pairs(dashx.app) do
     --        log("   ->" .. tostring(i) .. " = " .. tostring(v), "info")
     --end
 
-    neurondash.utils.reportMemoryUsage("closing application: end")    
+    dashx.utils.reportMemoryUsage("closing application: end")    
 
     system.exit()
     return true

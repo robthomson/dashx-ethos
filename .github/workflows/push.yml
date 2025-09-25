@@ -1,4 +1,4 @@
-name: Create neurondash-lua-ethos ZIP on Push
+name: Create dashx-lua-ethos ZIP on Push
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
           echo "GIT_VER=commit-${SHORT_SHA}" >> $GITHUB_ENV
           echo "sha7=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
-      # Build merged JSON for the specific locale (writes to scripts/neurondash/i18n/<locale>.json)
+      # Build merged JSON for the specific locale (writes to scripts/dashx/i18n/<locale>.json)
       - name: Build i18n for this locale
         run: python bin/i18n/build-single-json.py --only ${{ matrix.lang }}
 
@@ -48,14 +48,14 @@ jobs:
       # Update version in the staged copy
       - name: Update version and config in main.lua (staged)
         run: |
-          sed -E -i "s/(version[[:space:]]*=[[:space:]]*\{[^}]*suffix[[:space:]]*=[[:space:]]*\")[^\"]*(\")/\1${{ env.GIT_VER }}\2/" "${{ env.STAGE }}/neurondash/main.lua"
-          grep 'config\.' "${{ env.STAGE }}/neurondash/main.lua" || true
+          sed -E -i "s/(version[[:space:]]*=[[:space:]]*\{[^}]*suffix[[:space:]]*=[[:space:]]*\")[^\"]*(\")/\1${{ env.GIT_VER }}\2/" "${{ env.STAGE }}/dashx/main.lua"
+          grep 'config\.' "${{ env.STAGE }}/dashx/main.lua" || true
 
       # Resolve @i18n(...)@ tags in the staged tree using the chosen locale
       - name: Resolve i18n tags (locale=${{ matrix.lang }})
         run: |
           python .vscode/scripts/resolve_i18n_tags.py \
-            --json "${{ env.STAGE }}/neurondash/i18n/${{ matrix.lang }}.json" \
+            --json "${{ env.STAGE }}/dashx/i18n/${{ matrix.lang }}.json" \
             --root "${{ env.STAGE }}"
 
       # Copy sound pack for this locale into the staged tree
@@ -67,17 +67,17 @@ jobs:
             echo "[AUDIO] $SRC not found; falling back to bin/sound-generator/soundpack/en"
             SRC="bin/sound-generator/soundpack/en"
           fi
-          DEST="${{ env.STAGE }}/neurondash/audio/${{ matrix.lang }}"
+          DEST="${{ env.STAGE }}/dashx/audio/${{ matrix.lang }}"
           rm -rf "$DEST"
           mkdir -p "$DEST"
           cp -a "$SRC/." "$DEST/"
           echo "[AUDIO] Copied $SRC -> $DEST"
 
       # Zip only the staged scripts folder for this locale
-      - name: Create neurondash-<lang>-commit-<sha7>.zip
+      - name: Create dashx-<lang>-commit-<sha7>.zip
         shell: bash
         run: |
-          ART="neurondash-${{ matrix.lang }}-${{ env.GIT_VER }}.zip"
+          ART="dashx-${{ matrix.lang }}-${{ env.GIT_VER }}.zip"
           (cd build/${{ matrix.lang }} && zip -q -r -9 "../$ART" scripts)
           mv "build/${{ matrix.lang }}/../$ART" .
           echo "ARTIFACT=$ART" >> $GITHUB_ENV
@@ -85,7 +85,7 @@ jobs:
       - name: Upload per-locale artifact
         uses: actions/upload-artifact@v4
         with:
-          name: neurondash-${{ matrix.lang }}-${{ env.GIT_VER }}
+          name: dashx-${{ matrix.lang }}-${{ env.GIT_VER }}
           path: ${{ env.ARTIFACT }}
           if-no-files-found: error
 

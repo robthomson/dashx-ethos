@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
 
  * MSP Sensor Table Structure
@@ -58,8 +58,8 @@
 
 local smart = {}
 
-local smartfuel = assert(neurondash.compiler.loadfile("tasks/sensors/lib/smartfuel.lua"))()
-local smartfuelvoltage = assert(neurondash.compiler.loadfile("tasks/sensors/lib/smartfuelvoltage.lua"))()
+local smartfuel = assert(dashx.compiler.loadfile("tasks/sensors/lib/smartfuel.lua"))()
+local smartfuelvoltage = assert(dashx.compiler.loadfile("tasks/sensors/lib/smartfuelvoltage.lua"))()
 
 -- container vars
 local log
@@ -74,9 +74,9 @@ local firstWakeup = true
 local function calculateFuel()
     -- work out what type of sensor we are running and use 
     -- the appropriate calculation method
-    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
+    if dashx.session.modelPreferences and dashx.session.modelPreferences.battery and dashx.session.modelPreferences.battery.calc_local then
         -- if we dont have a consumption.. fallback to voltage
-         if neurondash.session.modelPreferences.battery.calc_local == 1 or not neurondash.tasks.telemetry.getSensorSource("consumption") then
+         if dashx.session.modelPreferences.battery.calc_local == 1 or not dashx.tasks.telemetry.getSensorSource("consumption") then
             return smartfuelvoltage.calculate()
          else
             return smartfuel.calculate()
@@ -89,11 +89,11 @@ end
 
 local function calculateConsumption()
             -- If smartvoltage is enabled, calculate mAh used based on capacity
-            if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
-                if neurondash.session.modelPreferences.battery.calc_local == 1 or not neurondash.tasks.telemetry.getSensorSource("consumption") then
-                    local capacity = (neurondash.session.batteryConfig and neurondash.session.batteryConfig.batteryCapacity) or 1000 -- Default to 1000mAh if not set
-                    local smartfuelPct = neurondash.tasks.telemetry.getSensor("smartfuel")
-                    local warningPercentage = (neurondash.session.batteryConfig and neurondash.session.batteryConfig.consumptionWarningPercentage) or 30
+            if dashx.session.modelPreferences and dashx.session.modelPreferences.battery and dashx.session.modelPreferences.battery.calc_local then
+                if dashx.session.modelPreferences.battery.calc_local == 1 or not dashx.tasks.telemetry.getSensorSource("consumption") then
+                    local capacity = (dashx.session.batteryConfig and dashx.session.batteryConfig.batteryCapacity) or 1000 -- Default to 1000mAh if not set
+                    local smartfuelPct = dashx.tasks.telemetry.getSensor("smartfuel")
+                    local warningPercentage = (dashx.session.batteryConfig and dashx.session.batteryConfig.consumptionWarningPercentage) or 30
                     if smartfuelPct then
                         local usableCapacity = capacity * (1 - warningPercentage / 100)
                         local usedPercent = 100 - smartfuelPct -- how much has been used
@@ -101,11 +101,11 @@ local function calculateConsumption()
                     end
                 else
                     -- fallback to FC "consumption"
-                    return neurondash.tasks.telemetry.getSensor("consumption") or 0
+                    return dashx.tasks.telemetry.getSensor("consumption") or 0
                 end
             else
                 -- No battery prefs — fallback to FC "consumption"
-                return neurondash.tasks.telemetry.getSensor("consumption") or 0
+                return dashx.tasks.telemetry.getSensor("consumption") or 0
             end
 end    
 
@@ -120,8 +120,8 @@ local smart_sensors = {
         minimum = 0,
         maximum = 1,
         value = function()
-            if neurondash.preferences.model then
-                local settings = neurondash.preferences.model
+            if dashx.preferences.model then
+                local settings = dashx.preferences.model
                 if settings.armswitch then
                     local category, member, options = settings.armswitch:match("([^:]+):([^:]+):([^:]+)")
                     
@@ -143,8 +143,8 @@ local smart_sensors = {
         minimum = 0,
         maximum = 1,
         value = function()
-            if neurondash.preferences.model then
-                local settings = neurondash.preferences.model
+            if dashx.preferences.model then
+                local settings = dashx.preferences.model
                 if settings.idleswitch then
                     local category, member, options = settings.idleswitch:match("([^:]+):([^:]+):([^:]+)")
                     
@@ -191,7 +191,7 @@ local function createOrUpdateSensor(appId, fieldMeta, value)
             sensor:name(fieldMeta.name)
             sensor:appId(appId)
             sensor:physId(0)
-            sensor:module(neurondash.session.telemetrySensor:module())
+            sensor:module(dashx.session.telemetrySensor:module())
 
             if fieldMeta.unit then
                 sensor:unit(fieldMeta.unit)
@@ -216,8 +216,8 @@ local lastWakeupTime = 0
 function smart.wakeup()
 
     if firstWakeup then
-        log = neurondash.utils.log
-        tasks = neurondash.tasks
+        log = dashx.utils.log
+        tasks = dashx.tasks
         firstWakeup = false
     end
 

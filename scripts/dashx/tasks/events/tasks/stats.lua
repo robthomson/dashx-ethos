@@ -1,5 +1,5 @@
 --[[ 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -50,11 +50,11 @@ function stats.wakeup()
 
     -- we start this in wakeup as telemetry may not be set when this tasks starts
     if not telemetry then
-        telemetry = neurondash.tasks.telemetry
+        telemetry = dashx.tasks.telemetry
         return
     end
 
-    if neurondash.flightmode.current ~= "inflight" then return end
+    if dashx.flightmode.current ~= "inflight" then return end
 
     local now = os.clock()
     if now - lastTrackTime < 0.25 then return end

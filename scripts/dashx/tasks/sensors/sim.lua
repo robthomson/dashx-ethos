@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -33,7 +33,7 @@ local firstRun = true
 local sim = {}
 sim.name = "sim"
 
-local sensorList = neurondash.tasks.telemetry.simSensors()
+local sensorList = dashx.tasks.telemetry.simSensors()
 
 -- Drop list as a set-like table (only care about keys)
 local dropList = {
@@ -69,7 +69,7 @@ local function createSensor(uid, name, unit, dec, value, min, max)
     local sensor = model.createSensor({type=SENSOR_TYPE_DIY})
     sensor:name(name)
     sensor:appId(uid)
-    sensor:module(neurondash.session.telemetrySensor:module())
+    sensor:module(dashx.session.telemetrySensor:module())
     sensor:minimum(min or -1000000000)
     sensor:maximum(max or 2147483647)
 
@@ -126,7 +126,7 @@ local function ensureSensorExists(uid, name, unit, dec, value, min, max)
         if existingSensor then
             sensors.uid[uid] = existingSensor
         else
-            neurondash.utils.log("Create sensor: " .. uid, "info")
+            dashx.utils.log("Create sensor: " .. uid, "info")
             createSensor(uid, name, unit, dec, value, min, max)
         end
     end

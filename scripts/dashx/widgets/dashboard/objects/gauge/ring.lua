@@ -61,7 +61,7 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 local resolveThresholdColor = utils.resolveThresholdColor
@@ -106,7 +106,7 @@ end
 
 function render.wakeup(box)
 
-    local telemetry = neurondash.tasks.telemetry
+    local telemetry = dashx.tasks.telemetry
     
     -- Value extraction
     local source = getParam(box, "source")

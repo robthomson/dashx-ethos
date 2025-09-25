@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) NEURON Project
+ * Copyright (C) DASHX Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -44,8 +44,8 @@
 ]] --
 
 -- keep these constant / cheap definitions at file scope
-local utils = neurondash.utils
-local compiler = neurondash.compiler.loadfile
+local utils = dashx.utils
+local compiler = dashx.compiler.loadfile
 
 local currentTelemetrySensor
 local tasksPerCycle
@@ -132,7 +132,7 @@ function tasks.isTaskActive(name)
         if t.name == name then
             local age = os.clock() - t.last_run
             if name == "msp" then
-                return neurondash.app.triggers.mspBusy
+                return dashx.app.triggers.mspBusy
             elseif name == "callback" then
                 return age <= 2
             else
@@ -174,7 +174,7 @@ end
 function tasks.initialize()
     local cacheFile, cachePath = "tasks.lua", "cache/tasks.lua"
     if io.open(cachePath, "r") then
-        local ok, cached = pcall(neurondash.compiler.dofile, cachePath)
+        local ok, cached = pcall(dashx.compiler.dofile, cachePath)
         if ok and type(cached) == "table" then
             tasks._initMetadata = cached
             utils.log("[cache] Loaded task metadata from cache", "info")
@@ -276,7 +276,7 @@ end
 local function clearSessionAndQueue()
     tasks.setTelemetryTypeChanged()
     utils.session()
-    local q = neurondash.tasks and neurondash.tasks.msp and neurondash.tasks.msp.mspQueue
+    local q = dashx.tasks and dashx.tasks.msp and dashx.tasks.msp.mspQueue
     if q then q:clear() end
 
     internalModule = nil
@@ -293,7 +293,7 @@ function tasks.telemetryCheckScheduler()
     local now = os.clock()
 
     local telemetryState = (tlm and tlm:state()) or false
-    if system.getVersion().simulation and neurondash.simevent.telemetry_state == false then
+    if system.getVersion().simulation and dashx.simevent.telemetry_state == false then
         telemetryState = false
     end
 
@@ -304,10 +304,10 @@ function tasks.telemetryCheckScheduler()
 
     -- fast path: if we already have a sensor, don’t rescan every time
     if currentSensor then
-       neurondash.session.telemetryState  = true
-       neurondash.session.telemetrySensor = currentSensor
-       neurondash.session.telemetryModule = currentModuleId
-       neurondash.session.telemetryType   = currentTelemetryType 
+       dashx.session.telemetryState  = true
+       dashx.session.telemetrySensor = currentSensor
+       dashx.session.telemetryModule = currentModuleId
+       dashx.session.telemetryType   = currentTelemetryType 
 
        -- catch switching when to fast for telemetry to drop
         if now - lastNameCheckAt >= NAME_CHECK_INTERVAL then
@@ -347,14 +347,14 @@ function tasks.telemetryCheckScheduler()
         return clearSessionAndQueue()
     end
 
-    neurondash.session.telemetryState  = true
-    neurondash.session.telemetrySensor = currentSensor
-    neurondash.session.telemetryModule = currentModuleId
-    neurondash.session.telemetryType   = currentTelemetryType
+    dashx.session.telemetryState  = true
+    dashx.session.telemetrySensor = currentSensor
+    dashx.session.telemetryModule = currentModuleId
+    dashx.session.telemetryType   = currentTelemetryType
 
 
     if currentTelemetryType ~= lastTelemetryType then
-        neurondash.utils.log("Telemetry type changed to " .. tostring(currentTelemetryType), "info")
+        dashx.utils.log("Telemetry type changed to " .. tostring(currentTelemetryType), "info")
         tasks.setTelemetryTypeChanged()
         lastTelemetryType = currentTelemetryType
         clearSessionAndQueue()
@@ -367,7 +367,7 @@ function tasks.active()
 
     local age = os.clock() - tasks.heartbeat
     tasks.wasOn = age >= 2
-    if neurondash.app.triggers.mspBusy or age <= 2 then return true end
+    if dashx.app.triggers.mspBusy or age <= 2 then return true end
 
     return false
 end
@@ -386,13 +386,13 @@ local function canRunTask(task, now)
 
     local priorityTask = task.name == "msp" or task.name == "callback"
 
-    local linkOK = not task.linkrequired or neurondash.session.telemetryState
-    local connOK = not task.connected    or neurondash.session.isConnected
+    local linkOK = not task.linkrequired or dashx.session.telemetryState
+    local connOK = not task.connected    or dashx.session.isConnected
 
     local ok =
         linkOK
         and connOK
-        and (priorityTask or od >= 0 or not neurondash.app.triggers.mspBusy)
+        and (priorityTask or od >= 0 or not dashx.app.triggers.mspBusy)
         and (not task.simulatoronly or usingSimulator)
 
     return ok, od
@@ -403,7 +403,7 @@ function tasks.wakeup()
     schedulerTick = schedulerTick + 1
     tasks.heartbeat = os.clock()
 
-    tasks.profile.enabled = neurondash.preferences and neurondash.preferences.developer and neurondash.preferences.developer.taskprofiler
+    tasks.profile.enabled = dashx.preferences and dashx.preferences.developer and dashx.preferences.developer.taskprofiler
 
     if ethosVersionGood == nil then
         ethosVersionGood = utils.ethosVersionAtLeast()
@@ -649,7 +649,7 @@ function tasks.wakeup()
 
 
   cpu_avg = CPU_ALPHA * instant_util + (1 - CPU_ALPHA) * cpu_avg
-  neurondash.session.cpuload = math.min(100, math.max(0, cpu_avg * 100))
+  dashx.session.cpuload = math.min(100, math.max(0, cpu_avg * 100))
 
   last_wakeup_start = now
 
@@ -669,16 +669,16 @@ function tasks.wakeup()
         else
             mem_avg_kb = MEM_ALPHA * free_now_kb + (1 - MEM_ALPHA) * mem_avg_kb
         end
-        neurondash.session.freeram   = mem_avg_kb          -- KB (ema)
-        neurondash.session.luaUsedKb = collectgarbage and collectgarbage("count") or nil
-        neurondash.session.memSource = "system"
+        dashx.session.freeram   = mem_avg_kb          -- KB (ema)
+        dashx.session.luaUsedKb = collectgarbage and collectgarbage("count") or nil
+        dashx.session.memSource = "system"
         else
         -- Fallback: no system metric; still report Lua heap used so UI isn’t “0”
         local used_kb = collectgarbage and collectgarbage("count") or nil
-        neurondash.session.luaUsedKb = used_kb
+        dashx.session.luaUsedKb = used_kb
         -- keep last known free if we had one; otherwise mark as nil
-        neurondash.session.freeram   = mem_avg_kb          -- may be nil if never known
-        neurondash.session.memSource = "lua"
+        dashx.session.freeram   = mem_avg_kb          -- may be nil if never known
+        dashx.session.memSource = "lua"
         end
     end
     end
@@ -692,7 +692,7 @@ function tasks.reset()
             tasks[task.name].reset()
         end
     end
-  neurondash.utils.session()
+  dashx.utils.session()
 end
 
 -- =========================
@@ -800,15 +800,15 @@ end
 
 --- Sets the telemetry type changed state for all tasks in the `tasksList`.
 -- Iterates through each task in `tasksList` and calls its `setTelemetryTypeChanged` method if it exists.
--- After updating all tasks, invokes the `neurondash.utils.session()` function.
+-- After updating all tasks, invokes the `dashx.utils.session()` function.
 function tasks.setTelemetryTypeChanged()
     for _, task in ipairs(tasksList) do
         if tasks[task.name].setTelemetryTypeChanged then
-            --neurondash.utils.log("Notifying task [" .. task.name .. "] of telemetry type change", "info")
+            --dashx.utils.log("Notifying task [" .. task.name .. "] of telemetry type change", "info")
             tasks[task.name].setTelemetryTypeChanged()
         end
     end
-  neurondash.utils.session()
+  dashx.utils.session()
 end
 
 function tasks.read()

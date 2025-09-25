@@ -1,5 +1,5 @@
 --[[ 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -35,7 +35,7 @@ local channelSources = {}
 local initialized = false
 
 local function initChannelSources()
-    local rxMap = neurondash.session.rx.map
+    local rxMap = dashx.session.rx.map
     for _, name in ipairs(channelNames) do
         local member = rxMap[name]
         if member then
@@ -49,7 +49,7 @@ local function initChannelSources()
 end
 
 function rxmap.wakeup()
-    if not neurondash.utils.rxmapReady() then return end
+    if not dashx.utils.rxmapReady() then return end
 
     if not initialized then
         initChannelSources()
@@ -59,7 +59,7 @@ function rxmap.wakeup()
         if src then
             local val = src:value()
             if val ~= nil then
-                neurondash.session.rx.values[name] = val
+                dashx.session.rx.values[name] = val
             end
         end
     end

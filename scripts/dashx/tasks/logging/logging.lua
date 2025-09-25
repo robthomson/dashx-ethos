@@ -55,8 +55,8 @@ end
 
 local function checkLogdirExists()
         os.mkdir("LOGS:")
-        os.mkdir("LOGS:/neurondash")
-        os.mkdir("LOGS:/neurondash/telemetry")
+        os.mkdir("LOGS:/dashx")
+        os.mkdir("LOGS:/dashx/telemetry")
 end
 
 function logging.queueLog(msg)
@@ -70,9 +70,9 @@ end
 function logging.writeLogs(forcewrite)
     local max_lines = forcewrite and #log_queue or 10
     if #log_queue > 0 and logFileName then
-        local filePath = "LOGS:neurondash/telemetry/" .. logFileName
+        local filePath = "LOGS:dashx/telemetry/" .. logFileName
 
-        neurondash.utils.log(
+        dashx.utils.log(
             string.format("Write %d (of %d) lines to %s",
             math.min(#log_queue, max_lines), #log_queue, logFileName),
             "info"
@@ -102,7 +102,7 @@ function logging.writeLogs(forcewrite)
 function logging.getLogHeader()
     local names = {}
     for _, sensor in ipairs(logTable) do table.insert(names, sensor.name) end
-    return "time, " .. neurondash.utils.joinTableItems(names, ", ")
+    return "time, " .. dashx.utils.joinTableItems(names, ", ")
 end
 
 function logging.getLogLine()
@@ -112,7 +112,7 @@ function logging.getLogLine()
         values[i] = src and src:value() or 0
     end
     local ts = os.time()
-    return ts .. ", " .. neurondash.utils.joinTableItems(values, ", ")
+    return ts .. ", " .. dashx.utils.joinTableItems(values, ", ")
 end
 
 function logging.getLogTable()
@@ -122,7 +122,7 @@ end
 
 function logging.flushLogs()
     if logFileName or logHeader then
-        neurondash.utils.log("Flushing logs - " .. tostring(logFileName), "info")
+        dashx.utils.log("Flushing logs - " .. tostring(logFileName), "info")
         -- Write pending lines before clearing state so they don't carry over
         logging.writeLogs(true)
         logFileName, logHeader = nil, nil
@@ -137,12 +137,12 @@ end
 
 function logging.wakeup()
 
-    if not neurondash.session.mcu_id then
+    if not dashx.session.mcu_id then
         return
     end
 
     if not telemetry then
-        telemetry = neurondash.tasks.telemetry
+        telemetry = dashx.tasks.telemetry
         return
     end
 
@@ -158,22 +158,22 @@ function logging.wakeup()
 
 
     -- SIMPLIFIED logging trigger:
-    if neurondash.utils.inFlight() then
+    if dashx.utils.inFlight() then
         if not logFileName then
             logFileName = generateLogFilename()
-            neurondash.utils.log("Logging triggered by inFlight() - " .. logFileName, "info")
+            dashx.utils.log("Logging triggered by inFlight() - " .. logFileName, "info")
 
-            local iniName = "LOGS:neurondash/telemetry/logs.ini"
-            local iniData = neurondash.ini.load_ini_file(iniName) or {}
+            local iniName = "LOGS:dashx/telemetry/logs.ini"
+            local iniData = dashx.ini.load_ini_file(iniName) or {}
             if not iniData.model then
                 iniData.model = {}
             end
-            iniData.model.name = neurondash.session.craftName or model.name() or "Unknown"
-            neurondash.ini.save_ini_file(iniName, iniData)
+            iniData.model.name = dashx.session.craftName or model.name() or "Unknown"
+            dashx.ini.save_ini_file(iniName, iniData)
         end
         if not logHeader then
             -- Write the header immediately so it is always the first line
-            local filePath = "LOGS:neurondash/telemetry/" .. logFileName
+            local filePath = "LOGS:dashx/telemetry/" .. logFileName
             local f = io.open(filePath, 'w')
             if f then
                 io.write(f, logging.getLogHeader(), "\n")

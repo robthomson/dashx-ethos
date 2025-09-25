@@ -48,7 +48,7 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 local lastDisplayValue = nil
@@ -93,7 +93,7 @@ end
 
 function render.wakeup(box)
 
-    local telemetry = neurondash.tasks.telemetry
+    local telemetry = dashx.tasks.telemetry
 
     -- Reuse cache table
     local c = box._cache or {}
@@ -138,7 +138,7 @@ function render.wakeup(box)
     local value, unit
 
     -- Determine if telemetry is active
-    local telemetryActive = neurondash.session and neurondash.session.isConnected
+    local telemetryActive = dashx.session and dashx.session.isConnected
 
     if source and telemetry and telemetry.getSensorStats then
         local stats = telemetry.getSensorStats(source)

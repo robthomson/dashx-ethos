@@ -57,7 +57,7 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 local resolveThresholdColor = utils.resolveThresholdColor
@@ -103,7 +103,7 @@ end
 
 function render.wakeup(box)
 
-    local telemetry = neurondash.tasks.telemetry
+    local telemetry = dashx.tasks.telemetry
 
     -- Value extraction
     local source = getParam(box, "source")
@@ -116,7 +116,7 @@ function render.wakeup(box)
     local arcmax = getParam(box, "arcmax") == true
     local maxval = nil
     if arcmax and source then
-        local stats = neurondash.tasks.telemetry.getSensorStats(source)
+        local stats = dashx.tasks.telemetry.getSensorStats(source)
         local currentMax = stats and stats.max or nil
         local prevMax = box._cache and box._cache.maxval or nil
         maxval = currentMax or prevMax

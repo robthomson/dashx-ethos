@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -22,8 +22,8 @@ local sensorstats = {}
 local runOnce = false
 
 function sensorstats.wakeup()
-    if neurondash.tasks.telemetry then
-        neurondash.tasks.telemetry.sensorStats = {}
+    if dashx.tasks.telemetry then
+        dashx.tasks.telemetry.sensorStats = {}
         runOnce = true
     end
 end

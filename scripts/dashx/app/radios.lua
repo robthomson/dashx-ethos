@@ -1,4 +1,4 @@
-local LCD_W, LCD_H = neurondash.utils.getWindowSize()
+local LCD_W, LCD_H = dashx.utils.getWindowSize()
 local resolution = LCD_W .. "x" .. LCD_H
 
 --[[

@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -19,8 +19,8 @@
 local init = {
     script = "dashboard.lua", -- run this script
     varname = "dashboard", -- variable name used in the suite. (if nil, we use the script var with .lua removed)
-    name = "NEURON Dashboard", -- name of the widget
-    key = "nrdsdsh" -- key id used for widget
+    name = "DashX", -- name of the widget
+    key = "dshxdsh" -- key id used for widget
 }
 
 return init

@@ -2,30 +2,30 @@ local settings = {}
 
 local function openPage(pageIdx, title, script)
     enableWakeup = true
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
     form.clear()
 
-    neurondash.app.lastIdx    = pageIdx
-    neurondash.app.lastTitle  = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx    = pageIdx
+    dashx.app.lastTitle  = title
+    dashx.app.lastScript = script
 
-    neurondash.app.ui.fieldHeader(
+    dashx.app.ui.fieldHeader(
         "@i18n(app.modules.settings.name)@" .. " / " .. "@i18n(app.modules.settings.txt_general)@"
     )
-    neurondash.session.formLineCnt = 0
+    dashx.session.formLineCnt = 0
 
     local formFieldCount = 0
 
-    settings = neurondash.preferences.general
+    settings = dashx.preferences.general
 
     -- Icon size choice field
     formFieldCount = formFieldCount + 1
-    neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-    neurondash.app.formLines[neurondash.session.formLineCnt] = form.addLine(
+    dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+    dashx.app.formLines[dashx.session.formLineCnt] = form.addLine(
         "@i18n(app.modules.settings.txt_iconsize)@"
     )
-    neurondash.app.formFields[formFieldCount] = form.addChoiceField(
-        neurondash.app.formLines[neurondash.session.formLineCnt],
+    dashx.app.formFields[formFieldCount] = form.addChoiceField(
+        dashx.app.formLines[dashx.session.formLineCnt],
         nil,
         {
             { "@i18n(app.modules.settings.txt_text)@",  0 },
@@ -33,14 +33,14 @@ local function openPage(pageIdx, title, script)
             { "@i18n(app.modules.settings.txt_large)@", 2 },
         },
         function()
-            if neurondash.preferences and neurondash.preferences.general and neurondash.preferences.general.iconsize then
+            if dashx.preferences and dashx.preferences.general and dashx.preferences.general.iconsize then
                 return settings.iconsize
             else
                 return 1
             end
         end,
         function(newValue)
-            if neurondash.preferences and neurondash.preferences.general then
+            if dashx.preferences and dashx.preferences.general then
                 settings.iconsize = newValue
             end
         end
@@ -50,8 +50,8 @@ local function openPage(pageIdx, title, script)
 end
 
 local function onNavMenu()
-    neurondash.app.ui.progressDisplay()
-    neurondash.app.ui.openPage(
+    dashx.app.ui.progressDisplay()
+    dashx.app.ui.openPage(
         pageIdx,
         "@i18n(app.modules.settings.name)@",
         "settings/settings.lua"
@@ -64,15 +64,15 @@ local function onSaveMenu()
             label  = "@i18n(app.btn_ok_long)@",
             action = function()
                 local msg = "@i18n(app.modules.profile_select.save_prompt_local)@"
-                neurondash.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
+                dashx.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
                 for key, value in pairs(settings) do
-                    neurondash.preferences.general[key] = value
+                    dashx.preferences.general[key] = value
                 end
-                neurondash.ini.save_ini_file(
-                    "SCRIPTS:/" .. neurondash.config.preferences .. "/preferences.ini",
-                    neurondash.preferences
+                dashx.ini.save_ini_file(
+                    "SCRIPTS:/" .. dashx.config.preferences .. "/preferences.ini",
+                    dashx.preferences
                 )
-                neurondash.app.triggers.closeSave = true
+                dashx.app.triggers.closeSave = true
                 return true
             end,
         },
@@ -98,7 +98,7 @@ end
 local function event(widget, category, value, x, y)
     -- if close event detected go to section home page
     if category == EVT_CLOSE and value == 0 or value == 35 then
-        neurondash.app.ui.openPage(
+        dashx.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.settings.name)@",
             "settings/settings.lua"

@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -31,7 +31,7 @@ local switchStartTime = nil
 
 --- Initializes the switchTable with switch sources and sensor audio units based on user preferences.
 -- 
--- This function retrieves the user's switch preferences from `neurondash.preferences.switches`.
+-- This function retrieves the user's switch preferences from `dashx.preferences.switches`.
 -- For each valid preference entry, it parses the category and member values, converts them to numbers,
 -- and uses `system.getSource` to obtain the corresponding switch source, which is then stored in `switchTable.switches`.
 -- Finally, it populates `switchTable.units` with the list of sensor audio units from telemetry.
@@ -39,11 +39,11 @@ local switchStartTime = nil
 -- @function initializeSwitches
 -- @usage
 --   initializeSwitches()
--- @see neurondash.preferences.switches
+-- @see dashx.preferences.switches
 -- @see system.getSource
--- @see neurondash.tasks.telemetry.listSensorAudioUnits
+-- @see dashx.tasks.telemetry.listSensorAudioUnits
 local function initializeSwitches()
-    local prefs = neurondash.preferences.switches
+    local prefs = dashx.preferences.switches
     if not prefs then return end
 
     for key, v in pairs(prefs) do
@@ -60,7 +60,7 @@ local function initializeSwitches()
         end
     end
 
-    switchTable.units = neurondash.tasks.telemetry.listSensorAudioUnits()
+    switchTable.units = dashx.tasks.telemetry.listSensorAudioUnits()
 end
 
 --- Handles the periodic wakeup logic for monitoring and announcing switch states.
@@ -79,7 +79,7 @@ end
 -- Dependencies:
 --   - `os.clock()`: Current time reference.
 --   - `switchTable.switches`: Table of switch sensor objects.
---   - `neurondash.tasks.telemetry.getSensorSource(key)`: Retrieves the sensor source for a switch.
+--   - `dashx.tasks.telemetry.getSensorSource(key)`: Retrieves the sensor source for a switch.
 --   - `system.playNumber(value, unit, decimals)`: Announces the sensor value.
 --
 -- Globals used:
@@ -116,7 +116,7 @@ function switches.wakeup()
         end
 
         if playNow then
-            local sensorSrc = neurondash.tasks.telemetry.getSensorSource(key)
+            local sensorSrc = dashx.tasks.telemetry.getSensorSource(key)
             if sensorSrc then
                 local value = sensorSrc:value()
                 if value and type(value) == "number" then

@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -28,14 +28,14 @@ local taskExecutionPercent = 50 -- 50% of tasks will run each cycle
 
 -- Dynamically load task modules and populate wakeupHandlers
 for _, name in ipairs(taskNames) do
-    events[name] = assert(neurondash.compiler.loadfile("tasks/events/tasks/" .. name .. ".lua"))(neurondash.config)
+    events[name] = assert(dashx.compiler.loadfile("tasks/events/tasks/" .. name .. ".lua"))(dashx.config)
     table.insert(wakeupHandlers, function() events[name].wakeup() end)
 end
 
 function events.wakeup()
     local currentTime = os.clock()
 
-    if neurondash.session.isConnected and neurondash.session.telemetryState then
+    if dashx.session.isConnected and dashx.session.telemetryState then
         if telemetryStartTime == nil then
             telemetryStartTime = currentTime
         end

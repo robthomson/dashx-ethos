@@ -1,4 +1,4 @@
-local utils = assert(neurondash.compiler.loadfile("SCRIPTS:/" .. neurondash.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
+local utils = assert(dashx.compiler.loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
 
 local triggerOverRide = false
 local triggerOverRideAll = false
@@ -36,7 +36,7 @@ end
 local function openPage(pidx, title, script, displaymode)
 
     -- hard exit on error
-    if not neurondash.utils.ethosVersionAtLeast() then
+    if not dashx.utils.ethosVersionAtLeast() then
         return
     end
 
@@ -44,19 +44,19 @@ local function openPage(pidx, title, script, displaymode)
     currentDisplayMode = displaymode
 
 
-    neurondash.app.triggers.isReady = false
-    neurondash.app.uiState = neurondash.app.uiStatus.pages
+    dashx.app.triggers.isReady = false
+    dashx.app.uiState = dashx.app.uiStatus.pages
 
     form.clear()
 
-    neurondash.app.lastIdx = idx
-    neurondash.app.lastTitle = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx = idx
+    dashx.app.lastTitle = title
+    dashx.app.lastScript = script
 
-    local w, h = neurondash.utils.getWindowSize()
+    local w, h = dashx.utils.getWindowSize()
     local windowWidth = w
     local windowHeight = h
-    local padding = neurondash.app.radio.buttonPadding
+    local padding = dashx.app.radio.buttonPadding
 
     local sc
     local panel
@@ -68,35 +68,35 @@ local function openPage(pidx, title, script, displaymode)
     print(logDir)
 
 
-    local name = utils.resolveModelName(neurondash.session.mcu_id or neurondash.session.activeLogDir)
-    neurondash.app.ui.fieldHeader("Logs" )
+    local name = utils.resolveModelName(dashx.session.mcu_id or dashx.session.activeLogDir)
+    dashx.app.ui.fieldHeader("Logs" )
 
     local buttonW
     local buttonH
     local padding
     local numPerRow
 
-   if neurondash.preferences.general.iconsize == 0 then
-        padding = neurondash.app.radio.buttonPaddingSmall
-        buttonW = (neurondash.session.lcdWidth - padding) / neurondash.app.radio.buttonsPerRow - padding
-        buttonH = neurondash.app.radio.navbuttonHeight
-        numPerRow = neurondash.app.radio.buttonsPerRow
+   if dashx.preferences.general.iconsize == 0 then
+        padding = dashx.app.radio.buttonPaddingSmall
+        buttonW = (dashx.session.lcdWidth - padding) / dashx.app.radio.buttonsPerRow - padding
+        buttonH = dashx.app.radio.navbuttonHeight
+        numPerRow = dashx.app.radio.buttonsPerRow
     end
     -- SMALL ICONS
-    if neurondash.preferences.general.iconsize == 1 then
+    if dashx.preferences.general.iconsize == 1 then
 
-        padding = neurondash.app.radio.buttonPaddingSmall
-        buttonW = neurondash.app.radio.buttonWidthSmall
-        buttonH = neurondash.app.radio.buttonHeightSmall
-        numPerRow = neurondash.app.radio.buttonsPerRowSmall
+        padding = dashx.app.radio.buttonPaddingSmall
+        buttonW = dashx.app.radio.buttonWidthSmall
+        buttonH = dashx.app.radio.buttonHeightSmall
+        numPerRow = dashx.app.radio.buttonsPerRowSmall
     end
     -- LARGE ICONS
-    if neurondash.preferences.general.iconsize == 2 then
+    if dashx.preferences.general.iconsize == 2 then
 
-        padding = neurondash.app.radio.buttonPadding
-        buttonW = neurondash.app.radio.buttonWidth
-        buttonH = neurondash.app.radio.buttonHeight
-        numPerRow = neurondash.app.radio.buttonsPerRow
+        padding = dashx.app.radio.buttonPadding
+        buttonW = dashx.app.radio.buttonWidth
+        buttonH = dashx.app.radio.buttonHeight
+        numPerRow = dashx.app.radio.buttonsPerRow
     end
 
 
@@ -105,11 +105,11 @@ local function openPage(pidx, title, script, displaymode)
     local lc = 0
     local bx = 0
 
-    if neurondash.app.gfx_buttons["logs_logs"] == nil then neurondash.app.gfx_buttons["logs_logs"] = {} end
-    if neurondash.preferences.menulastselected["logs"] == nil then neurondash.preferences.menulastselected["logs_logs"] = 1 end
+    if dashx.app.gfx_buttons["logs_logs"] == nil then dashx.app.gfx_buttons["logs_logs"] = {} end
+    if dashx.preferences.menulastselected["logs"] == nil then dashx.preferences.menulastselected["logs_logs"] = 1 end
 
-    if neurondash.app.gfx_buttons["logs"] == nil then neurondash.app.gfx_buttons["logs"] = {} end
-    if neurondash.preferences.menulastselected["logs_logs"] == nil then neurondash.preferences.menulastselected["logs_logs"] = 1 end
+    if dashx.app.gfx_buttons["logs"] == nil then dashx.app.gfx_buttons["logs"] = {} end
+    if dashx.preferences.menulastselected["logs_logs"] == nil then dashx.preferences.menulastselected["logs_logs"] = 1 end
 
     -- Group logs by date
     local groupedLogs = {}
@@ -129,7 +129,7 @@ local function openPage(pidx, title, script, displaymode)
 
     if #dates == 0 then
 
-        LCD_W, LCD_H = neurondash.utils.getWindowSize()
+        LCD_W, LCD_H = dashx.utils.getWindowSize()
         local str = "@i18n(app.modules.logs.msg_no_logs_found)@"
         local ew = LCD_W
         local eh = LCD_H
@@ -137,14 +137,14 @@ local function openPage(pidx, title, script, displaymode)
         local eposX = ew / 2 - etsizeW / 2
         local eposY = eh / 2 - etsizeH / 2
 
-        local posErr = {w = etsizeW, h = neurondash.app.radio.navbuttonHeight, x = eposX, y = ePosY}
+        local posErr = {w = etsizeW, h = dashx.app.radio.navbuttonHeight, x = eposX, y = ePosY}
 
         line = form.addLine("", nil, false)
         form.addStaticText(line, posErr, str)
 
     else
-        neurondash.app.gfx_buttons["logs_logs"] = neurondash.app.gfx_buttons["logs_logs"] or {}
-        neurondash.preferences.menulastselected["logs_logs"] = neurondash.preferences.menulastselected["logs_logs"] or 1
+        dashx.app.gfx_buttons["logs_logs"] = dashx.app.gfx_buttons["logs_logs"] or {}
+        dashx.preferences.menulastselected["logs_logs"] = dashx.preferences.menulastselected["logs_logs"] or 1
 
         for idx, section in ipairs(dates) do
 
@@ -154,30 +154,30 @@ local function openPage(pidx, title, script, displaymode)
                 for pidx, page in ipairs(groupedLogs[section]) do
 
                             if lc == 0 then
-                                y = form.height() + (neurondash.preferences.general.iconsize == 2 and neurondash.app.radio.buttonPadding or neurondash.app.radio.buttonPaddingSmall)
+                                y = form.height() + (dashx.preferences.general.iconsize == 2 and dashx.app.radio.buttonPadding or dashx.app.radio.buttonPaddingSmall)
                             end
 
                             local x = (buttonW + padding) * lc
-                            if neurondash.preferences.general.iconsize ~= 0 then
-                                if neurondash.app.gfx_buttons["logs_logs"][pidx] == nil then neurondash.app.gfx_buttons["logs_logs"][pidx] = lcd.loadMask("app/modules/logs/gfx/logs.png") end
+                            if dashx.preferences.general.iconsize ~= 0 then
+                                if dashx.app.gfx_buttons["logs_logs"][pidx] == nil then dashx.app.gfx_buttons["logs_logs"][pidx] = lcd.loadMask("app/modules/logs/gfx/logs.png") end
                             else
-                                neurondash.app.gfx_buttons["logs_logs"][pidx] = nil
+                                dashx.app.gfx_buttons["logs_logs"][pidx] = nil
                             end
 
-                            neurondash.app.formFields[pidx] = form.addButton(line, {x = x, y = y, w = buttonW, h = buttonH}, {
+                            dashx.app.formFields[pidx] = form.addButton(line, {x = x, y = y, w = buttonW, h = buttonH}, {
                                 text = extractHourMinute(page),
-                                icon = neurondash.app.gfx_buttons["logs_logs"][pidx],
+                                icon = dashx.app.gfx_buttons["logs_logs"][pidx],
                                 options = FONT_S,
                                 paint = function() end,
                                 press = function()
-                                    neurondash.preferences.menulastselected["logs_logs"] = tostring(idx) .. "_" .. tostring(pidx)
-                                    neurondash.app.ui.progressDisplay()
-                                    neurondash.app.ui.openPage(pidx, "Logs", "logs/logs_view.lua", page)                       
+                                    dashx.preferences.menulastselected["logs_logs"] = tostring(idx) .. "_" .. tostring(pidx)
+                                    dashx.app.ui.progressDisplay()
+                                    dashx.app.ui.openPage(pidx, "Logs", "logs/logs_view.lua", page)                       
                                 end
                             })
 
-                            if neurondash.preferences.menulastselected["logs_logs"] == tostring(idx) .. "_" .. tostring(pidx) then
-                                neurondash.app.formFields[pidx]:focus()
+                            if dashx.preferences.menulastselected["logs_logs"] == tostring(idx) .. "_" .. tostring(pidx) then
+                                dashx.app.formFields[pidx]:focus()
                             end
 
                             lc = (lc + 1) % numPerRow
@@ -190,7 +190,7 @@ local function openPage(pidx, title, script, displaymode)
     end
 
 
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
 
     enableWakeup = true
 
@@ -199,7 +199,7 @@ end
 
 local function event(widget, category, value, x, y)
     if  value == 35 then
-        neurondash.app.ui.openMainMenu()
+        dashx.app.ui.openMainMenu()
         return true
     end
     return false
@@ -215,8 +215,8 @@ end
 
 local function onNavMenu()
 
-      --neurondash.app.ui.openPage(neurondash.app.lastIdx, neurondash.app.lastTitle, "logs/logs_dir.lua")
-    neurondash.app.ui.openMainMenu()
+      --dashx.app.ui.openPage(dashx.app.lastIdx, dashx.app.lastTitle, "logs/logs_dir.lua")
+    dashx.app.ui.openMainMenu()
 
 end
 

@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -21,31 +21,31 @@ local battery = {}
 
 function battery.wakeup()
     -- quick exit if no apiVersion
-    if neurondash.session.apiVersion == nil then return end    
+    if dashx.session.apiVersion == nil then return end    
 
-    if (neurondash.session.batteryConfig == nil and neurondash.session.mcu_id ) then
-
-
-
-            local modelpref_file = "SCRIPTS:/" .. neurondash.config.preferences .. "/models/" .. neurondash.session.mcu_id ..".ini"
+    if (dashx.session.batteryConfig == nil and dashx.session.mcu_id ) then
 
 
-            os.mkdir("SCRIPTS:/" .. neurondash.config.preferences)
-            os.mkdir("SCRIPTS:/" .. neurondash.config.preferences .. "/models")
-            local master_ini  = neurondash.ini.load_ini_file(modelpref_file) or {}
+
+            local modelpref_file = "SCRIPTS:/" .. dashx.config.preferences .. "/models/" .. dashx.session.mcu_id ..".ini"
+
+
+            os.mkdir("SCRIPTS:/" .. dashx.config.preferences)
+            os.mkdir("SCRIPTS:/" .. dashx.config.preferences .. "/models")
+            local master_ini  = dashx.ini.load_ini_file(modelpref_file) or {}
             local preferences = master_ini.battery or {}
 
 
 
-            neurondash.session.batteryConfig = {}
-            neurondash.session.batteryConfig.batteryCapacity = preferences.batteryCapacity 
-            neurondash.session.batteryConfig.batteryCellCount = preferences.batteryCellCount
-            neurondash.session.batteryConfig.vbatwarningcellvoltage = preferences.vbatwarningcellvoltage/10
-            neurondash.session.batteryConfig.vbatmincellvoltage = preferences.vbatmincellvoltage/10
-            neurondash.session.batteryConfig.vbatmaxcellvoltage = preferences.vbatmaxcellvoltage/10
-            neurondash.session.batteryConfig.vbatfullcellvoltage = preferences.vbatfullcellvoltage/10
-            neurondash.session.batteryConfig.lvcPercentage = preferences.lvcPercentage
-            neurondash.session.batteryConfig.consumptionWarningPercentage = preferences.consumptionWarningPercentage
+            dashx.session.batteryConfig = {}
+            dashx.session.batteryConfig.batteryCapacity = preferences.batteryCapacity 
+            dashx.session.batteryConfig.batteryCellCount = preferences.batteryCellCount
+            dashx.session.batteryConfig.vbatwarningcellvoltage = preferences.vbatwarningcellvoltage/10
+            dashx.session.batteryConfig.vbatmincellvoltage = preferences.vbatmincellvoltage/10
+            dashx.session.batteryConfig.vbatmaxcellvoltage = preferences.vbatmaxcellvoltage/10
+            dashx.session.batteryConfig.vbatfullcellvoltage = preferences.vbatfullcellvoltage/10
+            dashx.session.batteryConfig.lvcPercentage = preferences.lvcPercentage
+            dashx.session.batteryConfig.consumptionWarningPercentage = preferences.consumptionWarningPercentage
 
 
 
@@ -54,11 +54,11 @@ function battery.wakeup()
 end
 
 function battery.reset()
-    neurondash.session.batteryConfig = nil
+    dashx.session.batteryConfig = nil
 end
 
 function battery.isComplete()
-    if neurondash.session.batteryConfig ~= nil then
+    if dashx.session.batteryConfig ~= nil then
         return true
     end
 end

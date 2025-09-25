@@ -7,7 +7,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--launch",
         "--lang", "en",
       ],
@@ -22,7 +22,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--fileext", "fast",
         "--launch",
         "--lang", "en",
@@ -38,7 +38,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--choose",
         "--launch",
         "--lang", "en",
@@ -54,7 +54,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--fileext", "fast",
         "--choose",
         "--launch",
@@ -71,7 +71,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--launch",
         "--lang", "${input:i18nLocale}",
       ],
@@ -86,7 +86,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--choose",
         "--launch",
         "--lang", "${input:i18nLocale}",
@@ -102,7 +102,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--radio",
         "--lang", "en",
       ],
@@ -117,7 +117,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--fileext", "fast",
         "--radio",
         "--lang", "en",
@@ -133,7 +133,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--radio",
         "--radio-debug",
         "--lang", "en",
@@ -149,7 +149,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--fileext", "fast",
         "--radio",
         "--radio-debug",
@@ -166,7 +166,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
       "args": [
-        "--config-env", "NEURON_CONFIG",
+        "--config-env", "DASHX_CONFIG",
         "--radio",
         "--connect-only",
         "--lang", "en",
@@ -178,7 +178,7 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/deploy.py",
-      "args": ["--config-env", "NEURON_CONFIG", "--clear-lock"],
+      "args": ["--config-env", "DASHX_CONFIG", "--clear-lock"],
       "console": "integratedTerminal",
       "justMyCode": true,
       "noDebug": true

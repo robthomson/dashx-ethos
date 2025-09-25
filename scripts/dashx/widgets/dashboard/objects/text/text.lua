@@ -34,7 +34,7 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 
@@ -56,7 +56,7 @@ end
 
 -- Build/refresh static config (theme/params aware)
 local function ensureCfg(box)
-    local theme_version = (neurondash and neurondash.theme and neurondash.theme.version) or 0
+    local theme_version = (dashx and dashx.theme and dashx.theme.version) or 0
     local param_version = box._param_version or 0 -- bump externally when params change
     local cfg = box._cfg
     if (not cfg) or (cfg._theme_version ~= theme_version) or (cfg._param_version ~= param_version) then

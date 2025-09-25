@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -57,20 +57,20 @@ end
 
 function uid.wakeup()
     -- quick exit if no apiVersion
-    if neurondash.session.mcu_id == nil then  
+    if dashx.session.mcu_id == nil then  
 
-            neurondash.session.mcu_id = path_to_uuid(model.path())
+            dashx.session.mcu_id = path_to_uuid(model.path())
 
     end
 
 end
 
 function uid.reset()
-    neurondash.session.mcu_id = nil
+    dashx.session.mcu_id = nil
 end
 
 function uid.isComplete()
-    if neurondash.session.mcu_id ~= nil  then
+    if dashx.session.mcu_id ~= nil  then
         return true
     end
 end

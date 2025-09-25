@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -25,7 +25,7 @@ local compiler = {}
 
 function compiler.wakeup()
 
-        neurondash.compiler.wakeup()
+        dashx.compiler.wakeup()
 
 end
 

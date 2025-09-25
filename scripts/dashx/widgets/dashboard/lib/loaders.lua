@@ -3,8 +3,8 @@ local loaders = {}
 
 -- Helper to draw logo image centered
 local function drawLogoImage(cx, cy, w, h)
-  local imageName = "SCRIPTS:/" .. neurondash.config.baseDir .. "/widgets/dashboard/gfx/logo.png"
-  local bmp = neurondash.utils.loadImage(imageName)
+  local imageName = "SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/gfx/logo.png"
+  local bmp = dashx.utils.loadImage(imageName)
   if bmp then
     local imgSize = math.min(w, h) * 0.5
     lcd.drawBitmap(cx - imgSize / 2, cy - imgSize / 2, bmp, imgSize, imgSize)

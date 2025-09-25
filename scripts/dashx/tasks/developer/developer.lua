@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -47,19 +47,19 @@ function developer.wakeup()
 
     --[[
     -- This is an example of how to use the api library to query the governor mode
-        neurondash.utils.log("API Debug Task: GOVERNOR_CONFIG", "info")
-    local API = neurondash.tasks.msp.api.load("GOVERNOR_CONFIG")
+        dashx.utils.log("API Debug Task: GOVERNOR_CONFIG", "info")
+    local API = dashx.tasks.msp.api.load("GOVERNOR_CONFIG")
     API.setCompleteHandler(function(self, buf)
         local governorMode = API.readValue("gov_mode")
-        neurondash.utils.log("Governor mode: " .. governorMode, "info")
-        neurondash.session.governorMode = governorMode
+        dashx.utils.log("Governor mode: " .. governorMode, "info")
+        dashx.session.governorMode = governorMode
     end)
     API.setUUID("123e4567-e89b-12d3-a456-426614174000")
     API.read()
     ]]--
 
-    neurondash.utils.log("API Debug Task: TELEMETRY_CONFIG", "info")
-    local API = neurondash.tasks.msp.api.load("TELEMETRY_CONFIG")
+    dashx.utils.log("API Debug Task: TELEMETRY_CONFIG", "info")
+    local API = dashx.tasks.msp.api.load("TELEMETRY_CONFIG")
     API.setCompleteHandler(function(self, buf)
     end)
     API.setUUID("123e4567-e89b-12d3-a456-426614174000")

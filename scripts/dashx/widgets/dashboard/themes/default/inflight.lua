@@ -16,7 +16,7 @@
 ]]--
 
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local boxes_cache = nil
 local themeconfig = nil
 local lastScreenW = nil
@@ -53,7 +53,7 @@ local lightMode = {
 
 -- User voltage min/max override support
 local function getUserVoltageOverride(which)
-  local prefs = neurondash.session and neurondash.session.modelPreferences
+  local prefs = dashx.session and dashx.session.modelPreferences
   if prefs and prefs["system/@default"] then
     local v = tonumber(prefs["system/@default"][which])
     -- Only use override if it is present and different from the default 6S values
@@ -179,8 +179,8 @@ local themeOptions = {
 }
 
 local function getThemeValue(key)
-    if neurondash and neurondash.session and neurondash.session.modelPreferences and neurondash.session.modelPreferences[theme_section] then
-        local val = neurondash.session.modelPreferences[theme_section][key]
+    if dashx and dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences[theme_section] then
+        local val = dashx.session.modelPreferences[theme_section][key]
         val = tonumber(val)
         if val ~= nil then return val end
     end
@@ -217,11 +217,42 @@ local function buildBoxes(W)
 
 return {
 
-{
+    {
+        col = 1,
+        row = 1,
+        rowspan = 7,
+        colspan = 2,
+        type = "time",
+        subtype = "flight",
+        title = "FLIGHT TIME",
+        titlepos = "bottom",        
+        bgcolor = colorMode.bgcolor,
+        titlecolor = colorMode.titlecolor,
+        textcolor = colorMode.titlecolor,
+    },       
+    {
+        col = 1,
+        row = 8,
+        rowspan = 7,
+        colspan = 2,
+        type = "text",
+        title = "LQ",
+        subtype = "telemetry",
+        titlepos = "bottom",        
+        source = "rssi",
+        nosource = "-",
+        unit = "dB",
+        transform = "floor",
+        bgcolor = colorMode.bgcolor,
+        titlecolor = colorMode.titlecolor,
+        textcolor = colorMode.titlecolor,
+    },
+
+    {
         type = "gauge",
         subtype = "arc",
-        col = 1, row = 1,
-        rowspan = 12,
+        col = 3, row = 1,
+        rowspan = 14,
         colspan = 2,
         source = "voltage",
         thickness = opts.thickness,
@@ -233,14 +264,14 @@ return {
        gaugepadding = opts.gaugepadding,
        valuepaddingtop = opts.valuepaddingtop,       
         min = function()
-            local cfg = neurondash.session.batteryConfig
+            local cfg = dashx.session.batteryConfig
             local cells = (cfg and cfg.batteryCellCount) or 3
             local minV  = (cfg and cfg.vbatmincellvoltage) or 3.0
             return math.max(0, cells * minV)
         end,
 
         max = function()
-            local cfg = neurondash.session.batteryConfig
+            local cfg = dashx.session.batteryConfig
             local cells = (cfg and cfg.batteryCellCount) or 3
             local maxV  = (cfg and cfg.vbatfullcellvoltage) or 4.2
             return math.max(0, cells * maxV)
@@ -300,83 +331,6 @@ return {
                 textcolor = colorMode.textcolor
             }
         }
-    },
-    {
-        type = "gauge",
-        subtype = "arc",
-        col = 3, row = 1,
-        rowspan = 12,
-        thickness = opts.thickness,
-        colspan = 2,
-        source = "smartfuel",
-        transform = "floor",
-        min = 0,
-        max = 140,
-        font = opts.font,
-        arcbgcolor = colorMode.arcbgcolor,
-        title = "FUEL",
-        titlepos = "bottom",
-        bgcolor = colorMode.bgcolor,
-        titlecolor = colorMode.titlecolor,
-        textcolor = colorMode.titlecolor,
-        gaugepadding = opts.gaugepadding,
-        valuepaddingtop = opts.valuepaddingtop,
-        thresholds = {
-            { value = 30,  fillcolor = "red",    textcolor = colorMode.textcolor },
-            { value = 50,  fillcolor = "orange", textcolor = colorMode.textcolor },
-            { value = 140, fillcolor = colorMode.fillcolor,  textcolor = colorMode.textcolor }
-        },
-    },
-    {
-        col = 1,
-        row = 13,
-        rowspan = 2,
-        type = "text",
-        subtype = "telemetry",
-        nosource = "-",
-        source = "temp_esc",
-        transform = "floor",
-        bgcolor = colorMode.bgcolor,
-        titlecolor = colorMode.titlecolor,
-        textcolor = colorMode.titlecolor,
-    },
-    {
-        col = 4,
-        row = 13,
-        rowspan = 2,
-        type = "time",
-        subtype = "flight",
-        bgcolor = colorMode.bgcolor,
-        titlecolor = colorMode.titlecolor,
-        textcolor = colorMode.titlecolor,
-    }, 
-    {
-        col = 3,
-        row = 13,
-        rowspan = 2,
-        type = "text",
-        subtype = "telemetry",
-        source = "rpm",
-        nosource = "-",
-        unit = "rpm",
-        transform = "floor",
-        bgcolor = colorMode.bgcolor,
-        titlecolor = colorMode.titlecolor,
-        textcolor = colorMode.titlecolor,
-    },    
-    {
-        col = 2,
-        row = 13,
-        rowspan = 2,
-        type = "text",
-        subtype = "telemetry",
-        source = "rssi",
-        nosource = "-",
-        unit = "dB",
-        transform = "floor",
-        bgcolor = colorMode.bgcolor,
-        titlecolor = colorMode.titlecolor,
-        textcolor = colorMode.titlecolor,
     }
 
 }
@@ -469,7 +423,7 @@ local header_boxes = {
 }
 
 local function boxes()
-    local config = neurondash and neurondash.session and neurondash.session.modelPreferences and neurondash.session.modelPreferences[theme_section]
+    local config = dashx and dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences[theme_section]
     local W = lcd.getWindowSize()
     if boxes_cache == nil or themeconfig ~= config or lastScreenW ~= W then
         boxes_cache = buildBoxes(W)

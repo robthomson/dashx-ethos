@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -20,15 +20,15 @@
 local apiversion = {}
 
 function apiversion.wakeup()
-    neurondash.session.apiVersion = 12.07
+    dashx.session.apiVersion = 12.07
 end
 
 function apiversion.reset()
-    neurondash.session.apiVersion = nil
+    dashx.session.apiVersion = nil
 end
 
 function apiversion.isComplete()
-    if neurondash.session.apiVersion ~= nil then
+    if dashx.session.apiVersion ~= nil then
         return true
     end
 end

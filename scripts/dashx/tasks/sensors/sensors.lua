@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -29,15 +29,15 @@ local delayDuration = 2  -- seconds
 local delayStartTime = nil
 local delayPending = false
 
-local smart = assert(neurondash.compiler.loadfile("tasks/sensors/smart.lua"))(config)
+local smart = assert(dashx.compiler.loadfile("tasks/sensors/smart.lua"))(config)
 
-local log = neurondash.utils.log
-local tasks = neurondash.tasks
+local log = dashx.utils.log
+local tasks = dashx.tasks
 
 --[[
     loadSensorModule - Loads the appropriate sensor module based on the current protocol and preferences.
 
-    This function checks if the neurondash tasks are active and if the API version is available. 
+    This function checks if the dashx tasks are active and if the API version is available. 
     Depending on the protocol (either "crsf" or "sport") and the user's preferences, it loads the corresponding sensor module.
     - For "crsf" protocol, it loads the "elrs" sensor module if internalElrsSensors preference is enabled.
     - For "sport" protocol, it loads either the "frsky" or "frsky_legacy" sensor module based on the API version and internalSportSensors preference.
@@ -48,14 +48,14 @@ local tasks = neurondash.tasks
 ]]
 local function loadSensorModule()
     if not tasks.active() then return nil end
-    if not neurondash.session.apiVersion then return nil end
+    if not dashx.session.apiVersion then return nil end
 
     local protocol = "crsf"
 
     if system:getVersion().simulation == true then
         if not loadedSensorModule or loadedSensorModule.name ~= "sim" then
             --log("Loading Simulator sensor module","info")
-            loadedSensorModule = {name = "sim", module = assert(neurondash.compiler.loadfile("tasks/sensors/sim.lua"))(config)}
+            loadedSensorModule = {name = "sim", module = assert(dashx.compiler.loadfile("tasks/sensors/sim.lua"))(config)}
         end   
     else
         loadedSensorModule = nil  -- No matching sensor, clear to save memory
@@ -64,10 +64,10 @@ end
 
 function sensors.wakeup()
 
-    if neurondash.session.resetSensors and not delayPending then
+    if dashx.session.resetSensors and not delayPending then
         delayStartTime = os.clock()
         delayPending = true
-        neurondash.session.resetSensors = false  -- Reset immediately
+        dashx.session.resetSensors = false  -- Reset immediately
         log("Delaying sensor wakeup for " .. delayDuration .. " seconds","info")
         return  -- Exit early; wait starts now
     end
@@ -77,7 +77,7 @@ function sensors.wakeup()
             log("Delay complete; resuming sensor wakeup","info")
             delayPending = false
         else
-            local module = model.getModule(neurondash.session.telemetrySensor:module())
+            local module = model.getModule(dashx.session.telemetrySensor:module())
             if module ~= nil and module.muteSensorLost ~= nil then module:muteSensorLost(5.0) end
             return  -- Still waiting; do nothing
         end
@@ -90,7 +90,7 @@ function sensors.wakeup()
 
     -- run smart sensors
     if smart and smart.wakeup then
-        if neurondash.session.isConnected then
+        if dashx.session.isConnected then
             smart.wakeup()
         end
 

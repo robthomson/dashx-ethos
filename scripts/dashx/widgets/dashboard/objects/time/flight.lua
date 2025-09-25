@@ -29,13 +29,13 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 local lastDisplayValue = nil
 
 function render.dirty(box)
-    if not neurondash.session.telemetryState then return false end
+    if not dashx.session.telemetryState then return false end
 
     if box._lastDisplayValue == nil then
         box._lastDisplayValue = box._currentDisplayValue
@@ -52,7 +52,7 @@ end
 
 function render.wakeup(box)
     -- Always show the session time (accumulated time since last disconnect)
-    local value = neurondash.session.timer and neurondash.session.timer.live
+    local value = dashx.session.timer and dashx.session.timer.live
     local unit = getParam(box, "unit")
     local displayValue
 

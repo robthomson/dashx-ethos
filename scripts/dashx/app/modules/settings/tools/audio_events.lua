@@ -11,38 +11,38 @@ end
 
 local function openPage(pageIdx, title, script)
     enableWakeup = true
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
     form.clear()
 
-    neurondash.app.lastIdx    = pageIdx
-    neurondash.app.lastTitle  = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx    = pageIdx
+    dashx.app.lastTitle  = title
+    dashx.app.lastScript = script
 
-    neurondash.app.ui.fieldHeader(
+    dashx.app.ui.fieldHeader(
         "@i18n(app.modules.settings.name)@" .. " / " .. "@i18n(app.modules.settings.audio)@" .. " / " .. "@i18n(app.modules.settings.txt_audio_events)@"
     )
-    neurondash.session.formLineCnt = 0
+    dashx.session.formLineCnt = 0
 
     local formFieldCount = 0
 
-    local eventList = neurondash.tasks.events.telemetry.eventTable
-    local eventNames = sensorNameMap(neurondash.tasks.telemetry.listSensors())
+    local eventList = dashx.tasks.events.telemetry.eventTable
+    local eventNames = sensorNameMap(dashx.tasks.telemetry.listSensors())
 
-    settings = neurondash.preferences.events
+    settings = dashx.preferences.events
 
     for i, v in ipairs(eventList) do
     formFieldCount = formFieldCount + 1
-    neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-    neurondash.app.formLines[neurondash.session.formLineCnt] = form.addLine(eventNames[v.sensor] or "unknown")
-    neurondash.app.formFields[formFieldCount] = form.addBooleanField(neurondash.app.formLines[neurondash.session.formLineCnt], 
+    dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+    dashx.app.formLines[dashx.session.formLineCnt] = form.addLine(eventNames[v.sensor] or "unknown")
+    dashx.app.formFields[formFieldCount] = form.addBooleanField(dashx.app.formLines[dashx.session.formLineCnt], 
                                                         nil, 
                                                         function() 
-                                                            if neurondash.preferences and neurondash.preferences.events then
+                                                            if dashx.preferences and dashx.preferences.events then
                                                                 return settings[v.sensor] 
                                                             end
                                                         end, 
                                                         function(newValue) 
-                                                            if neurondash.preferences and neurondash.preferences.events then
+                                                            if dashx.preferences and dashx.preferences.events then
                                                                 settings[v.sensor] = newValue 
                                                             end    
                                                         end)
@@ -51,8 +51,8 @@ local function openPage(pageIdx, title, script)
 end
 
 local function onNavMenu()
-    neurondash.app.ui.progressDisplay()
-    neurondash.app.ui.openPage(
+    dashx.app.ui.progressDisplay()
+    dashx.app.ui.openPage(
         pageIdx,
         "@i18n(app.modules.settings.name)@",
         "settings/tools/audio.lua"
@@ -65,15 +65,15 @@ local function onSaveMenu()
             label  = "@i18n(app.btn_ok_long)@",
             action = function()
                 local msg = "@i18n(app.modules.profile_select.save_prompt_local)@"
-                neurondash.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
+                dashx.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
                 for key, value in pairs(settings) do
-                    neurondash.preferences.events[key] = value
+                    dashx.preferences.events[key] = value
                 end
-                neurondash.ini.save_ini_file(
-                    "SCRIPTS:/" .. neurondash.config.preferences .. "/preferences.ini",
-                    neurondash.preferences
+                dashx.ini.save_ini_file(
+                    "SCRIPTS:/" .. dashx.config.preferences .. "/preferences.ini",
+                    dashx.preferences
                 )
-                neurondash.app.triggers.closeSave = true
+                dashx.app.triggers.closeSave = true
                 return true
             end,
         },
@@ -99,7 +99,7 @@ end
 local function event(widget, category, value, x, y)
     -- if close event detected go to section home page
     if category == EVT_CLOSE and value == 0 or value == 35 then
-        neurondash.app.ui.openPage(
+        dashx.app.ui.openPage(
             pageIdx,
         "@i18n(app.modules.settings.name)@",
         "settings/tools/audio.lua"

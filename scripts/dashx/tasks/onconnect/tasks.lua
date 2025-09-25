@@ -18,12 +18,12 @@ local PRIORITY_LEVELS = {"high", "medium", "low"}
 
 -- Initialize or reset session flags
 local function resetSessionFlags()
-    neurondash.session.onConnect = neurondash.session.onConnect or {}
+    dashx.session.onConnect = dashx.session.onConnect or {}
     for _, level in ipairs(PRIORITY_LEVELS) do
-        neurondash.session.onConnect[level] = false
+        dashx.session.onConnect[level] = false
     end
     -- Ensure isConnected resets until high priority completes
-    neurondash.session.isConnected = false
+    dashx.session.isConnected = false
 end
 
 -- Discover task files in fixed priority order
@@ -39,9 +39,9 @@ function tasks.findTasks()
             if file:match("%.lua$") then
                 local fullPath = dirPath .. file
                 local name = level .. "/" .. file:gsub("%.lua$", "")
-                local chunk, err = neurondash.compiler.loadfile(fullPath)
+                local chunk, err = dashx.compiler.loadfile(fullPath)
                 if not chunk then
-                    neurondash.utils.log("Error loading task " .. fullPath .. ": " .. err, "error")
+                    dashx.utils.log("Error loading task " .. fullPath .. ": " .. err, "error")
                 else
                     local module = assert(chunk())
                     if type(module) == "table" and type(module.wakeup) == "function" then
@@ -53,7 +53,7 @@ function tasks.findTasks()
                             startTime = nil
                         }
                     else
-                        neurondash.utils.log("Invalid task file: " .. fullPath, "info")
+                        dashx.utils.log("Invalid task file: " .. fullPath, "info")
                     end
                 end
             end
@@ -72,17 +72,17 @@ function tasks.resetAllTasks()
     end
 
     resetSessionFlags()
-    neurondash.tasks.reset()
-    neurondash.session.resetMSPSensors = true
+    dashx.tasks.reset()
+    dashx.session.resetMSPSensors = true
 end
 
 function tasks.wakeup()
-    local telemetryActive = neurondash.session.telemetryState
+    local telemetryActive = dashx.session.telemetryState
 
-    if neurondash.session.telemetryTypeChanged then
-        neurondash.utils.logRotorFlightBanner()
-        --neurondash.utils.log("Telemetry type changed, resetting tasks.", "info")
-        neurondash.session.telemetryTypeChanged = false
+    if dashx.session.telemetryTypeChanged then
+        dashx.utils.logRotorFlightBanner()
+        --dashx.utils.log("Telemetry type changed, resetting tasks.", "info")
+        dashx.session.telemetryTypeChanged = false
         tasks.resetAllTasks()
         tasksLoaded = false
         return
@@ -107,14 +107,14 @@ function tasks.wakeup()
             task.startTime = now
         end
         if not task.complete then
-            neurondash.utils.log("Waking up " .. name, "debug")
+            dashx.utils.log("Waking up " .. name, "debug")
             task.module.wakeup()
             if task.module.isComplete and task.module.isComplete() then
                 task.complete = true
                 task.startTime = nil
-                neurondash.utils.log("Completed " .. name, "debug")
+                dashx.utils.log("Completed " .. name, "debug")
             elseif task.startTime and (now - task.startTime) > TASK_TIMEOUT_SECONDS then
-                neurondash.utils.log("Task '" .. name .. "' timed out.", "info")
+                dashx.utils.log("Task '" .. name .. "' timed out.", "info")
                 task.startTime = nil
             end
         end
@@ -122,7 +122,7 @@ function tasks.wakeup()
 
     -- Update session flags as soon as each priority level completes
     for _, level in ipairs(PRIORITY_LEVELS) do
-        if not neurondash.session.onConnect[level] then
+        if not dashx.session.onConnect[level] then
             local levelDone = true
             for _, task in pairs(tasksList) do
                 if task.priority == level and not task.complete then
@@ -131,22 +131,22 @@ function tasks.wakeup()
                 end
             end
             if levelDone then
-                neurondash.session.onConnect[level] = true
-                neurondash.utils.log("All '" .. level .. "' tasks complete.", "info")
+                dashx.session.onConnect[level] = true
+                dashx.utils.log("All '" .. level .. "' tasks complete.", "info")
 
                 -- Signal the session connected immediately when high priority finishes
                 if level == "high" then
-                    neurondash.utils.playFileCommon("beep.wav")
-                    neurondash.flightmode.current = "preflight"
-                    neurondash.tasks.events.flightmode.reset()
-                    neurondash.session.isConnectedHigh = true
+                    dashx.utils.playFileCommon("beep.wav")
+                    dashx.flightmode.current = "preflight"
+                    dashx.tasks.events.flightmode.reset()
+                    dashx.session.isConnectedHigh = true
                     return
                 elseif level == "medium" then
-                    neurondash.session.isConnectedMedium = true
+                    dashx.session.isConnectedMedium = true
                     return
                 elseif level == "low" then 
-                    neurondash.session.isConnectedLow = true    
-                    neurondash.session.isConnected = true  
+                    dashx.session.isConnectedLow = true    
+                    dashx.session.isConnected = true  
                     collectgarbage()
                     return
                 end

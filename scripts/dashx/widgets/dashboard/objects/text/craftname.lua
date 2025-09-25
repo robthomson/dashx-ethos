@@ -30,7 +30,7 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 
@@ -39,7 +39,7 @@ function render.invalidate(box) box._cfg = nil end
 
 -- Only repaint when the displayed value changes
 function render.dirty(box)
-    if not neurondash.session.telemetryState then return false end
+    if not dashx.session.telemetryState then return false end
     if box._lastDisplayValue == nil then
         box._lastDisplayValue = box._currentDisplayValue
         return true
@@ -53,7 +53,7 @@ end
 
 -- Build/refresh static config (theme/params aware)
 local function ensureCfg(box)
-    local theme_version = (neurondash and neurondash.theme and neurondash.theme.version) or 0
+    local theme_version = (dashx and dashx.theme and dashx.theme.version) or 0
     local param_version = box._param_version or 0 -- bump externally when params change
     local cfg = box._cfg
     if (not cfg) or (cfg._theme_version ~= theme_version) or (cfg._param_version ~= param_version) then
@@ -90,8 +90,8 @@ end
 function render.wakeup(box)
     local cfg = ensureCfg(box)
 
-    local value = neurondash.session.craftName
-    local telemetryActive = neurondash.session and neurondash.session.isConnected
+    local value = dashx.session.craftName
+    local telemetryActive = dashx.session and dashx.session.isConnected
 
     -- Cache last valid value when telemetry is active and string is non-blank
     if value and type(value) == "string" and value:match("^%s*$") == nil and telemetryActive then

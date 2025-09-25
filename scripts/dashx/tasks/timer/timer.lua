@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -26,15 +26,15 @@ local lastFlightMode = nil
 -- Sets the base lifetime from model preferences, resets session and lifetime counters,
 -- and marks the flight as not counted.
 function timer.reset()
-    neurondash.utils.log("Resetting flight timers", "info")
+    dashx.utils.log("Resetting flight timers", "info")
     lastFlightMode = nil
 
     local timerSession = {}
-    neurondash.session.timer = timerSession
-    neurondash.session.flightCounted = false
+    dashx.session.timer = timerSession
+    dashx.session.flightCounted = false
 
     timerSession.baseLifetime = tonumber(
-        neurondash.ini.getvalue(neurondash.session.modelPreferences, "general", "totalflighttime")
+        dashx.ini.getvalue(dashx.session.modelPreferences, "general", "totalflighttime")
     ) or 0
 
     timerSession.session = 0
@@ -48,20 +48,20 @@ end
 -- of the preferences, then saves the updated preferences back to the INI file.
 -- Logs actions for debugging and information purposes.
 function timer.save()
-    local prefs = neurondash.session.modelPreferences
-    local prefsFile = neurondash.session.modelPreferencesFile
+    local prefs = dashx.session.modelPreferences
+    local prefsFile = dashx.session.modelPreferencesFile
 
     if not prefsFile then
-        neurondash.utils.log("No model preferences file set, cannot save flight timers", "info")
+        dashx.utils.log("No model preferences file set, cannot save flight timers", "info")
         return 
     end
 
-    neurondash.utils.log("Saving flight timers to INI: " .. prefsFile, "info")
+    dashx.utils.log("Saving flight timers to INI: " .. prefsFile, "info")
 
     if prefs then
-        neurondash.ini.setvalue(prefs, "general", "totalflighttime", neurondash.session.timer.baseLifetime or 0)
-        neurondash.ini.setvalue(prefs, "general", "lastflighttime", neurondash.session.timer.session or 0)
-        neurondash.ini.save_ini_file(prefsFile, prefs)
+        dashx.ini.setvalue(prefs, "general", "totalflighttime", dashx.session.timer.baseLifetime or 0)
+        dashx.ini.setvalue(prefs, "general", "lastflighttime", dashx.session.timer.session or 0)
+        dashx.ini.save_ini_file(prefsFile, prefs)
     end    
 end
 
@@ -72,8 +72,8 @@ end
 -- @usage
 --   finalizeFlightSegment(os.clock())
 local function finalizeFlightSegment(now)
-    local timerSession = neurondash.session.timer
-    local prefs = neurondash.session.modelPreferences
+    local timerSession = dashx.session.timer
+    local prefs = dashx.session.modelPreferences
 
     local segment = now - timerSession.start
     timerSession.session = (timerSession.session or 0) + segment
@@ -81,7 +81,7 @@ local function finalizeFlightSegment(now)
 
     if timerSession.baseLifetime == nil then
         timerSession.baseLifetime = tonumber(
-            neurondash.ini.getvalue(prefs, "general", "totalflighttime")
+            dashx.ini.getvalue(prefs, "general", "totalflighttime")
         ) or 0
     end
 
@@ -109,14 +109,14 @@ end
 --       - Finalizes the flight segment if a flight was started.
 --
 -- Dependencies:
---   - Relies on `neurondash.session` for session state.
---   - Uses `neurondash.ini` for reading and writing model preferences.
+--   - Relies on `dashx.session` for session state.
+--   - Uses `dashx.ini` for reading and writing model preferences.
 --   - Calls `finalizeFlightSegment(now)` when appropriate.
 function timer.wakeup()
     local now = os.time()
-    local timerSession = neurondash.session.timer
-    local prefs = neurondash.session.modelPreferences
-    local flightMode = neurondash.flightmode.current
+    local timerSession = dashx.session.timer
+    local prefs = dashx.session.modelPreferences
+    local flightMode = dashx.flightmode.current
 
     lastFlightMode = flightMode
 
@@ -132,16 +132,16 @@ function timer.wakeup()
         timerSession.lifetime = computedLifetime
 
         if prefs then
-            neurondash.ini.setvalue(prefs, "general", "totalflighttime", computedLifetime)
+            dashx.ini.setvalue(prefs, "general", "totalflighttime", computedLifetime)
         end
 
-        if timerSession.live >= 25 and not neurondash.session.flightCounted then
-            neurondash.session.flightCounted = true
+        if timerSession.live >= 25 and not dashx.session.flightCounted then
+            dashx.session.flightCounted = true
 
-            if prefs and neurondash.ini.section_exists(prefs, "general") then
-                local count = neurondash.ini.getvalue(prefs, "general", "flightcount") or 0
-                neurondash.ini.setvalue(prefs, "general", "flightcount", count + 1)
-                neurondash.ini.save_ini_file(neurondash.session.modelPreferencesFile, prefs)
+            if prefs and dashx.ini.section_exists(prefs, "general") then
+                local count = dashx.ini.getvalue(prefs, "general", "flightcount") or 0
+                dashx.ini.setvalue(prefs, "general", "flightcount", count + 1)
+                dashx.ini.save_ini_file(dashx.session.modelPreferencesFile, prefs)
             end
         end
 

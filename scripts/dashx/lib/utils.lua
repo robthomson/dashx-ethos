@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -30,50 +30,50 @@ local config = arg[1]
 -- function is called on startup of the script  and
 -- whenever the tasks.lua detects the heli has been disconnected
 function utils.session()
-    neurondash.session = {}
-    neurondash.session.tailMode = nil
-    neurondash.session.swashMode = nil
-    neurondash.session.activeProfile = nil
-    neurondash.session.activeRateProfile = nil
-    neurondash.session.activeProfileLast = nil
-    neurondash.session.activeRateLast = nil
-    neurondash.session.servoCount = nil
-    neurondash.session.servoOverride = nil
-    neurondash.session.clockSet = nil
-    neurondash.session.apiVersion = nil
-    neurondash.session.activeProfile = nil
-    neurondash.session.activeRateProfile = nil
-    neurondash.session.activeProfileLast = nil
-    neurondash.session.activeRateLast = nil
-    neurondash.session.servoCount = nil
-    neurondash.session.servoOverride = nil
-    neurondash.session.clockSet = nil
-    neurondash.session.lastLabel = nil
-    neurondash.session.tailMode = nil
-    neurondash.session.swashMode = nil
-    neurondash.session.formLineCnt = nil
-    neurondash.session.rateProfile = nil
-    neurondash.session.governorMode = nil
-    neurondash.session.servoOverride = nil
-    neurondash.session.ethosRunningVersion = nil
-    neurondash.session.lcdWidth = nil
-    neurondash.session.lcdHeight = nil
-    neurondash.session.mspSignature = nil
-    neurondash.session.telemetryState = nil
-    neurondash.session.telemetryType = nil
-    neurondash.session.telemetryTypeChanged = nil
-    neurondash.session.telemetrySensor = nil
-    neurondash.session.repairSensors = false
-    neurondash.session.locale = system.getLocale()
-    neurondash.session.lastMemoryUsage = nil
-    neurondash.session.mcu_id = nil
-    neurondash.session.isConnected = false
-    neurondash.session.isArmed = false
-    neurondash.session.bblSize = nil
-    neurondash.session.bblUsed = nil
-    neurondash.session.batteryConfig = nil
-    -- keep neurondash.session.batteryConfig nil as it is used to determine if the battery config has been loaded
-    -- neurondash.session.batteryConfig  will end up containing the following:
+    dashx.session = {}
+    dashx.session.tailMode = nil
+    dashx.session.swashMode = nil
+    dashx.session.activeProfile = nil
+    dashx.session.activeRateProfile = nil
+    dashx.session.activeProfileLast = nil
+    dashx.session.activeRateLast = nil
+    dashx.session.servoCount = nil
+    dashx.session.servoOverride = nil
+    dashx.session.clockSet = nil
+    dashx.session.apiVersion = nil
+    dashx.session.activeProfile = nil
+    dashx.session.activeRateProfile = nil
+    dashx.session.activeProfileLast = nil
+    dashx.session.activeRateLast = nil
+    dashx.session.servoCount = nil
+    dashx.session.servoOverride = nil
+    dashx.session.clockSet = nil
+    dashx.session.lastLabel = nil
+    dashx.session.tailMode = nil
+    dashx.session.swashMode = nil
+    dashx.session.formLineCnt = nil
+    dashx.session.rateProfile = nil
+    dashx.session.governorMode = nil
+    dashx.session.servoOverride = nil
+    dashx.session.ethosRunningVersion = nil
+    dashx.session.lcdWidth = nil
+    dashx.session.lcdHeight = nil
+    dashx.session.mspSignature = nil
+    dashx.session.telemetryState = nil
+    dashx.session.telemetryType = nil
+    dashx.session.telemetryTypeChanged = nil
+    dashx.session.telemetrySensor = nil
+    dashx.session.repairSensors = false
+    dashx.session.locale = system.getLocale()
+    dashx.session.lastMemoryUsage = nil
+    dashx.session.mcu_id = nil
+    dashx.session.isConnected = false
+    dashx.session.isArmed = false
+    dashx.session.bblSize = nil
+    dashx.session.bblUsed = nil
+    dashx.session.batteryConfig = nil
+    -- keep dashx.session.batteryConfig nil as it is used to determine if the battery config has been loaded
+    -- dashx.session.batteryConfig  will end up containing the following:
         -- batteryCapacity = nil
         -- batteryCellCount = nil
         -- vbatwarningcellvoltage = nil
@@ -82,31 +82,31 @@ function utils.session()
         -- vbatfullcellvoltage = nil
         -- lvcPercentage = nil
         -- consumptionWarningPercentage = nil
-    neurondash.session.modelPreferences = nil -- this is used to store the model preferences
-    neurondash.session.modelPreferencesFile = nil -- this is used to store the model preferences file path
-    neurondash.session.dashboardEditingTheme = nil -- this is used to store the dashboard theme being edited in settings
-    neurondash.session.timer = {}
-    neurondash.session.timer.start = nil -- this is used to store the start time of the timer
-    neurondash.session.timer.live = nil -- this is used to store the live timer value while inflight
-    neurondash.session.timer.lifetime = nil -- this is used to store the total flight time of a model and store it in the user ini file
-    neurondash.session.timer.session = 0 -- this is used to track flight time for the session
-    neurondash.session.flightCounted = false
-    neurondash.session.onConnect = {} -- this is used to store the onConnect tasks that need to be run
-    neurondash.session.onConnect.high = false
-    neurondash.session.onConnect.low = false
-    neurondash.session.onConnect.medium = false
-    neurondash.session.rx = {}
-    neurondash.session.rx.map = {}
-    neurondash.session.rx.values = {} -- this is used to store the rx values for the rxmap task
+    dashx.session.modelPreferences = nil -- this is used to store the model preferences
+    dashx.session.modelPreferencesFile = nil -- this is used to store the model preferences file path
+    dashx.session.dashboardEditingTheme = nil -- this is used to store the dashboard theme being edited in settings
+    dashx.session.timer = {}
+    dashx.session.timer.start = nil -- this is used to store the start time of the timer
+    dashx.session.timer.live = nil -- this is used to store the live timer value while inflight
+    dashx.session.timer.lifetime = nil -- this is used to store the total flight time of a model and store it in the user ini file
+    dashx.session.timer.session = 0 -- this is used to track flight time for the session
+    dashx.session.flightCounted = false
+    dashx.session.onConnect = {} -- this is used to store the onConnect tasks that need to be run
+    dashx.session.onConnect.high = false
+    dashx.session.onConnect.low = false
+    dashx.session.onConnect.medium = false
+    dashx.session.rx = {}
+    dashx.session.rx.map = {}
+    dashx.session.rx.values = {} -- this is used to store the rx values for the rxmap task
 end
 
 --- Checks if the RX map is ready by verifying the presence of required channel mappings.
--- The function returns true if the `neurondash.session.rxmap` table exists and at least one of the following fields is present:
+-- The function returns true if the `dashx.session.rxmap` table exists and at least one of the following fields is present:
 -- `collective`, `elevator`, `throttle`, or `rudder`.
 -- @return boolean True if the RX map is ready, false otherwise.
 function utils.rxmapReady()
     -- Check if the RX map is ready
-    if neurondash.session.rx and neurondash.session.rx.map  and (neurondash.session.rx.map.collective or neurondash.session.rx.map.elevator or neurondash.session.rx.map.throttle or neurondash.session.rx.map.rudder) then
+    if dashx.session.rx and dashx.session.rx.map  and (dashx.session.rx.map.collective or dashx.session.rx.map.elevator or dashx.session.rx.map.throttle or dashx.session.rx.map.rudder) then
         return true
     end
     return false
@@ -115,7 +115,7 @@ end
 --- Checks if the current flight mode is "inflight".
 -- @return boolean Returns true if the flight mode is "inflight", false otherwise.
 function utils.inFlight()
-    if neurondash.flightmode.current == "inflight" then
+    if dashx.flightmode.current == "inflight" then
         return true
     end
     return false
@@ -127,7 +127,7 @@ end
 -- @return arr Array of tables, each containing the value and its zero-based index: {value, index}.
 function utils.msp_version_array_to_indexed()
     local arr = {}
-    local tbl = neurondash.config.supportedMspApiVersion or {"12.06", "12.07","12.08"} 
+    local tbl = dashx.config.supportedMspApiVersion or {"12.06", "12.07","12.08"} 
     for i, v in ipairs(tbl) do
         arr[#arr+1] = {v, i}
     end
@@ -204,7 +204,7 @@ function utils.getGovernorState(value)
 
     local returnvalue
 
-    if not neurondash.tasks.telemetry then
+    if not dashx.tasks.telemetry then
         return "@i18n(widgets.governor.UNKNOWN)@"
     end
 
@@ -227,8 +227,8 @@ function utils.getGovernorState(value)
         [101] = "@i18n(widgets.governor.DISARMED)@"
     }
 
-    if neurondash.session and neurondash.session.apiVersion and neurondash.session.apiVersion > 12.07 then
-        local armflags = neurondash.tasks.telemetry.getSensor("armflags")
+    if dashx.session and dashx.session.apiVersion and dashx.session.apiVersion > 12.07 then
+        local armflags = dashx.tasks.telemetry.getSensor("armflags")
         if armflags == 0 or armflags == 2 then
             value = 101
         end
@@ -246,7 +246,7 @@ function utils.getGovernorState(value)
         utils.armingDisableFlagsToString(). If the resulting string is not "OK",
         the function sets 'returnvalue' to this string, indicating a reason why arming is disabled.
     --]]
-    local armdisableflags = neurondash.tasks.telemetry.getSensor("armdisableflags")
+    local armdisableflags = dashx.tasks.telemetry.getSensor("armdisableflags")
     if armdisableflags ~= nil then
         armdisableflags = math.floor(armdisableflags)
         local armstring = utils.armingDisableFlagsToString(armdisableflags )
@@ -269,7 +269,7 @@ function utils.createCacheFile(tbl, path, options)
 
     local f, err = io.open(path, "w")
     if not f then
-        neurondash.utils.log("Error creating cache file: " .. err, "info")
+        dashx.utils.log("Error creating cache file: " .. err, "info")
         return
     end
 
@@ -303,36 +303,6 @@ function utils.createCacheFile(tbl, path, options)
     f:close()
 end
 
-
-
-function utils.logRotorFlightBanner()
-    local version = neurondash.version().version or "Unknown Version"
-
-    local banner = {
-        "===============================================",
-        "    ROTORFLIGHT NEURON - Version: " .. version,
-        "===============================================",
-        "   ______.........--=T=--.........______",
-        "      .             |:|",
-        " :-. //           /\"\"\"\"\"\"-.",
-        " ': '-._____..--\"\"(\"\"\"\"\"\")()`---.__",
-        "  /:   _..__   ''  \":\"\"\"\"'[] |\"\"`\\\\",
-        "  ': :'     `-.     _:._     '\"\"\"\" :",
-        "   ::          '--=:____:.___....-\"",
-        "                     O\"       O\"",
-        "===============================================",
-        "  neurondash is free software licensed under",
-        "  the GNU General Public License version 3.0",
-        "  https://www.gnu.org/licenses/gpl-3.0.en.html",
-        "                                              ",
-        " For more information, visit rotorflight.org",
-        "==============================================="
-    }
-
-    for _, line in ipairs(banner) do
-        neurondash.utils.log(line, "info")
-    end
-end
 
 function utils.sanitize_filename(str)
     if not str then return nil end
@@ -370,15 +340,15 @@ function utils.playFile(pkg, file)
     end
 
     -- Construct file paths
-    local wavUser   = "SCRIPTS:/neurondash.user/audio/user/"      .. pkg .. "/" .. file
-    local wavLocale = "SCRIPTS:/neurondash.user/audio/" .. av .. "/" .. pkg .. "/" .. file
-    local wavDefault= "SCRIPTS:/neurondash/audio/en/default/"    .. pkg .. "/" .. file
+    local wavUser   = "SCRIPTS:/dashx.user/audio/user/"      .. pkg .. "/" .. file
+    local wavLocale = "SCRIPTS:/dashx.user/audio/" .. av .. "/" .. pkg .. "/" .. file
+    local wavDefault= "SCRIPTS:/dashx/audio/en/default/"    .. pkg .. "/" .. file
 
     -- Determine which file to play: user → locale → default
     local path
-    if neurondash.utils.file_exists(wavUser) then
+    if dashx.utils.file_exists(wavUser) then
         path = wavUser
-    elseif neurondash.utils.file_exists(wavLocale) then
+    elseif dashx.utils.file_exists(wavLocale) then
         path = wavLocale
     else
         path = wavDefault
@@ -399,25 +369,25 @@ end
 function utils.getCurrentProfile()
 
 
-    local pidProfile = neurondash.tasks.telemetry.getSensor("pid_profile")
-    local rateProfile = neurondash.tasks.telemetry.getSensor("rate_profile")
+    local pidProfile = dashx.tasks.telemetry.getSensor("pid_profile")
+    local rateProfile = dashx.tasks.telemetry.getSensor("rate_profile")
 
     if (pidProfile ~= nil and rateProfile ~= nil) then
 
-        neurondash.session.activeProfileLast = neurondash.session.activeProfile
+        dashx.session.activeProfileLast = dashx.session.activeProfile
         local p = pidProfile
         if p ~= nil then
-            neurondash.session.activeProfile = math.floor(p)
+            dashx.session.activeProfile = math.floor(p)
         else
-            neurondash.session.activeProfile = nil
+            dashx.session.activeProfile = nil
         end
 
-        neurondash.session.activeRateProfileLast = neurondash.session.activeRateProfile
+        dashx.session.activeRateProfileLast = dashx.session.activeRateProfile
         local r = rateProfile
         if r ~= nil then
-            neurondash.session.activeRateProfile = math.floor(r)
+            dashx.session.activeRateProfile = math.floor(r)
         else
-            neurondash.session.activeRateProfile = nil
+            dashx.session.activeRateProfile = nil
         end
 
     end
@@ -431,14 +401,14 @@ function utils.ethosVersionAtLeast(targetVersion)
 
     -- Fallback to default config if targetVersion is not provided
     if targetVersion == nil then 
-        if neurondash and neurondash.config and neurondash.config.ethosVersion then
-            targetVersion = neurondash.config.ethosVersion
+        if dashx and dashx.config and dashx.config.ethosVersion then
+            targetVersion = dashx.config.ethosVersion
         else
             -- Fail-safe: if no targetVersion is provided and config is missing
             return false
         end
     elseif type(targetVersion) == "number" then
-        neurondash.utils.log("WARNING: utils.ethosVersionAtLeast() called with a number instead of a table (" .. targetVersion .. ")",2)
+        dashx.utils.log("WARNING: utils.ethosVersionAtLeast() called with a number instead of a table (" .. targetVersion .. ")",2)
         return false    
     end
 
@@ -517,8 +487,8 @@ end
     @param level string (optional): The log level (e.g., "debug", "info", "warn", "error"). Defaults to "debug".
 ]]
 function utils.log(msg, level)
-    if neurondash.tasks and neurondash.tasks.logger then
-        neurondash.tasks.logger.add(msg, level or "debug")
+    if dashx.tasks and dashx.tasks.logger then
+        dashx.tasks.logger.add(msg, level or "debug")
     end
 end
 
@@ -586,17 +556,17 @@ function utils.findModules()
         if v ~= ".." and v ~= "." and not v:match("%.%a+$") then
             local init_path = modules_path .. v .. '/init.lua'
 
-            local func, err = neurondash.compiler.loadfile(init_path)
+            local func, err = dashx.compiler.loadfile(init_path)
             if not func then
-                neurondash.utils.log("Failed to load module init " .. init_path .. ": " .. err, "info")
+                dashx.utils.log("Failed to load module init " .. init_path .. ": " .. err, "info")
             else
                 local ok, mconfig = pcall(func)
                 if not ok then
-                    neurondash.utils.log("Error executing " .. init_path .. ": " .. mconfig, "info")
+                    dashx.utils.log("Error executing " .. init_path .. ": " .. mconfig, "info")
                 elseif type(mconfig) ~= "table" or not mconfig.script then
-                    neurondash.utils.log("Invalid configuration in " .. init_path, "info")
+                    dashx.utils.log("Invalid configuration in " .. init_path, "info")
                 else
-                    neurondash.utils.log("Loading module " .. v, "debug")
+                    dashx.utils.log("Loading module " .. v, "debug")
                     mconfig.folder = v
                     table.insert(modulesList, mconfig)
                 end
@@ -629,21 +599,21 @@ function utils.findWidgets()
         if v ~= ".." and v ~= "." and not v:match("%.%a+$") then
             local init_path = widgets_path .. v .. '/init.lua'
             -- try loading directly
-            local func, err = neurondash.compiler.loadfile(init_path)
+            local func, err = dashx.compiler.loadfile(init_path)
             if not func then
-                neurondash.utils.log(
+                dashx.utils.log(
                   "Failed to load widget init " .. init_path .. ": " .. err,
                   "debug"
                 )
             else
                 local ok, wconfig = pcall(func)
                 if not ok then
-                    neurondash.utils.log(
+                    dashx.utils.log(
                       "Error executing widget init " .. init_path .. ": " .. wconfig,
                       "debug"
                     )
                 elseif type(wconfig) ~= "table" or not wconfig.key then
-                    neurondash.utils.log(
+                    dashx.utils.log(
                       "Invalid configuration in " .. init_path,
                       "debug"
                     )
@@ -701,7 +671,7 @@ function utils.loadImage(image1, image2, image3)
         local path = utils._imagePathCache[key]
         if not path then
             for _, p in ipairs(tryPaths) do
-                if neurondash.utils.file_exists(p) then
+                if dashx.utils.file_exists(p) then
                     path = p
                     break
                 end
@@ -747,7 +717,7 @@ end
 
     Description:
         This function attempts to load a telemetry Lua script from two possible paths:
-        1. "LOGS:/neurondash/sensors/<id>.lua"
+        1. "LOGS:/dashx/sensors/<id>.lua"
         2. "lib/sim/sensors/<id>.lua"
         
         It first checks if the file exists at the local path. If not, it checks the fallback path.
@@ -756,8 +726,8 @@ end
 --]]
 function utils.simSensors(id)
     os.mkdir("LOGS:")
-    os.mkdir("LOGS:/neurondash")
-    os.mkdir("LOGS:/neurondash/sensors")
+    os.mkdir("LOGS:/dashx")
+    os.mkdir("LOGS:/dashx/sensors")
 
     if id == nil then return 0 end
 
@@ -804,11 +774,11 @@ end
 -- @usage
 -- utils.logMsp("MSP_STATUS", "read", {0x01, 0x02, 0x03}, nil)
 function utils.logMsp(cmd, rwState, buf, err)
-    if neurondash.preferences.developer.logmsp then
-        local payload = neurondash.utils.joinTableItems(buf, ", ")
-        neurondash.utils.log(rwState .. " [" .. cmd .. "]" .. " {" .. payload .. "}", "info")
+    if dashx.preferences.developer.logmsp then
+        local payload = dashx.utils.joinTableItems(buf, ", ")
+        dashx.utils.log(rwState .. " [" .. cmd .. "]" .. " {" .. payload .. "}", "info")
         if err then
-            neurondash.utils.log("Error: " .. err, "info")
+            dashx.utils.log("Error: " .. err, "info")
         end
     end
 end
@@ -834,7 +804,7 @@ end
 
 function utils.reportMemoryUsage(location)
 
-    if neurondash.preferences.developer.memstats == false then
+    if dashx.preferences.developer.memstats == false then
         return
     end
 
@@ -842,7 +812,7 @@ function utils.reportMemoryUsage(location)
     local currentMemoryUsage = system.getMemoryUsage().luaRamAvailable / 1024
 
     -- Retrieve the last memory usage from the session (convert it to KB if it exists)
-    local lastMemoryUsage = neurondash.session.lastMemoryUsage
+    local lastMemoryUsage = dashx.session.lastMemoryUsage
 
     -- Ensure location is not nil or empty
     location = location or "Unknown"
@@ -865,18 +835,18 @@ function utils.reportMemoryUsage(location)
     end
 
     -- Log the message
-    neurondash.utils.log(logMessage, "info")
+    dashx.utils.log(logMessage, "info")
 
     -- Store the current memory usage in bytes for future calls (convert back to bytes)
-    neurondash.session.lastMemoryUsage = system.getMemoryUsage().luaRamAvailable
+    dashx.session.lastMemoryUsage = system.getMemoryUsage().luaRamAvailable
 end
 
 
 function utils.onReboot()
-    neurondash.session.resetSensors = true
-    neurondash.session.resetTelemetry = true
-    neurondash.session.resetMSP = true
-    neurondash.session.resetMSPSensors = true
+    dashx.session.resetSensors = true
+    dashx.session.resetTelemetry = true
+    dashx.session.resetMSP = true
+    dashx.session.resetMSPSensors = true
 end
 
 --- Parses a version string into a table of numbers.

@@ -933,10 +933,10 @@ def choose_target(targets):
 
 def resolve_i18n_tags_in_place(out_dir, lang="en"):
     # Path to the merged JSON created by step 1
-    json_path = os.path.join(out_dir, "i18n", f"{lang}.json")  # because scripts/neurondash/** got copied already
+    json_path = os.path.join(out_dir, "i18n", f"{lang}.json")  # because scripts/dashx/** got copied already
     if not os.path.isfile(json_path):
         # Fallback for local build before copy, if needed:
-        json_path = os.path.join(config['git_src'], "scripts", "neurondash", "i18n", f"{lang}.json")
+        json_path = os.path.join(config['git_src'], "scripts", "dashx", "i18n", f"{lang}.json")
     if not os.path.isfile(json_path):
         print(f"[I18N] Skipping: {lang}.json not found at {json_path}")
         return
@@ -1161,8 +1161,8 @@ def main():
     p.add_argument('--radio-debug', action='store_true')
     p.add_argument('--minify',    action='store_true')
     p.add_argument('--connect-only', action='store_true')
-    p.add_argument('--lang', default=os.environ.get("NEURON_LANG", "en"),
-                   help='Locale to resolve (e.g. en, de, fr). Defaults to env NEURON_LANG or "en".')
+    p.add_argument('--lang', default=os.environ.get("DASHX_LANG", "en"),
+                   help='Locale to resolve (e.g. en, de, fr). Defaults to env DASHX_LANG or "en".')
     p.add_argument('--force', action='store_true',
                    help='Take over a stale single-instance lock if the previous run crashed.')
     # maintenance / self-contained “menu” operations

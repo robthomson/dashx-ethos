@@ -25,7 +25,7 @@ local voltageThreshold        = 0.15
 local preStabiliseDelay       = 1.5
 
 local telemetry
-local currentMode = neurondash.flightmode.current or "preflight"
+local currentMode = dashx.flightmode.current or "preflight"
 local lastMode = currentMode
 local lastSensorMode
 
@@ -81,7 +81,7 @@ local function isVoltageStable()
 end
 
 local function getStickLoadFactor()
-    local rx = neurondash.session.rx.values
+    local rx = dashx.session.rx.values
     if not rx then return 0 end
     local sum = 1.0 * math.abs(rx.aileron or 0)
               + 1.0 * math.abs(rx.elevator or 0)
@@ -101,10 +101,10 @@ local function getRpmDropFactor()
 end
 
 local function applySagCompensation(voltage)
-    if neurondash.flightmode.current ~= "inflight" then
+    if dashx.flightmode.current ~= "inflight" then
         return voltage -- no sag compensation unless we're flying
     end
-    local multiplier = neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.sag_multiplier or 0.7
+    local multiplier = dashx.session.modelPreferences and dashx.session.modelPreferences.battery and dashx.session.modelPreferences.battery.sag_multiplier or 0.7
     local sagFactor = math.max(getStickLoadFactor(), getRpmDropFactor())
     -- nonlinear curve that *increases* with multiplier:
     local compensationScale = multiplier ^ 1.5 -- adjust exponent for sensitivity
@@ -112,7 +112,7 @@ local function applySagCompensation(voltage)
 end
 
 local function fuelPercentageCalcByVoltage(voltage, cellCount)
-    local bc = neurondash.session.batteryConfig
+    local bc = dashx.session.batteryConfig
     local minV = bc.vbatmincellvoltage or 3.30
     local fullV = bc.vbatfullcellvoltage or 4.10
     local reserve = bc.consumptionWarningPercentage or 30
@@ -137,23 +137,23 @@ end
 
 local function smartFuelCalc()
     if not telemetry then
-        telemetry = neurondash.tasks.telemetry
+        telemetry = dashx.tasks.telemetry
     end
 
-    if not neurondash.session.isConnected or not neurondash.session.batteryConfig then
+    if not dashx.session.isConnected or not dashx.session.batteryConfig then
         resetVoltageTracking()
         return nil
     end
 
     -- make sure we reset the method if the sensor mode changes
-    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
-        if lastSensorMode ~= neurondash.session.modelPreferences.battery.calc_local then
+    if dashx.session.modelPreferences and dashx.session.modelPreferences.battery and dashx.session.modelPreferences.battery.calc_local then
+        if lastSensorMode ~= dashx.session.modelPreferences.battery.calc_local then
             resetVoltageTracking()
-            lastSensorMode = neurondash.session.modelPreferences.battery.calc_local
+            lastSensorMode = dashx.session.modelPreferences.battery.calc_local
         end
     end
 
-    local bc = neurondash.session.batteryConfig
+    local bc = dashx.session.batteryConfig
     local configSig = table.concat({
         bc.batteryCellCount,
         bc.batteryCapacity,
@@ -179,7 +179,7 @@ local function smartFuelCalc()
     local now = os.clock()
 
     if currentMode ~= lastMode then
-        neurondash.utils.log("Flight mode changed – resetting voltage state", "info")
+        dashx.utils.log("Flight mode changed – resetting voltage state", "info")
         resetVoltageTracking()
         stabilizeNotBefore = now + preStabiliseDelay
         lastMode = currentMode
@@ -194,18 +194,18 @@ local function smartFuelCalc()
 
     if not voltageStabilised then
         if isVoltageStable() then
-            neurondash.utils.log("Voltage stabilized at: " .. voltage, "info")
+            dashx.utils.log("Voltage stabilized at: " .. voltage, "info")
             voltageStabilised = true
         else
-            neurondash.utils.log("Waiting for voltage to stabilize...", "info")
+            dashx.utils.log("Waiting for voltage to stabilize...", "info")
             return nil
         end
     end
 
-    if #lastVoltages >= 1 and neurondash.flightmode.current == "preflight" then
+    if #lastVoltages >= 1 and dashx.flightmode.current == "preflight" then
         local prev = lastVoltages[#lastVoltages - 1]
         if voltage > prev + voltageThreshold then
-            neurondash.utils.log("Voltage increased after stabilization – resetting...", "info")
+            dashx.utils.log("Voltage increased after stabilization – resetting...", "info")
             resetVoltageTracking()
             stabilizeNotBefore = os.clock() + preStabiliseDelay
             return nil
@@ -216,7 +216,7 @@ local function smartFuelCalc()
     local compensatedVoltage = applySagCompensation(filteredVoltage / bc.batteryCellCount) * bc.batteryCellCount
     local percent = fuelPercentageCalcByVoltage(compensatedVoltage, bc.batteryCellCount)
     local now = os.clock()
-    if (neurondash.flightmode.current == "inflight" or neurondash.flightmode.current == "postflight")
+    if (dashx.flightmode.current == "inflight" or dashx.flightmode.current == "postflight")
     and lastFuelPercent and lastFuelTimestamp then
 
         local dt = now - lastFuelTimestamp

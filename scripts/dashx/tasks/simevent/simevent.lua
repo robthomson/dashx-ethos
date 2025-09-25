@@ -2,13 +2,13 @@
 local simevent = {}
 
 -- adjust this to point at your sensor-script folder
-local source = "SCRIPTS:/" .. neurondash.config.baseDir .. "/sim/sensors/"
+local source = "SCRIPTS:/" .. dashx.config.baseDir .. "/sim/sensors/"
 
 -- map each script-name to the handler you want run on *actual* changes
 local handlers = {
   simevent_telemetry_state = function(value)
     -- set your telemetry state based on the returned value
-    neurondash.simevent.telemetry_state = (value == 0)
+    dashx.simevent.telemetry_state = (value == 0)
   end,
   -- add more sensor handlers here...
 }

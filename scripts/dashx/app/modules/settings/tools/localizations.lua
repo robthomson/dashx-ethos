@@ -2,50 +2,50 @@ local settings = {}
 
 local function openPage(pageIdx, title, script)
     enableWakeup = true
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
     form.clear()
 
-    neurondash.app.lastIdx    = pageIdx
-    neurondash.app.lastTitle  = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx    = pageIdx
+    dashx.app.lastTitle  = title
+    dashx.app.lastScript = script
 
-    neurondash.app.ui.fieldHeader(
+    dashx.app.ui.fieldHeader(
         "@i18n(app.modules.settings.name)@" .. " / " .. "@i18n(app.modules.settings.dashboard)@" .. " / " .. "@i18n(app.modules.settings.localizations)@"
     )
-    neurondash.session.formLineCnt = 0
+    dashx.session.formLineCnt = 0
 
     local formFieldCount = 0
 
-    settings = neurondash.preferences.localizations
+    settings = dashx.preferences.localizations
 
     formFieldCount = formFieldCount + 1
-    neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-    neurondash.app.formLines[neurondash.session.formLineCnt] = form.addLine("@i18n(app.modules.settings.temperature_unit)@")
-    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.session.formLineCnt], nil, 
+    dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+    dashx.app.formLines[dashx.session.formLineCnt] = form.addLine("@i18n(app.modules.settings.temperature_unit)@")
+    dashx.app.formFields[formFieldCount] = form.addChoiceField(dashx.app.formLines[dashx.session.formLineCnt], nil, 
                                                         {{"@i18n(app.modules.settings.celcius)@", 0}, {"@i18n(app.modules.settings.fahrenheit)@", 1}}, 
                                                         function() 
-                                                            if neurondash.preferences and neurondash.preferences.localizations then
+                                                            if dashx.preferences and dashx.preferences.localizations then
                                                                 return settings.temperature_unit or 0
                                                             end
                                                         end, 
                                                         function(newValue) 
-                                                            if neurondash.preferences and neurondash.preferences.localizations then
+                                                            if dashx.preferences and dashx.preferences.localizations then
                                                                 settings.temperature_unit = newValue
                                                             end    
                                                         end) 
             
     formFieldCount = formFieldCount + 1
-    neurondash.session.formLineCnt = neurondash.session.formLineCnt + 1
-    neurondash.app.formLines[neurondash.session.formLineCnt] = form.addLine("@i18n(app.modules.settings.altitude_unit)@")
-    neurondash.app.formFields[formFieldCount] = form.addChoiceField(neurondash.app.formLines[neurondash.session.formLineCnt], nil, 
+    dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+    dashx.app.formLines[dashx.session.formLineCnt] = form.addLine("@i18n(app.modules.settings.altitude_unit)@")
+    dashx.app.formFields[formFieldCount] = form.addChoiceField(dashx.app.formLines[dashx.session.formLineCnt], nil, 
                                                         {{"@i18n(app.modules.settings.meters)@", 0}, {"@i18n(app.modules.settings.feet)@", 1}}, 
                                                         function() 
-                                                            if neurondash.preferences and neurondash.preferences.localizations then
+                                                            if dashx.preferences and dashx.preferences.localizations then
                                                                 return settings.altitude_unit or 0
                                                             end
                                                         end, 
                                                         function(newValue) 
-                                                            if neurondash.preferences and neurondash.preferences.localizations then
+                                                            if dashx.preferences and dashx.preferences.localizations then
                                                                 settings.altitude_unit = newValue
                                                             end    
                                                         end) 
@@ -54,8 +54,8 @@ local function openPage(pageIdx, title, script)
 end
 
 local function onNavMenu()
-    neurondash.app.ui.progressDisplay()
-        neurondash.app.ui.openPage(
+    dashx.app.ui.progressDisplay()
+        dashx.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.settings.name)@",
             "settings/settings.lua"
@@ -69,18 +69,18 @@ local function onSaveMenu()
             label  = "@i18n(app.btn_ok_long)@",
             action = function()
                 local msg = "@i18n(app.modules.profile_select.save_prompt_local)@"
-                neurondash.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
+                dashx.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
                 for key, value in pairs(settings) do
-                    neurondash.preferences.dashboard[key] = value
+                    dashx.preferences.dashboard[key] = value
                 end
-                neurondash.ini.save_ini_file(
-                    "SCRIPTS:/" .. neurondash.config.preferences .. "/preferences.ini",
-                    neurondash.preferences
+                dashx.ini.save_ini_file(
+                    "SCRIPTS:/" .. dashx.config.preferences .. "/preferences.ini",
+                    dashx.preferences
                 )
                 -- update dashboard theme
-                neurondash.widgets.dashboard.reload_themes()
+                dashx.widgets.dashboard.reload_themes()
                 -- close save progress
-                neurondash.app.triggers.closeSave = true
+                dashx.app.triggers.closeSave = true
                 return true
             end,
         },
@@ -106,7 +106,7 @@ end
 local function event(widget, category, value, x, y)
     -- if close event detected go to section home page
     if category == EVT_CLOSE and value == 0 or value == 35 then
-        neurondash.app.ui.openPage(
+        dashx.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.settings.name)@",
             "settings/settings.lua"

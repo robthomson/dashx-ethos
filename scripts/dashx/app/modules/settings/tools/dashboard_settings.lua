@@ -1,51 +1,51 @@
 
 
-local themesBasePath = "SCRIPTS:/" .. neurondash.config.baseDir .. "/widgets/dashboard/themes/"
-local themesUserPath = "SCRIPTS:/" .. neurondash.config.preferences .. "/dashboard/"
+local themesBasePath = "SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/themes/"
+local themesUserPath = "SCRIPTS:/" .. dashx.config.preferences .. "/dashboard/"
 
 local function openPage(pidx, title, script)
     -- Get the installed themes
-    local themeList = neurondash.widgets.dashboard.listThemes()
+    local themeList = dashx.widgets.dashboard.listThemes()
 
-    neurondash.session.dashboardEditingTheme = nil
+    dashx.session.dashboardEditingTheme = nil
     enableWakeup = true
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
     form.clear()
 
 
-    neurondash.app.lastIdx    = pageIdx
-    neurondash.app.lastTitle  = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx    = pageIdx
+    dashx.app.lastTitle  = title
+    dashx.app.lastScript = script
 
-    neurondash.app.ui.fieldHeader(
+    dashx.app.ui.fieldHeader(
         "@i18n(app.modules.settings.name)@" .. " / " .. "@i18n(app.modules.settings.dashboard)@" .. " / " .. "@i18n(app.modules.settings.dashboard_settings)@"
     )
 
     -- Icon/button layout settings
     local buttonW, buttonH, padding, numPerRow
-    if neurondash.preferences.general.iconsize == 0 then
-        padding = neurondash.app.radio.buttonPaddingSmall
-        buttonW = (neurondash.session.lcdWidth - padding) / neurondash.app.radio.buttonsPerRow - padding
-        buttonH = neurondash.app.radio.navbuttonHeight
-        numPerRow = neurondash.app.radio.buttonsPerRow
-    elseif neurondash.preferences.general.iconsize == 1 then
-        padding = neurondash.app.radio.buttonPaddingSmall
-        buttonW = neurondash.app.radio.buttonWidthSmall
-        buttonH = neurondash.app.radio.buttonHeightSmall
-        numPerRow = neurondash.app.radio.buttonsPerRowSmall
+    if dashx.preferences.general.iconsize == 0 then
+        padding = dashx.app.radio.buttonPaddingSmall
+        buttonW = (dashx.session.lcdWidth - padding) / dashx.app.radio.buttonsPerRow - padding
+        buttonH = dashx.app.radio.navbuttonHeight
+        numPerRow = dashx.app.radio.buttonsPerRow
+    elseif dashx.preferences.general.iconsize == 1 then
+        padding = dashx.app.radio.buttonPaddingSmall
+        buttonW = dashx.app.radio.buttonWidthSmall
+        buttonH = dashx.app.radio.buttonHeightSmall
+        numPerRow = dashx.app.radio.buttonsPerRowSmall
     else
-        padding = neurondash.app.radio.buttonPadding
-        buttonW = neurondash.app.radio.buttonWidth
-        buttonH = neurondash.app.radio.buttonHeight
-        numPerRow = neurondash.app.radio.buttonsPerRow
+        padding = dashx.app.radio.buttonPadding
+        buttonW = dashx.app.radio.buttonWidth
+        buttonH = dashx.app.radio.buttonHeight
+        numPerRow = dashx.app.radio.buttonsPerRow
     end
 
     -- Image cache table for theme icons
-    if neurondash.app.gfx_buttons["settings_dashboard_themes"] == nil then
-        neurondash.app.gfx_buttons["settings_dashboard_themes"] = {}
+    if dashx.app.gfx_buttons["settings_dashboard_themes"] == nil then
+        dashx.app.gfx_buttons["settings_dashboard_themes"] = {}
     end
-    if neurondash.preferences.menulastselected["settings_dashboard_themes"] == nil then
-        neurondash.preferences.menulastselected["settings_dashboard_themes"] = 1
+    if dashx.preferences.menulastselected["settings_dashboard_themes"] == nil then
+        dashx.preferences.menulastselected["settings_dashboard_themes"] = 1
     end
 
     local lc, bx, y = 0, 0, 0
@@ -55,14 +55,14 @@ local function openPage(pidx, title, script)
         if theme.configure then
 
             if lc == 0 then
-                if neurondash.preferences.general.iconsize == 0 then y = form.height() + neurondash.app.radio.buttonPaddingSmall end
-                if neurondash.preferences.general.iconsize == 1 then y = form.height() + neurondash.app.radio.buttonPaddingSmall end
-                if neurondash.preferences.general.iconsize == 2 then y = form.height() + neurondash.app.radio.buttonPadding end
+                if dashx.preferences.general.iconsize == 0 then y = form.height() + dashx.app.radio.buttonPaddingSmall end
+                if dashx.preferences.general.iconsize == 1 then y = form.height() + dashx.app.radio.buttonPaddingSmall end
+                if dashx.preferences.general.iconsize == 2 then y = form.height() + dashx.app.radio.buttonPadding end
             end
             if lc >= 0 then bx = (buttonW + padding) * lc end
 
             -- Only load image once per theme index
-            if neurondash.app.gfx_buttons["settings_dashboard_themes"][idx] == nil then
+            if dashx.app.gfx_buttons["settings_dashboard_themes"][idx] == nil then
 
                 local icon  
                 if theme.source == "system" then
@@ -70,19 +70,19 @@ local function openPage(pidx, title, script)
                 else 
                     icon = themesUserPath .. theme.folder .. "/icon.png"
                 end    
-                neurondash.app.gfx_buttons["settings_dashboard_themes"][idx] = lcd.loadMask(icon)
+                dashx.app.gfx_buttons["settings_dashboard_themes"][idx] = lcd.loadMask(icon)
             end
 
-            neurondash.app.formFields[idx] = form.addButton(nil, {x = bx, y = y, w = buttonW, h = buttonH}, {
+            dashx.app.formFields[idx] = form.addButton(nil, {x = bx, y = y, w = buttonW, h = buttonH}, {
                 text = theme.name,
-                icon = neurondash.app.gfx_buttons["settings_dashboard_themes"][idx],
+                icon = dashx.app.gfx_buttons["settings_dashboard_themes"][idx],
                 options = FONT_S,
                 paint = function() end,
                 press = function()
                     -- Optional: your action when pressing a theme
-                    -- Example: neurondash.app.ui.loadTheme(theme.folder)
-                    neurondash.preferences.menulastselected["settings_dashboard_themes"] = idx
-                neurondash.app.ui.progressDisplay()
+                    -- Example: dashx.app.ui.loadTheme(theme.folder)
+                    dashx.preferences.menulastselected["settings_dashboard_themes"] = idx
+                dashx.app.ui.progressDisplay()
                     local configure = theme.configure
                     local source = theme.source
                     local folder = theme.folder
@@ -94,16 +94,16 @@ local function openPage(pidx, title, script)
                         themeScript = themesUserPath .. folder .. "/" .. configure 
                     end    
 
-                    neurondash.app.ui.openPageDashboard(idx, theme.name,themeScript, source, folder)               
+                    dashx.app.ui.openPageDashboard(idx, theme.name,themeScript, source, folder)               
                 end
             })
 
             if not theme.configure then
-                neurondash.app.formFields[idx]:enable(false)
+                dashx.app.formFields[idx]:enable(false)
             end
 
-            if neurondash.preferences.menulastselected["settings_dashboard_themes"] == idx then
-                neurondash.app.formFields[idx]:focus()
+            if dashx.preferences.menulastselected["settings_dashboard_themes"] == idx then
+                dashx.app.formFields[idx]:focus()
             end
 
             lc = lc + 1
@@ -112,27 +112,27 @@ local function openPage(pidx, title, script)
     end
 
     if lc == 0 then
-        local w, h = neurondash.utils.getWindowSize()
+        local w, h = dashx.utils.getWindowSize()
         local msg = "@i18n(app.modules.settings.no_themes_available_to_configure)@"
         local tw, th = lcd.getTextSize(msg)
         local x = w / 2 - tw / 2
         local y = h / 2 - th / 2
-        local btnH = neurondash.app.radio.navbuttonHeight
+        local btnH = dashx.app.radio.navbuttonHeight
         form.addStaticText(nil, { x = x, y = y, w = tw, h = btnH }, msg)
     end
 
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
     collectgarbage()
     return
 end
 
 
-neurondash.app.uiState = neurondash.app.uiStatus.pages
+dashx.app.uiState = dashx.app.uiStatus.pages
 
 local function event(widget, category, value, x, y)
     -- if close event detected go to section home page
     if category == EVT_CLOSE and value == 0 or value == 35 then
-        neurondash.app.ui.openPage(
+        dashx.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.settings.dashboard)@",
             "settings/tools/dashboard.lua"
@@ -142,8 +142,8 @@ local function event(widget, category, value, x, y)
 end
 
 local function onNavMenu()
-    neurondash.app.ui.progressDisplay()
-        neurondash.app.ui.openPage(
+    dashx.app.ui.progressDisplay()
+        dashx.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.settings.dashboard)@",
             "settings/tools/dashboard.lua"

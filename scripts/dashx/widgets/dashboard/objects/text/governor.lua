@@ -38,7 +38,7 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 
@@ -47,7 +47,7 @@ function render.invalidate(box) box._cfg = nil end
 
 -- Dirty check: only repaint when the displayed value actually changed
 function render.dirty(box)
-    if not neurondash.session.telemetryState then return false end
+    if not dashx.session.telemetryState then return false end
     if box._lastDisplayValue == nil then
         box._lastDisplayValue = box._currentDisplayValue
         return true
@@ -61,7 +61,7 @@ end
 
 -- Build/refresh static config if needed (theme & params aware)
 local function ensureCfg(box)
-    local theme_version = (neurondash and neurondash.theme and neurondash.theme.version) or 0
+    local theme_version = (dashx and dashx.theme and dashx.theme.version) or 0
     local param_version = box._param_version or 0 -- you can bump this externally when params change
     local cfg = box._cfg
     if (not cfg) or (cfg._theme_version ~= theme_version) or (cfg._param_version ~= param_version) then
@@ -98,9 +98,9 @@ function render.wakeup(box)
     local cfg = ensureCfg(box)
 
     -- Pull governor value from telemetry and translate
-    local telemetry = neurondash.tasks.telemetry
+    local telemetry = dashx.tasks.telemetry
     local raw = telemetry and telemetry.getSensor("governor")
-    local displayValue = neurondash.utils.getGovernorState(raw)
+    local displayValue = dashx.utils.getGovernorState(raw)
 
     -- Loading dots when no telemetry yet
     if raw == nil then

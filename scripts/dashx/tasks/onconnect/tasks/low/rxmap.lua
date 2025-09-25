@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -22,18 +22,18 @@ local rxmap = {}
 function rxmap.wakeup()
     
     -- quick exit if no apiVersion
-    if neurondash.session.apiVersion == nil then return end    
+    if dashx.session.apiVersion == nil then return end    
 
-    if not neurondash.utils.rxmapReady() then
+    if not dashx.utils.rxmapReady() then
 
-            neurondash.session.rx.map.aileron = 0
-            neurondash.session.rx.map.elevator = 1
-            neurondash.session.rx.map.collective = 2
-            neurondash.session.rx.map.rudder = 3
-            neurondash.session.rx.map.arm = 4
-            neurondash.session.rx.map.throttle = 5
-            neurondash.session.rx.map.mode = 6
-            neurondash.session.rx.map.headspeed = 7
+            dashx.session.rx.map.aileron = 0
+            dashx.session.rx.map.elevator = 1
+            dashx.session.rx.map.collective = 2
+            dashx.session.rx.map.rudder = 3
+            dashx.session.rx.map.arm = 4
+            dashx.session.rx.map.throttle = 5
+            dashx.session.rx.map.mode = 6
+            dashx.session.rx.map.headspeed = 7
 
 
     end    
@@ -41,12 +41,12 @@ function rxmap.wakeup()
 end
 
 function rxmap.reset()
-    neurondash.session.rxmap = {}
-    neurondash.session.rxvalues = {}    
+    dashx.session.rxmap = {}
+    dashx.session.rxvalues = {}    
 end
 
 function rxmap.isComplete()
-    return neurondash.utils.rxmapReady()
+    return dashx.utils.rxmapReady()
 end
 
 return rxmap

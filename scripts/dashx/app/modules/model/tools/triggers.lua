@@ -3,35 +3,35 @@ local enableWakeup = false
 
 local function openPage(pageIdx, title, script)
     enableWakeup = true
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
     form.clear()
 
-    neurondash.app.lastIdx    = pageIdx
-    neurondash.app.lastTitle  = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx    = pageIdx
+    dashx.app.lastTitle  = title
+    dashx.app.lastScript = script
 
-    neurondash.app.ui.fieldHeader(
+    dashx.app.ui.fieldHeader(
         "@i18n(app.modules.model.name)@" .. " / " .. "@i18n(app.modules.model.triggers)@"
     )
 
     local formFieldCount = 0
     local formLineCnt = 0
-    neurondash.app.formLines = {}
-    neurondash.app.formFields = {}
+    dashx.app.formLines = {}
+    dashx.app.formFields = {}
 
 
 
     -- Arm Switch
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1
-    neurondash.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_armswitch)@")
-    neurondash.app.formFields[formFieldCount] = form.addSwitchField(
-        neurondash.app.formLines[formLineCnt],
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_armswitch)@")
+    dashx.app.formFields[formFieldCount] = form.addSwitchField(
+        dashx.app.formLines[formLineCnt],
         nil,
         function()
-            if neurondash.session.modelPreferences then
-                if neurondash.preferences.model.armswitch  then
-                    local category, member, options = neurondash.preferences.model.armswitch:match("([^:]+):([^:]+):([^:]+)")
+            if dashx.session.modelPreferences then
+                if dashx.preferences.model.armswitch  then
+                    local category, member, options = dashx.preferences.model.armswitch:match("([^:]+):([^:]+):([^:]+)")
                     if category and member then
                         return system.getSource({category = category, member = member, options = options})
                     end
@@ -40,27 +40,27 @@ local function openPage(pageIdx, title, script)
             return nil
         end,
         function(newValue)
-            if neurondash.session.modelPreferences then
+            if dashx.session.modelPreferences then
                 local member = newValue:member()
                 local category = newValue:category()
                 local options = newValue:options()
-                neurondash.preferences.model.armswitch = category .. ":" .. member .. ":" .. options
+                dashx.preferences.model.armswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
-    neurondash.app.formFields[formFieldCount]:enable(false)
+    dashx.app.formFields[formFieldCount]:enable(false)
 
     -- Idle Switch
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1
-    neurondash.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_idleswitch)@")
-    neurondash.app.formFields[formFieldCount] = form.addSwitchField(
-        neurondash.app.formLines[formLineCnt],
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_idleswitch)@")
+    dashx.app.formFields[formFieldCount] = form.addSwitchField(
+        dashx.app.formLines[formLineCnt],
         nil,
         function()
-            if neurondash.session.modelPreferences then
-                if neurondash.preferences.model.idleswitch  then
-                    local category, member, options = neurondash.preferences.model.idleswitch:match("([^:]+):([^:]+):([^:]+)")
+            if dashx.session.modelPreferences then
+                if dashx.preferences.model.idleswitch  then
+                    local category, member, options = dashx.preferences.model.idleswitch:match("([^:]+):([^:]+):([^:]+)")
                     if category and member then
                         return system.getSource({category = category, member = member, options = options})
                     end
@@ -69,27 +69,27 @@ local function openPage(pageIdx, title, script)
             return nil
         end,
         function(newValue)
-            if neurondash.session.modelPreferences then
+            if dashx.session.modelPreferences then
                 local member = newValue:member()
                 local category = newValue:category()
                 local options = newValue:options()
-                neurondash.preferences.model.idleswitch = category .. ":" .. member .. ":" .. options
+                dashx.preferences.model.idleswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
-    neurondash.app.formFields[formFieldCount]:enable(false)
+    dashx.app.formFields[formFieldCount]:enable(false)
 
     --[[
     -- Rate Switch
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1
-    neurondash.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_rateswitch)@")
-    neurondash.app.formFields[formFieldCount] = form.addSwitchField(
-        neurondash.app.formLines[formLineCnt],
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_rateswitch)@")
+    dashx.app.formFields[formFieldCount] = form.addSwitchField(
+        dashx.app.formLines[formLineCnt],
         nil,
         function()
-            if neurondash.session.modelPreferences then
-                local category, member = neurondash.preferences.model.rateswitch:match("([^:]+):([^:]+)")
+            if dashx.session.modelPreferences then
+                local category, member = dashx.preferences.model.rateswitch:match("([^:]+):([^:]+)")
                 if category and member then
                     return system.getSource({category = category, member = member})
                 end
@@ -97,10 +97,10 @@ local function openPage(pageIdx, title, script)
             return nil
         end,
         function(newValue)
-            if neurondash.session.modelPreferences then
+            if dashx.session.modelPreferences then
                 local member = newValue:member()
                 local category = newValue:category()
-                neurondash.preferences.model.rateswitch = category .. ":" .. member
+                dashx.preferences.model.rateswitch = category .. ":" .. member
             end
         end
     )
@@ -108,8 +108,8 @@ local function openPage(pageIdx, title, script)
 end
 
 local function onNavMenu()
-    neurondash.app.ui.progressDisplay()
-    neurondash.app.ui.openPage(
+    dashx.app.ui.progressDisplay()
+    dashx.app.ui.openPage(
         pageIdx,
         "@i18n(app.modules.model.name)@",
         "model/model.lua"
@@ -122,25 +122,25 @@ local function onSaveMenu()
             label  = "@i18n(app.btn_ok_long)@",
             action = function()
                 local msg = "@i18n(app.modules.profile_select.save_prompt_local)@"
-                neurondash.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
+                dashx.app.ui.progressDisplaySave(msg:gsub("%?$", "."))
 
-                -- save model dashboard neurondash.preferences.model
-                if neurondash.session.mcu_id and neurondash.session.modelPreferencesFile then
-                    for key, value in pairs(neurondash.preferences.model) do
-                        neurondash.session.modelPreferences.model[key] = value
+                -- save model dashboard dashx.preferences.model
+                if dashx.session.mcu_id and dashx.session.modelPreferencesFile then
+                    for key, value in pairs(dashx.preferences.model) do
+                        dashx.session.modelPreferences.model[key] = value
                     end
 
 
-                    neurondash.ini.save_ini_file(
-                        neurondash.session.modelPreferencesFile,
-                        neurondash.session.modelPreferences
+                    dashx.ini.save_ini_file(
+                        dashx.session.modelPreferencesFile,
+                        dashx.session.modelPreferences
                     )
                 end
 
-                neurondash.app.triggers.closeSave = true
+                dashx.app.triggers.closeSave = true
 
-                if neurondash.tasks and neurondash.tasks.sensors  then
-                    neurondash.tasks.sensors.reset()
+                if dashx.tasks and dashx.tasks.sensors  then
+                    dashx.tasks.sensors.reset()
                 end
 
                 return true
@@ -156,7 +156,7 @@ local function onSaveMenu()
 
     form.openDialog({
         width   = nil,
-        title   = "@i18n(app.modules.profile_select.save_neurondash.preferences.model)@",
+        title   = "@i18n(app.modules.profile_select.save_dashx.preferences.model)@",
         message = "@i18n(app.modules.profile_select.save_prompt_local)@",
         buttons = buttons,
         wakeup  = function() end,
@@ -168,7 +168,7 @@ end
 local function event(widget, category, value, x, y)
     -- if close event detected go to section home page
     if (category == EVT_CLOSE and value == 0) or value == 35 then
-        neurondash.app.ui.openPage(
+        dashx.app.ui.openPage(
             pageIdx,
             "@i18n(app.modules.model.name)@",
             "model/model.lua"
@@ -183,12 +183,12 @@ local function wakeup()
 
 
 
-            if neurondash.session.isConnected then
+            if dashx.session.isConnected then
                   if runOnce == false then
-                    for i,v in ipairs(neurondash.app.formFields) do
-                        neurondash.app.formFields[i]:enable(true)
+                    for i,v in ipairs(dashx.app.formFields) do
+                        dashx.app.formFields[i]:enable(true)
                     end
-                    neurondash.preferences.model = neurondash.session and neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery
+                    dashx.preferences.model = dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences.battery
                     runOnce = true
                 else
                     runOnce = false        

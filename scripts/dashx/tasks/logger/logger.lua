@@ -1,6 +1,6 @@
 --[[
 
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -25,15 +25,15 @@ local config = arg[1]
 local logger = {}
 
 -- 
--- This script initializes the logging configuration for the neurondash module.
+-- This script initializes the logging configuration for the dashx module.
 -- 
 -- The logging configuration is loaded from the "lib/log.lua" file and is 
 -- customized based on the provided configuration (`config`).
 -- 
 -- The log file is named using the current date and time in the format 
--- "logs/neurondash_YYYY-MM-DD_HH-MM-SS.log".
+-- "logs/dashx_YYYY-MM-DD_HH-MM-SS.log".
 -- 
--- The minimum print level for logging is set from `neurondash.preferences.developer.loglevel`.
+-- The minimum print level for logging is set from `dashx.preferences.developer.loglevel`.
 -- 
 -- The option to log to a file is set from `preferences.developer.logtofile`.
 -- 
@@ -41,12 +41,12 @@ local logger = {}
 -- set to 0.1 seconds.
 -- logging
 os.mkdir("LOGS:")
-os.mkdir("LOGS:/neurondash")
-os.mkdir("LOGS:/neurondash/logs")
-logger.queue = assert(neurondash.compiler.loadfile("tasks/logger/lib/log.lua"))(config)
-logger.queue.config.log_file = "LOGS:/neurondash/logs/neurondash_" .. os.date("%Y-%m-%d_%H-%M-%S") .. ".log"
-logger.queue.config.min_print_level  = neurondash.preferences.developer.loglevel
-logger.queue.config.log_to_file = tostring(neurondash.preferences.developer.logtofile)
+os.mkdir("LOGS:/dashx")
+os.mkdir("LOGS:/dashx/logs")
+logger.queue = assert(dashx.compiler.loadfile("tasks/logger/lib/log.lua"))(config)
+logger.queue.config.log_file = "LOGS:/dashx/logs/dashx_" .. os.date("%Y-%m-%d_%H-%M-%S") .. ".log"
+logger.queue.config.min_print_level  = dashx.preferences.developer.loglevel
+logger.queue.config.log_to_file = tostring(dashx.preferences.developer.logtofile)
 
 
 function logger.wakeup()
@@ -58,8 +58,8 @@ function logger.reset()
 end
 
 function logger.add(message, level)
-    logger.queue.config.min_print_level  = neurondash.preferences.developer.loglevel
-    logger.queue.config.log_to_file  = tostring(neurondash.preferences.developer.logtofile)
+    logger.queue.config.min_print_level  = dashx.preferences.developer.loglevel
+    logger.queue.config.log_to_file  = tostring(dashx.preferences.developer.logtofile)
     logger.queue.add(message,level)
 end
 

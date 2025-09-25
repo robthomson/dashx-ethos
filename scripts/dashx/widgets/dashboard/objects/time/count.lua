@@ -30,13 +30,13 @@
 
 local render = {}
 
-local utils = neurondash.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 local lastDisplayValue = nil
 
 function render.dirty(box)
-    if not neurondash.session.telemetryState then return false end
+    if not dashx.session.telemetryState then return false end
 
     if box._lastDisplayValue == nil then
         box._lastDisplayValue = box._currentDisplayValue
@@ -52,12 +52,12 @@ function render.dirty(box)
 end
 
 function render.wakeup(box)
-    local value = neurondash.ini.getvalue(neurondash.session.modelPreferences, "general", "flightcount")
+    local value = dashx.ini.getvalue(dashx.session.modelPreferences, "general", "flightcount")
     local unit = getParam(box, "unit")
     local displayValue
 
     -- Detect telemetry state (true if session exists and is connected)
-    local telemetryActive = neurondash.session and neurondash.session.isConnected
+    local telemetryActive = dashx.session and dashx.session.isConnected
 
     -- Only cache when we receive a valid number *and* telemetry is active
     if type(value) == "number" and telemetryActive then

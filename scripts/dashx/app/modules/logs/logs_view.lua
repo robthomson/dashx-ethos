@@ -1,15 +1,15 @@
 -- display vars
-local utils = assert(neurondash.compiler.loadfile("SCRIPTS:/" .. neurondash.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
+local utils = assert(dashx.compiler.loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
 local res = system.getVersion()
 local LCD_W = res.lcdWidth
 local LCD_H = res.lcdHeight
 
 local graphPos = {}
-graphPos['menu_offset'] = neurondash.app.radio.logGraphMenuOffset
-graphPos['height_offset'] = neurondash.app.radio.logGraphHeightOffset or 0
+graphPos['menu_offset'] = dashx.app.radio.logGraphMenuOffset
+graphPos['height_offset'] = dashx.app.radio.logGraphHeightOffset or 0
 graphPos['x_start'] = 0
 graphPos['y_start'] = 0 + graphPos['menu_offset']
-graphPos['width'] = math.floor(LCD_W * neurondash.app.radio.logGraphWidthPercentage)
+graphPos['width'] = math.floor(LCD_W * dashx.app.radio.logGraphWidthPercentage)
 graphPos['key_width'] = LCD_W - graphPos['width']
 graphPos['height'] = LCD_H - graphPos['menu_offset'] - graphPos['menu_offset'] - 40 + graphPos['height_offset']
 graphPos['slider_y'] = LCD_H - (graphPos['menu_offset'] + 30) + graphPos['height_offset']
@@ -33,7 +33,7 @@ local maxMinData = {}
 local progressLoader
 local logLineCount
 
-local logColumns = neurondash.tasks.logging.getLogTable()
+local logColumns = dashx.tasks.logging.getLogTable()
 
 local sliderPosition = 1
 local sliderPositionOld = 1
@@ -91,14 +91,14 @@ function readNextChunk()
     if chunk then
         table.insert(logDataRaw, chunk)
         logFileReadOffset = logFileReadOffset + #chunk
-        neurondash.utils.log("Read " .. #chunk .. " bytes from log file","debug")
+        dashx.utils.log("Read " .. #chunk .. " bytes from log file","debug")
     else
         logFileHandle:close()
         logFileHandle = nil
         logDataRawReadComplete = true
         logDataRaw = table.concat(logDataRaw)
 
-        neurondash.utils.log("Read complete, total size: " .. #logDataRaw .. " bytes","debug")
+        dashx.utils.log("Read complete, total size: " .. #logDataRaw .. " bytes","debug")
     end
 end
 
@@ -307,7 +307,7 @@ local function drawKey(name, keyunit, keyminmax, keyfloor, color, minimum, maxim
     local w = LCD_W - graphPos['width'] - 10
     local boxpadding = 3
 
-    lcd.font(neurondash.app.radio.logKeyFont)
+    lcd.font(dashx.app.radio.logKeyFont)
     local _, th = lcd.getTextSize(name)
     local boxHeight = th + boxpadding
 
@@ -326,7 +326,7 @@ local function drawKey(name, keyunit, keyminmax, keyfloor, color, minimum, maxim
     local textY = y + (boxHeight / 2 - th / 2)
     lcd.drawText(x + 5, textY, name, LEFT)
 
-    lcd.font(neurondash.app.radio.logKeyFontSmall)
+    lcd.font(dashx.app.radio.logKeyFontSmall)
     if lcd.darkMode() then
         lcd.color(COLOR_WHITE)
     else
@@ -361,7 +361,7 @@ local function drawKey(name, keyunit, keyminmax, keyfloor, color, minimum, maxim
     lcd.drawText((LCD_W - tw) + boxpadding, mmY, max_str, LEFT)
 
     -- display average (can only do on bigger radios due to space)
-    if neurondash.app.radio.logShowAvg == true then
+    if dashx.app.radio.logShowAvg == true then
         local avg_str = "Ø " .. math.floor((minimum + maximum) / 2) .. keyunit
         local avgY = mmY + th -2
         lcd.drawText(x + 5, avgY, avg_str, LEFT)
@@ -371,7 +371,7 @@ end
 local function drawCurrentIndex(points, position, totalPoints, keyindex, keyunit, keyfloor, name, color, laneY, laneHeight, laneNumber, totalLanes)
     if position < 1 then position = 1 end
 
-    local sliderPadding = neurondash.app.radio.logSliderPaddingLeft
+    local sliderPadding = dashx.app.radio.logSliderPaddingLeft
     local w = graphPos['width'] - sliderPadding
 
     local linePos = map(position, 1, 100, 1, w - 10) + sliderPadding
@@ -394,7 +394,7 @@ local function drawCurrentIndex(points, position, totalPoints, keyindex, keyunit
     if keyfloor then value = math.floor(value) end
     value = value .. keyunit
 
-    lcd.font(neurondash.app.radio.logKeyFont)
+    lcd.font(dashx.app.radio.logKeyFont)
     local tw, th = lcd.getTextSize(value)
 
     local boxHeight = th + boxpadding
@@ -433,7 +433,7 @@ local function drawCurrentIndex(points, position, totalPoints, keyindex, keyunit
         -- 3) combine into "HH:MM [+SSs]" or "HH:MM [+M:SS]"
         local full_label = string.format("%s [+%s]", time_str, win_label)
 
-        lcd.font(neurondash.app.radio.logKeyFont)
+        lcd.font(dashx.app.radio.logKeyFont)
         local ty = graphPos['height'] + graphPos['menu_offset'] - 10
 
         lcd.color(COLOR_WHITE)
@@ -507,23 +507,23 @@ end
 local function openPage(pidx, title, script, logfile, displaymode,dirname)
   
 
-    neurondash.app.triggers.isReady = false
-    neurondash.app.uiState = neurondash.app.uiStatus.pages
+    dashx.app.triggers.isReady = false
+    dashx.app.uiState = dashx.app.uiStatus.pages
 
     form.clear()
 
-    neurondash.app.lastIdx = idx
-    neurondash.app.lastTitle = title
-    neurondash.app.lastScript = script
+    dashx.app.lastIdx = idx
+    dashx.app.lastTitle = title
+    dashx.app.lastScript = script
 
-    local name = utils.resolveModelName(neurondash.session.mcu_id or neurondash.app.activeLogDir)
-    neurondash.app.ui.fieldHeader("Logs / " .. extractShortTimestamp(logfile))
+    local name = utils.resolveModelName(dashx.session.mcu_id or dashx.app.activeLogDir)
+    dashx.app.ui.fieldHeader("Logs / " .. extractShortTimestamp(logfile))
     activeLogFile = logfile
 
     local filePath
 
-    if neurondash.app.activeLogDir then
-        filePath = utils.getLogDir(neurondash.app.activeLogDir) .. "/" .. logfile
+    if dashx.app.activeLogDir then
+        filePath = utils.getLogDir(dashx.app.activeLogDir) .. "/" .. logfile
     else
         filePath = utils.getLogDir() .. "/" .. logfile
     end
@@ -531,7 +531,7 @@ local function openPage(pidx, title, script, logfile, displaymode,dirname)
 
     -- slider
     local posField = {x = graphPos['x_start'], y = graphPos['slider_y'], w = graphPos['width'] - 10, h = 40}
-    neurondash.app.formFields[1] = form.addSliderField(nil, posField, 0, 100, function()
+    dashx.app.formFields[1] = form.addSliderField(nil, posField, 0, 100, function()
         return sliderPosition
     end, function(newValue)
         sliderPosition = newValue
@@ -540,7 +540,7 @@ local function openPage(pidx, title, script, logfile, displaymode,dirname)
     local zoomButtonWidth = (graphPos['key_width'] / 2) - 20
     --- zoom -
     local posField = {x = graphPos['width'], y = graphPos['slider_y'], w = zoomButtonWidth, h = 40}
-    neurondash.app.formFields[2] = form.addButton(line, posField, {
+    dashx.app.formFields[2] = form.addButton(line, posField, {
         text = "-",
         icon = nil,
         options = FONT_M,
@@ -549,21 +549,21 @@ local function openPage(pidx, title, script, logfile, displaymode,dirname)
                 zoomLevel = zoomLevel - 1
                 paintCache.needsUpdate = true
                 lcd.invalidate()
-                neurondash.app.formFields[2]:enable(true)
-                neurondash.app.formFields[3]:enable(true)
+                dashx.app.formFields[2]:enable(true)
+                dashx.app.formFields[3]:enable(true)
             end    
             if zoomLevel == 1 then
-                neurondash.app.formFields[2]:enable(false)
-                neurondash.app.formFields[3]:focus()   
+                dashx.app.formFields[2]:enable(false)
+                dashx.app.formFields[3]:focus()   
             end
         end
     })
     -- disable on start
-    neurondash.app.formFields[2]:enable(false)  
+    dashx.app.formFields[2]:enable(false)  
 
     --- zoom +
     local posField = {x = graphPos['width'] + zoomButtonWidth + 10 , y = graphPos['slider_y'], w = zoomButtonWidth, h = 40}
-    neurondash.app.formFields[3] = form.addButton(line, posField, {
+    dashx.app.formFields[3] = form.addButton(line, posField, {
         text = "+",
         icon = nil,
         options = FONT_M,
@@ -572,23 +572,23 @@ local function openPage(pidx, title, script, logfile, displaymode,dirname)
                 zoomLevel = zoomLevel + 1
                 paintCache.needsUpdate = true
                 lcd.invalidate()
-                neurondash.app.formFields[2]:enable(true)
-                neurondash.app.formFields[3]:enable(true)
+                dashx.app.formFields[2]:enable(true)
+                dashx.app.formFields[3]:enable(true)
             end    
             if zoomLevel == zoomCount then
-                neurondash.app.formFields[3]:enable(false)
-                neurondash.app.formFields[2]:focus()   
+                dashx.app.formFields[3]:enable(false)
+                dashx.app.formFields[2]:focus()   
             end    
         end
     })
     
-    neurondash.app.formFields[1]:step(1)
+    dashx.app.formFields[1]:step(1)
 
     logDataRaw = {}
     logFileReadOffset = 0
     logDataRawReadComplete = false
 
-    neurondash.app.triggers.closeProgressLoader = true
+    dashx.app.triggers.closeProgressLoader = true
     lcd.invalidate()
     enableWakeup = true
     return
@@ -596,7 +596,7 @@ end
 
 local function event(event, category, value, x, y)
     if  value == 35 then
-        neurondash.app.ui.openPage(neurondash.app.lastIdx, neurondash.app.lastTitle, "logs/logs_logs.lua")
+        dashx.app.ui.openPage(dashx.app.lastIdx, dashx.app.lastTitle, "logs/logs_logs.lua")
         return true
     end
     return false
@@ -690,7 +690,7 @@ local function wakeup()
         -- Set up carryOver and subStepSize once, when processing starts
         if not carriedOver then
             -- this needs to be done to set focus or txt radios have issue
-            neurondash.app.formNavigationFields['menu']:focus(true)
+            dashx.app.formNavigationFields['menu']:focus(true)
             carriedOver = slowcount
             subStepSize = (100 - carriedOver) / (#logColumns * 5)  -- 5 subtasks per column
         end
@@ -742,8 +742,8 @@ local function wakeup()
             if zoomLevel > zoomCount then zoomLevel = zoomCount end
 
             -- update zoom‐button states
-            local btnMinus = neurondash.app.formFields[2]
-            local btnPlus  = neurondash.app.formFields[3]
+            local btnMinus = dashx.app.formFields[2]
+            local btnPlus  = dashx.app.formFields[3]
             if zoomCount <= 1 then
                 btnMinus:enable(false); btnPlus:enable(false)
             else
@@ -783,8 +783,8 @@ local function paint()
 end
 
 local function onNavMenu(self)
-    neurondash.app.ui.progressDisplay()
-    neurondash.app.ui.openPage(neurondash.app.lastIdx, neurondash.app.lastTitle, "logs/logs_logs.lua")
+    dashx.app.ui.progressDisplay()
+    dashx.app.ui.openPage(dashx.app.lastIdx, dashx.app.lastTitle, "logs/logs_logs.lua")
 end
 
 return {

@@ -19,13 +19,13 @@
 local dashboard = {}  -- main namespace for all dashboard functionality
 
 -- cache some functions and variables for performance
-local compile = neurondash.compiler.loadfile
+local compile = dashx.compiler.loadfile
 
-local baseDir = neurondash.config.baseDir
-local preferences = neurondash.config.preferences
-local utils = neurondash.utils
+local baseDir = dashx.config.baseDir
+local preferences = dashx.config.preferences
+local utils = dashx.utils
 local log = utils.log
-local tasks = neurondash.tasks
+local tasks = dashx.tasks
 local objectProfiler = false
 local mod
 
@@ -114,7 +114,7 @@ dashboard.themeFallbackUsed = { preflight = false, inflight = false, postflight 
 dashboard.themeFallbackTime = { preflight = 0,     inflight = 0,        postflight = 0 }
 
 -- Current flightmode driving which state module to use (preflight/inflight/postflight)
-dashboard.flightmode = neurondash.flightmode.current or "preflight"
+dashboard.flightmode = dashx.flightmode.current or "preflight"
 
 -- Path to the current widget/theme in use (set during theme loading)
 dashboard.currentWidgetPath = nil
@@ -398,16 +398,16 @@ function dashboard.computeOverlayMessage()
     end    
   
     -- 3) As soon as we know RF version, show it with precedence
-    if neurondash.session.apiVersion and neurondash.session.rfVersion and not neurondash.session.isConnectedLow and state ~= "postflight" then
+    if dashx.session.apiVersion and dashx.session.rfVersion and not dashx.session.isConnectedLow and state ~= "postflight" then
         if system.getVersion().simulation == true then
-            return pad .. "SIM " .. neurondash.session.apiVersion .. pad
+            return pad .. "SIM " .. dashx.session.apiVersion .. pad
         else
-            return pad .. "RF" .. neurondash.session.rfVersion .. pad
+            return pad .. "RF" .. dashx.session.rfVersion .. pad
         end
     end
 
     -- 4) LAST: generic waiting message (don’t let it mask actionable errors)
-    if not neurondash.session.isConnectedHigh and state ~= "postflight" then
+    if not dashx.session.isConnectedHigh and state ~= "postflight" then
         return "@i18n(widgets.dashboard.waiting_for_connection)@"
     end
 
@@ -737,7 +737,7 @@ function dashboard.renderLayout(widget, config)
 
 
     -- Draw optional grid overlay
-    if layout.showgrid or neurondash.preferences.developer.overlaygrid then
+    if layout.showgrid or dashx.preferences.developer.overlaygrid then
         lcd.color(layout.showgrid)
         lcd.pen(1)
 
@@ -759,20 +759,20 @@ function dashboard.renderLayout(widget, config)
     end
 
     -- Optional: Overlay cpu/ram stats if layout.showstats is set
-    if layout.showstats or neurondash.preferences.developer.overlaystats then
+    if layout.showstats or dashx.preferences.developer.overlaystats then
         local headerOffset = (isFullScreen and headerLayout and headerLayout.height) or 0
 
-        local cpuUsage = (neurondash.performance and neurondash.performance.cpuload) or 0
-        local loopMs   = (neurondash.performance and neurondash.performance.loop_ms)   or 0
-        local budgetMs = (neurondash.performance and neurondash.performance.budget_ms) or 50  -- 20 Hz -> 50ms
-        local tickMs   = (neurondash.performance and neurondash.performance.tick_ms)   -- optional, if you published it
+        local cpuUsage = (dashx.performance and dashx.performance.cpuload) or 0
+        local loopMs   = (dashx.performance and dashx.performance.loop_ms)   or 0
+        local budgetMs = (dashx.performance and dashx.performance.budget_ms) or 50  -- 20 Hz -> 50ms
+        local tickMs   = (dashx.performance and dashx.performance.tick_ms)   -- optional, if you published it
         local headroomPct = math.max(0, 100 - (cpuUsage or 0))
 
-        local ramFreeKB        = (neurondash.performance and neurondash.performance.luaRamKB)        or 0
-        local ramUsedGC_KB     = (neurondash.performance and neurondash.performance.usedram)         or 0
-        local sysRamFreeKB     = (neurondash.performance and neurondash.performance.ramKB)           or 0
-        local bitmapRamFreeKB  = (neurondash.performance and neurondash.performance.luaBitmapsRamKB) or 0
-        local mainStackKB      = (neurondash.performance and neurondash.performance.mainStackKB)     or 0
+        local ramFreeKB        = (dashx.performance and dashx.performance.luaRamKB)        or 0
+        local ramUsedGC_KB     = (dashx.performance and dashx.performance.usedram)         or 0
+        local sysRamFreeKB     = (dashx.performance and dashx.performance.ramKB)           or 0
+        local bitmapRamFreeKB  = (dashx.performance and dashx.performance.luaBitmapsRamKB) or 0
+        local mainStackKB      = (dashx.performance and dashx.performance.mainStackKB)     or 0
 
         -- fonts
         lcd.font(FONT_S)
@@ -791,14 +791,14 @@ function dashboard.renderLayout(widget, config)
         }
 
 
-        local function fmtPct(n) return neurondash.utils.round(n or 0, 0) end
+        local function fmtPct(n) return dashx.utils.round(n or 0, 0) end
         local function fmtMS(n)  return string.format("%."..cfg.decimalsMS.."f", n or 0) end
         local function fmtKB(n)  return string.format("%."..cfg.decimalsKB.."f", n or 0) end
 
         -- Build rows for each section: {label, value, unit}
         local schedRows = {
             { "LOAD",         fmtPct(cpuUsage),                     "%"  },
-            { "LOAD (100ms window)", fmtPct(neurondash.performance.cpuload_window100 or 0), "%" },
+            { "LOAD (100ms window)", fmtPct(dashx.performance.cpuload_window100 or 0), "%" },
             { "HEADROOM",     fmtPct(headroomPct),                  "%"  },
             { "LOOP / BUDGET", fmtMS(loopMs).." / "..fmtMS(budgetMs), "ms" },
         }
@@ -894,8 +894,8 @@ end
 
 -- Utility to resolve a theme for a given flight mode
 local function getThemeForState(state)
-    local prefs = neurondash.session.modelPreferences and neurondash.session.modelPreferences.dashboard
-    local fallback = neurondash.preferences.dashboard
+    local prefs = dashx.session.modelPreferences and dashx.session.modelPreferences.dashboard
+    local fallback = dashx.preferences.dashboard
     local val = prefs and prefs["theme_" .. state]
     return (val and val ~= "nil" and val) or fallback["theme_" .. state] or dashboard.DEFAULT_THEME
 end
@@ -1003,8 +1003,8 @@ end
 
 -- Utility to get the correct theme for a given state
 local function getThemeForState(state)
-    local modelPrefs = neurondash.session.modelPreferences and neurondash.session.modelPreferences.dashboard
-    local userPrefs = neurondash.preferences.dashboard
+    local modelPrefs = dashx.session.modelPreferences and dashx.session.modelPreferences.dashboard
+    local userPrefs = dashx.preferences.dashboard
     local val = nil
     if modelPrefs then
         val = modelPrefs["theme_" .. state]
@@ -1173,14 +1173,14 @@ end
 function dashboard.create()
     -- 1) one-time (per Lua VM) helper modules; don’t recompile per instance
     if not dashboard.utils then
-        dashboard.utils = assert(compile("SCRIPTS:/" .. neurondash.config.baseDir .. "/widgets/dashboard/lib/utils.lua"))()
+        dashboard.utils = assert(compile("SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/lib/utils.lua"))()
     end
     if not dashboard.loaders then
-        dashboard.loaders = assert(compile("SCRIPTS:/" .. neurondash.config.baseDir .. "/widgets/dashboard/lib/loaders.lua"))()
+        dashboard.loaders = assert(compile("SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/lib/loaders.lua"))()
     end
 
     -- 2) ensure user theme dir exists
-    os.mkdir("SCRIPTS:/" .. neurondash.config.preferences .. "/dashboard/")
+    os.mkdir("SCRIPTS:/" .. dashx.config.preferences .. "/dashboard/")
 
     -- 3) reset per-instance runtime flags/state
     dashboard._pendingInvalidates = {}
@@ -1326,7 +1326,7 @@ function dashboard.event(widget, category, value, x, y)
     local module = loadedStateModules[state]
 
     if state == "postflight" and category == EVT_KEY and value == 131 then
-        neurondash.widgets.dashboard.flightmode = "preflight"
+        dashx.widgets.dashboard.flightmode = "preflight"
         dashboard.resetFlightModeAsk()
     end
 
@@ -1418,12 +1418,12 @@ end
 function dashboard.wakeup(widget)
 
     -- Check if MSP is allow msp to be prioritized
-    if neurondash.session and neurondash.session.mspBusy and not (neurondash.session and neurondash.session.isConnected) then return end
+    if dashx.session and dashx.session.mspBusy and not (dashx.session and dashx.session.isConnected) then return end
 
     -- Quick exit if not visible or running admin app
     local now = os.clock()
     local visible = lcd.isVisible()
-    local admin = neurondash.app and neurondash.app.guiIsRunning 
+    local admin = dashx.app and dashx.app.guiIsRunning 
 
     -- Throttle CPU usage based on connection and visibility
     if admin or not visible then
@@ -1438,7 +1438,7 @@ function dashboard.wakeup(widget)
         end 
     end
 
-    objectProfiler = neurondash.preferences and neurondash.preferences.developer and neurondash.preferences.developer.logobjprof
+    objectProfiler = dashx.preferences and dashx.preferences.developer and dashx.preferences.developer.logobjprof
 
     local telemetry = tasks.telemetry
     local W, H = lcd.getWindowSize()
@@ -1492,12 +1492,12 @@ function dashboard.wakeup(widget)
     end
 
     if firstWakeupCustomTheme and
-        neurondash.session.mcu_id and
-        neurondash.session.modelPreferences and
-        neurondash.session.modelPreferences.dashboard then
+        dashx.session.mcu_id and
+        dashx.session.modelPreferences and
+        dashx.session.modelPreferences.dashboard then
 
-        local modelPrefs = neurondash.session.modelPreferences.dashboard
-        local currentPrefs = neurondash.preferences.dashboard
+        local modelPrefs = dashx.session.modelPreferences.dashboard
+        local currentPrefs = dashx.preferences.dashboard
 
         if (modelPrefs.theme_preflight and modelPrefs.theme_preflight ~= "nil" and modelPrefs.theme_preflight ~= currentPrefs.theme_preflight) or
            (modelPrefs.theme_inflight and modelPrefs.theme_inflight ~= "nil" and modelPrefs.theme_inflight ~= currentPrefs.theme_inflight) or
@@ -1507,7 +1507,7 @@ function dashboard.wakeup(widget)
         end
     end
 
-    local currentFlightMode = neurondash.flightmode.current or "preflight"
+    local currentFlightMode = dashx.flightmode.current or "preflight"
     if lastFlightMode ~= currentFlightMode then
         dashboard.flightmode = currentFlightMode
         reload_state_only(currentFlightMode)
@@ -1659,7 +1659,7 @@ function dashboard.listThemes()
                     if chunk then
                         local ok, initTable = pcall(chunk)
                         if ok and initTable and type(initTable.name) == "string" then
-                            if not initTable.developer or neurondash.preferences.developer.devtools == true then
+                            if not initTable.developer or dashx.preferences.developer.devtools == true then
                                 num = num + 1
                                 themes[num] = {
                                     name = initTable.name,
@@ -1691,12 +1691,12 @@ end
 -- @param key string: The preference key to retrieve.
 -- @return any|nil: The value associated with the given key, or nil if not found or prerequisites are missing.
 function dashboard.getPreference(key)
-    if not neurondash.session.modelPreferences or not dashboard.currentWidgetPath then return nil end
+    if not dashx.session.modelPreferences or not dashboard.currentWidgetPath then return nil end
 
-    if not neurondash.app.guiIsRunning then
-        return neurondash.ini.getvalue(neurondash.session.modelPreferences, dashboard.currentWidgetPath, key)
+    if not dashx.app.guiIsRunning then
+        return dashx.ini.getvalue(dashx.session.modelPreferences, dashboard.currentWidgetPath, key)
     else
-        return neurondash.ini.getvalue(neurondash.session.modelPreferences, neurondash.app.dashboardEditingTheme, key)
+        return dashx.ini.getvalue(dashx.session.modelPreferences, dashx.app.dashboardEditingTheme, key)
     end
 end
 
@@ -1707,15 +1707,15 @@ end
 -- @param value any: The value to associate with the key.
 -- @return boolean: True if the preference was saved successfully, false otherwise.
 function dashboard.savePreference(key, value)
-    if not neurondash.session.modelPreferences or not neurondash.session.modelPreferencesFile or not dashboard.currentWidgetPath then
+    if not dashx.session.modelPreferences or not dashx.session.modelPreferencesFile or not dashboard.currentWidgetPath then
         return false
     end
-    if not neurondash.app.guiIsRunning then
-        neurondash.ini.setvalue(neurondash.session.modelPreferences, dashboard.currentWidgetPath, key, value)
-        return neurondash.ini.save_ini_file(neurondash.session.modelPreferencesFile, neurondash.session.modelPreferences)
+    if not dashx.app.guiIsRunning then
+        dashx.ini.setvalue(dashx.session.modelPreferences, dashboard.currentWidgetPath, key, value)
+        return dashx.ini.save_ini_file(dashx.session.modelPreferencesFile, dashx.session.modelPreferences)
     else
-        neurondash.ini.setvalue(neurondash.session.modelPreferences, neurondash.app.dashboardEditingTheme, key, value)
-        return neurondash.ini.save_ini_file(neurondash.session.modelPreferencesFile, neurondash.session.modelPreferences)
+        dashx.ini.setvalue(dashx.session.modelPreferences, dashx.app.dashboardEditingTheme, key, value)
+        return dashx.ini.save_ini_file(dashx.session.modelPreferencesFile, dashx.session.modelPreferences)
     end
 end
 

@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -40,11 +40,11 @@ function utils.isFullScreen(w, h)
 end
 
 --- Checks if the model preferences are ready.
--- This function returns true if the `neurondash` table, its `session` field,
+-- This function returns true if the `dashx` table, its `session` field,
 -- and the `modelPreferences` field within `session` are all non-nil.
 -- @return boolean True if model preferences are ready, false otherwise.
 function utils.isModelPrefsReady()
-    return neurondash and neurondash.session and neurondash.session.modelPreferences
+    return dashx and dashx.session and dashx.session.modelPreferences
 end
 
 --- Resets the cache of a given box object by clearing all entries in its `_cache` table.
@@ -139,7 +139,7 @@ function utils.getFontListsForResolution()
         }
     }
     if not radios[resolution] then
-        neurondash.utils.log("Unsupported resolution: " .. resolution .. ". Using default fonts.","info")
+        dashx.utils.log("Unsupported resolution: " .. resolution .. ". Using default fonts.","info")
         return radios["800x480"]
     end
     return radios[resolution] 
@@ -565,12 +565,12 @@ function utils.box(
     if image then
         local bitmapPtr = nil
         -- If image is a string (path), load it and cache it
-        if type(image) == "string" and neurondash and neurondash.utils and neurondash.utils.loadImage then
+        if type(image) == "string" and dashx and dashx.utils and dashx.utils.loadImage then
             imageCache = imageCache or {}
             local cacheKey = image or "default_image"
             bitmapPtr = imageCache[cacheKey]
             if not bitmapPtr then
-                bitmapPtr = neurondash.utils.loadImage(image, nil, "widgets/dashboard/gfx/logo.png")
+                bitmapPtr = dashx.utils.loadImage(image, nil, "widgets/dashboard/gfx/logo.png")
                 imageCache[cacheKey] = bitmapPtr
             end
         elseif type(image) == "userdata" then

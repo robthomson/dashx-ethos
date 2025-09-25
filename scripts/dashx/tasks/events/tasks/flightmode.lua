@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
  *
@@ -29,7 +29,7 @@ local hasBeenInFlight = false
 -- The function also ensures telemetry is active and the session is armed before proceeding.
 -- @return boolean True if the model is considered in flight, false otherwise.
 function flightmode.inFlight()
-    local telemetry = neurondash.tasks.telemetry
+    local telemetry = dashx.tasks.telemetry
 
     if not telemetry.active() then
         return false
@@ -62,7 +62,7 @@ end
 -- It also manages the `hasBeenInFlight` flag to track if the system has ever been in flight.
 -- @return string The determined flight mode: "preflight", "inflight", or "postflight".
 local function determineMode()
-    if neurondash.flightmode.current == "inflight" and not neurondash.session.isConnected then
+    if dashx.flightmode.current == "inflight" and not dashx.session.isConnected then
         hasBeenInFlight = false
         return "postflight"
     end
@@ -81,8 +81,8 @@ function flightmode.wakeup()
     local mode = determineMode()
 
     if lastFlightMode ~= mode then
-        neurondash.utils.log("Flight mode: " .. mode, "info")
-        neurondash.flightmode.current = mode
+        dashx.utils.log("Flight mode: " .. mode, "info")
+        dashx.flightmode.current = mode
         lastFlightMode = mode
     end
 end

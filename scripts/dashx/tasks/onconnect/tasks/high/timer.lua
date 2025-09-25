@@ -1,5 +1,5 @@
 --[[
- * Copyright (C) neurondash Project
+ * Copyright (C) dashx Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -22,11 +22,11 @@ local timer = {}
 local runOnce = false
 
 function timer.wakeup()
-        neurondash.session.timer = {}
-        neurondash.session.timer.start = nil -- this is used to store the start time of the timer
-        neurondash.session.timer.live = nil -- this is used to store the live timer value while inflight
-        neurondash.session.timer.lifetime = nil -- this is used to store the total flight time of a model and store it in the user ini file
-        neurondash.session.timer.session = 0 -- this is used to track flight time for the session
+        dashx.session.timer = {}
+        dashx.session.timer.start = nil -- this is used to store the start time of the timer
+        dashx.session.timer.live = nil -- this is used to store the live timer value while inflight
+        dashx.session.timer.lifetime = nil -- this is used to store the total flight time of a model and store it in the user ini file
+        dashx.session.timer.session = 0 -- this is used to track flight time for the session
         runOnce = true
 
 end
