@@ -185,14 +185,18 @@ local function smartFuelCalc()
             end
         end
         local estimatedUsed = usableCapacity * (1 - fuelStartingPercent / 100)
-        fuelStartingConsumption = (consumption or 0) - estimatedUsed
+        --fuelStartingConsumption = (consumption or 0) - estimatedUsed
+        fuelStartingConsumption = (consumption or 0)
+
     end
 
     -- Step 2: Use mAh consumption to track % drop after initial value
     if consumption and fuelStartingConsumption and packCapacity > 0 then
+        -- Right before returning remaining
         local used = consumption - fuelStartingConsumption
         local percentUsed = used / usableCapacity * 100
         local remaining = math.max(0, fuelStartingPercent - percentUsed)
+
         return math.floor(math.min(100, remaining) + 0.5)
     else
         -- If we're resetting or recalculating, don't return a stale value

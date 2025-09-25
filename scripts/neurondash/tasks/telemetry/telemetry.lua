@@ -196,6 +196,26 @@ local sensorTable = {
         },
     },
 
+    fuel = {
+        name = "@i18n(sensors.fuel)@",
+        mandatory = false,
+        stats = true,
+        set_telemetry_sensors = 6,
+        switch_alerts = true,
+        unit = UNIT_PERCENT,
+        unit_string = "%",
+        sensors = {
+            sim = {
+                { uid = 0x5007, unit = UNIT_PERCENT, dec = 0,
+                  value = function() return simSensors('fuel') end,
+                  min = 0, max = 100 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0600 }, },
+            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1014 }, },
+            crsfLegacy = { "Rx Batt%" },
+        },
+    },
+
     -- Fuel and Capacity Sensors
     smartfuel = {
         name = "@i18n(telemetry.sensors.smartfuel)@",
@@ -301,6 +321,7 @@ local sensorTable = {
             },
             sport = {
                 { appId = 0x0B60, subId = 1 },
+                { appId = 0x0B30, subId = 0 },
             },
         },
     },
