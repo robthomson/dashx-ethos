@@ -1,5 +1,5 @@
 --[[ 
- * Copyright (C) neurondash Project
+ * Copyright (C) Rotorflight Project
  *
  *
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -31,6 +31,49 @@ local voltageThreshold    = 0.15      -- Maximum allowed voltage variation withi
 local preStabiliseDelay   = 1.5       -- Minimum seconds to wait after configuration or telemetry update before checking for stabilisation.
 
 local telemetry                       -- Reference to the telemetry task, used to access sensor data.
+local lastMode = neurondash.flightmode.current or "preflight" -- Last flight mode to detect changes.
+local currentMode = neurondash.flightmode.current or "preflight"
+local lastSensorMode
+
+-- Discharge curve with 0.01V per cell resolution from 3.00V to 4.20V (121 points)
+-- This curve uses a sigmoid approximation to mimic real LiPo discharge behavior
+-- Same curve as used in smartfuelvoltage.lua for consistency
+local dischargeCurveTable = {}
+for i = 0, 120 do
+    local v = 3.00 + i * 0.01
+    local a, b, c = 12, 3.7, 100
+    local percent = 100 / (1 + math.exp(-a * (v - b)))
+    dischargeCurveTable[i + 1] = math.floor(math.min(100, math.max(0, percent)) + 0.5)
+end
+
+-- Calculate fuel percentage using sigmoid discharge curve for accurate LiPo behavior
+-- This provides much better accuracy than linear voltage mapping
+local function fuelPercentageFromVoltage(voltage, cellCount, bc)
+    local minV = bc.vbatmincellvoltage or 3.30
+    local fullV = bc.vbatfullcellvoltage or 4.10
+
+    local voltagePerCell = voltage / cellCount
+
+    -- Handle edge cases
+    if voltagePerCell >= fullV then
+        return 100
+    elseif voltagePerCell <= minV then
+        return 0
+    end
+
+    -- Map voltage range [minV, fullV] to discharge curve range [3.00, 4.20]
+    local sigmoidMin, sigmoidMax = 3.00, 4.20
+    local scaledV = sigmoidMin + (voltagePerCell - minV) / (fullV - minV) * (sigmoidMax - sigmoidMin)
+
+    -- Clamp to discharge curve range
+    scaledV = math.max(sigmoidMin, math.min(sigmoidMax, scaledV))
+
+    -- Look up percentage from discharge curve table
+    local index = math.floor((scaledV - sigmoidMin) / 0.01) + 1
+    index = math.max(1, math.min(#dischargeCurveTable, index))
+
+    return dischargeCurveTable[index]
+end
 
 -- Resets the voltage tracking state by clearing the last recorded voltages,
 -- resetting the voltage stable time, and marking the voltage as not stabilised.
@@ -101,6 +144,14 @@ local function smartFuelCalc()
         stabilizeNotBefore = os.clock() + preStabiliseDelay -- start pre-stabilisation delay on config change
     end
 
+    -- make sure we reset the method if the sensor mode changes
+    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
+        if lastSensorMode ~= neurondash.session.modelPreferences.battery.calc_local then
+            resetVoltageTracking()
+            lastSensorMode = neurondash.session.modelPreferences.battery.calc_local
+        end
+    end
+
     -- Read current voltage
     local voltage = telemetry and telemetry.getSensor and telemetry.getSensor("voltage") or nil
 
@@ -112,6 +163,25 @@ local function smartFuelCalc()
     end
 
     local now = os.clock()
+
+    --**Preemptive reset**: bail out _before_ any recalculation
+    if currentMode ~= lastMode then
+        neurondash.utils.log("Flight mode changed – resetting voltage & fuel state", "info")
+        -- clear starting references
+        fuelStartingPercent     = nil
+        fuelStartingConsumption = nil
+        -- clear any stored voltages
+        resetVoltageTracking()
+        -- defer next real calc until after your stabilization delay
+        stabilizeNotBefore = now + preStabiliseDelay
+
+        -- update for next time and exit
+        lastMode = currentMode
+        return nil
+    end
+    -- keep track for next invocation
+    lastMode = currentMode
+
 
     -- Wait for pre-stabilisation delay after config/telemetry is available
    if stabilizeNotBefore and now < stabilizeNotBefore then
@@ -136,8 +206,12 @@ local function smartFuelCalc()
         end
     end
 
-    -- Detect voltage increase after stabilization if not yet flying
-    if #lastVoltages >= 1 and neurondash.flightmode.current == "preflight" then
+    -- Detect voltage increase after stabilization if not yet flying, Only allow this reset whilst in preflight & disarmed.
+    local isDisarmed  = (neurondash and neurondash.session and neurondash.session.isArmed == false)
+    local isPreflight = (neurondash and neurondash.flightmode and neurondash.flightmode.current == "preflight")
+
+    -- Need at least 2 samples because we read (#lastVoltages - 1)
+    if lastVoltages and #lastVoltages >= 2 and isPreflight and isDisarmed then
         local prev = lastVoltages[#lastVoltages - 1]
         if voltage > prev + voltageThreshold then
             neurondash.utils.log("Voltage increased after stabilization – resetting...", "info")
@@ -147,14 +221,19 @@ local function smartFuelCalc()
             stabilizeNotBefore = os.clock() + preStabiliseDelay
             return nil  -- Ensure upstream caller knows we are resetting
         end
-    end    
+    end  
 
     -- After voltage is stable, proceed as normal
     local cellCount, packCapacity, reserve, maxCellV, minCellV, fullCellV =
         bc.batteryCellCount, bc.batteryCapacity, bc.consumptionWarningPercentage,
         bc.vbatmaxcellvoltage, bc.vbatmincellvoltage, bc.vbatfullcellvoltage
 
-    if reserve > 80 or reserve < 0 then reserve = 20 end
+    -- Clamp reserve to allowed range for safety
+    if reserve > 60 then
+        reserve = 35
+    elseif reserve < 15 then
+        reserve = 35
+    end
 
     if packCapacity < 10 or cellCount == 0 or maxCellV <= minCellV or fullCellV <= 0 then
         fuelStartingPercent = nil
@@ -168,35 +247,23 @@ local function smartFuelCalc()
 
     local consumption = telemetry and telemetry.getSensor and telemetry.getSensor("consumption") or nil
 
-    -- Step 1: Determine initial fuel % from voltage
+    -- Step 1: Determine initial fuel % from voltage using accurate discharge curve
     if not fuelStartingPercent then
-        local perCell = (voltage and cellCount > 0) and (voltage / cellCount) or 0
-        if perCell >= fullCellV then
-            fuelStartingPercent = 100
-        elseif perCell <= minCellV then
-            fuelStartingPercent = 0
+        if voltage and cellCount > 0 then
+            -- Use sigmoid discharge curve for accurate LiPo percentage calculation
+            fuelStartingPercent = fuelPercentageFromVoltage(voltage, cellCount, bc)
         else
-            local usableRange = maxCellV - minCellV
-            local pct = ((perCell - minCellV) / usableRange) * 100
-            if reserve > 0 and pct <= reserve then
-                fuelStartingPercent = 0
-            else
-                fuelStartingPercent = math.floor(math.max(0, math.min(100, pct)))
-            end
+            fuelStartingPercent = 0
         end
         local estimatedUsed = usableCapacity * (1 - fuelStartingPercent / 100)
-        --fuelStartingConsumption = (consumption or 0) - estimatedUsed
-        fuelStartingConsumption = (consumption or 0)
-
+        fuelStartingConsumption = (consumption or 0) - estimatedUsed
     end
 
     -- Step 2: Use mAh consumption to track % drop after initial value
     if consumption and fuelStartingConsumption and packCapacity > 0 then
-        -- Right before returning remaining
         local used = consumption - fuelStartingConsumption
         local percentUsed = used / usableCapacity * 100
         local remaining = math.max(0, fuelStartingPercent - percentUsed)
-
         return math.floor(math.min(100, remaining) + 0.5)
     else
         -- If we're resetting or recalculating, don't return a stale value
@@ -210,4 +277,7 @@ end
 
 --- Returns a table containing the `calculate` function for smart fuel calculations.
 -- @field calculate Function to perform smart fuel calculations.
-return {calculate = smartFuelCalc}
+return {
+        calculate = smartFuelCalc,
+        reset = resetVoltageTracking
+    }
