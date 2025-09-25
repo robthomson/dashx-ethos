@@ -21,6 +21,8 @@ local config = arg[1]
 local flightmode = {}
 local lastFlightMode = nil
 local hasBeenInFlight = false
+local inflight_start_time = nil
+
 
 --- Determines if the flight mode is considered "in flight".
 -- This function checks two main conditions to decide if the model is in flight:
@@ -35,12 +37,22 @@ function flightmode.inFlight()
         return false
     end
 
-    local idleup = telemetry.getSensor("idleup")
+    local inflight = telemetry.getSensor("inflight")
     local armed = telemetry.getSensor("armed")
+    local delay = dashx.session.modelPreferences.model.inflightswitch_delay or 10
 
-
-    if armed == 0 and idleup == 0 then
-        return true
+    -- Both sensors indicate "not armed" and "not inflight"
+    if armed == 0 and inflight == 0 then
+        if not inflight_start_time then
+            -- Start the timer
+            inflight_start_time = os.time()
+        elseif os.difftime(os.time(), inflight_start_time) >= delay then
+            -- Delay has passed
+            return true
+        end
+    else
+        -- Reset timer if condition is broken
+        inflight_start_time = nil
     end
 
     return false
@@ -53,6 +65,7 @@ end
 function flightmode.reset()
     lastFlightMode = nil
     hasBeenInFlight = false
+     inflight_start_time = nil
 end
 
 --- Determines the current flight mode based on session state and flight status.

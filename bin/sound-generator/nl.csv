@@ -1,11 +1,6 @@
 #app,#text to play
 app/timeout.wav,Timed out,,
-app/powercycleesc.wav, Herstart de motor besturing,,
-app/soverideen.wav,Servo handmatig - aan,,
-app/soveridedis.wav,Servo handmatig - uit,,
-app/eraseflash.wav, Data flash leeg maken,,
-app/moverideen.wav,Mixer handmatig - aan,,
-app/moveridedis.wav,Mixer handmatig - uit,,
+
 
 #events,#text to play
 events/alerts/lowvoltage.wav,Laag Voltage,,
@@ -14,8 +9,7 @@ events/alerts/armed.wav,Armed,,
 events/alerts/disarmed.wav,Disarmed,,
 events/alerts/profile.wav,Profiel,,
 events/alerts/rates.wav,Rates,,
-events/alerts/idleup.wav,Idle Up,,
-events/alerts/idledown.wav,Idle Down,,
+
 
 
 #status,#text to play

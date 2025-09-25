@@ -2844,10 +2844,15 @@
           "needs_translation": true,
           "translation": "Arm Switch"
         },
-        "model_idleswitch": {
-          "english": "Idle Up Switch",
+        "model_inflightswitch": {
+          "english": "Inflight Switch",
           "needs_translation": true,
-          "translation": "Idle Up Switch"
+          "translation": "Inflight Switch"
+        },
+        "model_inflightswitch_delay": {
+          "english": "Inflight Switch Delay",
+          "needs_translation": true,
+          "translation": "Inflight Switch Delay"
         },
         "model_rateswitch": {
           "english": "Rate Switch",
@@ -5234,7 +5239,7 @@
         "needs_translation": "false",
         "translation": "Velocita' Rotore"
       },
-      "idleup": {
+      "inflight": {
         "english": "Idle Up",
         "needs_translation": true,
         "translation": "Idle Up"

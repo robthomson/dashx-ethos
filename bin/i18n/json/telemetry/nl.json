@@ -105,7 +105,7 @@
       "translation": "Arming Flags",
       "needs_translation": "false"
     },
-    "idleup": {
+    "inflight": {
       "english": "Idle Up",
       "translation": "Idle Up",
       "needs_translation": true

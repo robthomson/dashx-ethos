@@ -87,15 +87,15 @@ local eventTable = {
         debounce = 0.25
     },  
     {
-        sensor = "idleup",
+        sensor = "inflight",
         event = function(value)
             if dashx.tasks.telemetry.getSensorSource("armed"):value() == 0 then
-                if value == 0 then
-                    dashx.utils.playFile("events", "alerts/idleup.wav")
-                end    
-                if value == 1 then
-                    dashx.utils.playFile("events", "alerts/idledown.wav")
-                end   
+               -- if value == 0 then
+               --     dashx.utils.playFile("events", "alerts/inflight.wav")
+               -- end    
+               -- if value == 1 then
+               --     dashx.utils.playFile("events", "alerts/idledown.wav")
+               -- end   
             end
         end,
         debounce = 0.25

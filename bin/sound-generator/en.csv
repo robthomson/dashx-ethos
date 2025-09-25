@@ -1,11 +1,5 @@
 #app,#text to play
 app/timeout.wav,Timed out,,
-app/powercycleesc.wav,Please power cycle the speed controller,,
-app/soverideen.wav,Servo overide - enabled,,
-app/soveridedis.wav,Servo overide - disabled,,
-app/eraseflash.wav,Erasing Data Flash,,
-app/moverideen.wav,Mixer overide - enabled,,
-app/moveridedis.wav,Mixer overide - disabled,,
 
 #events,#text to play
 events/alerts/lowvoltage.wav,Low Voltage,,
@@ -14,8 +8,7 @@ events/alerts/armed.wav,Armed,,
 events/alerts/disarmed.wav,Disarmed,,
 events/alerts/profile.wav,Profile,,
 events/alerts/rates.wav,Rates,,
-events/alerts/idleup.wav,Idle Up,,
-events/alerts/idledown.wav,Idle Down,,
+
 
 
 

@@ -1,11 +1,5 @@
 #app,#text to play
 app/timeout.wav,Zeitüberschreitung,,
-app/powercycleesc.wav,Bitte den Motorregler aus- und wieder einschalten,,
-app/soverideen.wav,Servo-Übersteuerung - aktiviert,,
-app/soveridedis.wav,Servo-Übersteuerung - deaktiviert,,
-app/eraseflash.wav,Datenspeicher wird gelöscht,,
-app/moverideen.wav,Mischer-Übersteuerung - aktiviert,,
-app/moveridedis.wav,Mischer-Übersteuerung - deaktiviert,,
 
 #events,#text to play
 events/alerts/lowvoltage.wav,Niedrige Spannung,,
@@ -14,8 +8,7 @@ events/alerts/armed.wav,Scharfgeschaltet,,
 events/alerts/disarmed.wav,Ausgeschaltet,,
 events/alerts/profile.wav,Profil,,
 events/alerts/rates.wav,Raten,,
-events/alerts/idleup.wav,Idle Up,,
-events/alerts/idledown.wav,Idle Down,,
+
 
 
 #status,#text to play

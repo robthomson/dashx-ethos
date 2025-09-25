@@ -35,7 +35,7 @@
  * Possible sensor ids we can use are.
  * 0x5FE1   - smartfuel
  * 0x5FE0   - armed
- * 0x5FDF   - idleup
+ * 0x5FDF   - inflight
  * 0x5FDE   - smartconsumption
  * 0x5FDD
  * 0x5FDC
@@ -136,8 +136,8 @@ local smart_sensors = {
             return false     
         end,
     },
-    idleup = {
-        name = "Idle up",
+    inflight = {
+        name = "Inflight",
         appId = 0x5FDF, -- Unique sensor ID
         unit = UNIT_RAW, -- Telemetry unit
         minimum = 0,
@@ -145,13 +145,13 @@ local smart_sensors = {
         value = function()
             if dashx.preferences.model then
                 local settings = dashx.preferences.model
-                if settings.idleswitch then
-                    local category, member, options = settings.idleswitch:match("([^:]+):([^:]+):([^:]+)")
+                if settings.inflightswitch then
+                    local category, member, options = settings.inflightswitch:match("([^:]+):([^:]+):([^:]+)")
                     
-                    if not switchCache["idleup"] then
-                        switchCache["idleup"] = system.getSource({category = category, member = member, options = options})
+                    if not switchCache["inflight"] then
+                        switchCache["inflight"] = system.getSource({category = category, member = member, options = options})
                     end
-                    local state = switchCache["idleup"]:state()
+                    local state = switchCache["inflight"]:state()
                     return(state and 0 or 1)
                 end
             end    

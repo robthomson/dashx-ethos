@@ -80,7 +80,7 @@ local userpref_defaults ={
         voltage = true,
         fuel = true,
         profile = true,
-        idleup = true,
+        inflight = true,
     },
     switches = {
     },

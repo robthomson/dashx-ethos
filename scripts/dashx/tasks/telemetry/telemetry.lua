@@ -346,8 +346,8 @@ local sensorTable = {
     },
 
     -- Idleup Sensors
-    idleup = {
-        name = "@i18n(telemetry.sensors.idleup)@",
+    inflight = {
+        name = "@i18n(telemetry.sensors.inflight)@",
         mandatory = false,
         stats = false,
         set_telemetry_sensors = nil,

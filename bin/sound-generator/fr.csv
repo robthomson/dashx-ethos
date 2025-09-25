@@ -1,11 +1,5 @@
 #app,#text to play
 app/timeout.wav,Délai dépassé,,
-app/powercycleesc.wav,Veuillez redemarrée le controleur de vitesse,,
-app/soverideen.wav,Commande servo - activé,,
-app/soveridedis.wav,Commande servo - désactivé,,
-app/eraseflash.wav,Effacement de la mémoire flash,,
-app/moverideen.wav,Commande mixeur - activé,,
-app/moveridedis.wav,Commande mixeur - désactivé,,
 
 #events,#text to play
 events/alerts/lowvoltage.wav,Tension faible,,
@@ -14,8 +8,7 @@ events/alerts/armed.wav,Armé,,
 events/alerts/disarmed.wav,Désarmé,,
 events/alerts/profile.wav,Profil,,
 events/alerts/rates.wav,Taux,,
-events/alerts/idleup.wav,Idle Up,,
-events/alerts/idledown.wav,Idle Down,,
+
 
 
 #status,#text to play
