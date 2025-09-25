@@ -197,7 +197,7 @@ local sensorTable = {
     },
 
     fuel = {
-        name = "@i18n(sensors.fuel)@",
+        name = "@i18n(telemetry.sensors.fuel)@",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = 6,
@@ -236,7 +236,7 @@ local sensorTable = {
     },
 
     smartconsumption = {
-        name = "@i18n(sensors.smartconsumption)@",
+        name = "@i18n(telemetry.sensors.smartconsumption)@",
         mandatory = false,
         stats = true,
         switch_alerts = true,

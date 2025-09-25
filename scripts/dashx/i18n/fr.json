@@ -5264,6 +5264,11 @@
         "needs_translation": "false",
         "translation": "Signal du Recepteur"
       },
+      "smartconsumption": {
+        "english": "Smart Consumption",
+        "needs_translation": true,
+        "translation": "Smart Consumption"
+      },
       "smartfuel": {
         "english": "Smart fuel",
         "needs_translation": "true",

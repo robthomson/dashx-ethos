@@ -1,5 +1,10 @@
 {
   "sensors": {
+    "smartconsumption": {
+      "english": "Smart Consumption",
+      "translation": "Smart Consumption",
+      "needs_translation": true
+    },
     "attpitch": {
       "english": "P.angle",
       "translation": "P.angle",
