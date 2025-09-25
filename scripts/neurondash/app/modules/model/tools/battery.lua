@@ -309,6 +309,12 @@ local function wakeup()
                         neurondash.app.formFields[i]:enable(true)
                     end
 
+                    if not neurondash.tasks.telemetry.getSensorSource("consumption")  then
+                        neurondash.session.modelPreferences.battery.fuelSensor = 1
+                        neurondash.app.formFields[1]:enable(false)
+                    end
+
+
                     runOnce = true
                 else
                     runOnce = false        

@@ -75,7 +75,8 @@ local function calculateFuel()
     -- work out what type of sensor we are running and use 
     -- the appropriate calculation method
     if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.fuelSensor then
-         if neurondash.session.modelPreferences.battery.fuelSensor == 1 then
+        -- if we dont have a consumption.. fallback to voltage
+         if neurondash.session.modelPreferences.battery.fuelSensor == 1 or not neurondash.tasks.telemetry.getSensorSource("consumption") then
             return smartfuelvoltage.calculate()
          else
             return smartfuel.calculate()
