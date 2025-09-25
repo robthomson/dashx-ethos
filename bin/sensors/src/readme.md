@@ -42,8 +42,8 @@ Before running the app or building, set the following environment variables:
 
 **Example:**
 ```bat
-set FRSKY_neurondash_GIT_SRC=C:\GitHub\omp-neurondash-dashboard
-set FRSKY_SIM_SRC=C:\GitHub\omp-neurondash-dashboard\output
+set FRSKY_neurondash_GIT_SRC=C:\GitHub\neurondash
+set FRSKY_SIM_SRC=C:\GitHub\neurondash\output
 ```
 
 ---

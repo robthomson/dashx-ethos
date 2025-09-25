@@ -115,7 +115,7 @@ neurondash.config.bgTaskName = neurondash.config.toolName .. " [Background]"    
 neurondash.config.bgTaskKey = "nrdshbg"                                          -- key id used for msp services
 
 -- main
--- neurondash: Main table for the omp-neurondash-dashboard script.
+-- neurondash: Main table for the neurondash script.
 -- neurondash.config: Configuration table for the suite.
 -- neurondash.session: Session table for the suite.
 -- neurondash.app: Application module loaded from "app/app.lua" with the provided configuration.
@@ -177,7 +177,7 @@ end
 
 
 --[[
-    Initializes the main script for the omp-neurondash-dashboard.
+    Initializes the main script for the neurondash.
 
     This function performs the following tasks:
     1. Checks if the Ethos version is supported using `neurondash.utils.ethosVersionAtLeast()`.
