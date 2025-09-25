@@ -36,7 +36,7 @@
  * 0x5FE1   - smartfuel
  * 0x5FE0   - armed
  * 0x5FDF   - idleup
- * 0x5FDE
+ * 0x5FDE   - smartconsumption
  * 0x5FDD
  * 0x5FDC
  * 0x5FDB
@@ -74,9 +74,9 @@ local firstWakeup = true
 local function calculateFuel()
     -- work out what type of sensor we are running and use 
     -- the appropriate calculation method
-    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.fuelSensor then
+    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
         -- if we dont have a consumption.. fallback to voltage
-         if neurondash.session.modelPreferences.battery.fuelSensor == 1 or not neurondash.tasks.telemetry.getSensorSource("consumption") then
+         if neurondash.session.modelPreferences.battery.calc_local == 1 or not neurondash.tasks.telemetry.getSensorSource("consumption") then
             return smartfuelvoltage.calculate()
          else
             return smartfuel.calculate()
@@ -86,6 +86,29 @@ local function calculateFuel()
     end
 
 end
+
+local function calculateConsumption()
+            -- If smartvoltage is enabled, calculate mAh used based on capacity
+            if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
+                if neurondash.session.modelPreferences.battery.calc_local == 1 or not neurondash.tasks.telemetry.getSensorSource("consumption") then
+                    local capacity = (neurondash.session.batteryConfig and neurondash.session.batteryConfig.batteryCapacity) or 1000 -- Default to 1000mAh if not set
+                    local smartfuelPct = neurondash.tasks.telemetry.getSensor("smartfuel")
+                    local warningPercentage = (neurondash.session.batteryConfig and neurondash.session.batteryConfig.consumptionWarningPercentage) or 30
+                    if smartfuelPct then
+                        local usableCapacity = capacity * (1 - warningPercentage / 100)
+                        local usedPercent = 100 - smartfuelPct -- how much has been used
+                        return (usedPercent / 100) * usableCapacity
+                    end
+                else
+                    -- fallback to FC "consumption"
+                    return neurondash.tasks.telemetry.getSensor("consumption") or 0
+                end
+            else
+                -- No battery prefs — fallback to FC "consumption"
+                return neurondash.tasks.telemetry.getSensor("consumption") or 0
+            end
+end    
+
 
 local switchCache = {}
 
@@ -142,7 +165,16 @@ local smart_sensors = {
         minimum = 0,
         maximum = 100,
         value = calculateFuel,
-    },    
+    },   
+    
+    smartconsumption = {
+        name = "Smart Consumption",
+        appId = 0x5FDE, -- Unique sensor ID
+        unit = UNIT_MILLIAMPERE_HOUR, -- Telemetry unit
+        minimum = 0,
+        maximum = 1000000000,
+        value = calculateConsumption,
+    },      
 }
 
 smart.sensors = msp_sensors

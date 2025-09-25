@@ -146,10 +146,10 @@ local function smartFuelCalc()
     end
 
     -- make sure we reset the method if the sensor mode changes
-    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.fuelSensor then
-        if lastSensorMode ~= neurondash.session.modelPreferences.battery.fuelSensor then
+    if neurondash.session.modelPreferences and neurondash.session.modelPreferences.battery and neurondash.session.modelPreferences.battery.calc_local then
+        if lastSensorMode ~= neurondash.session.modelPreferences.battery.calc_local then
             resetVoltageTracking()
-            lastSensorMode = neurondash.session.modelPreferences.battery.fuelSensor
+            lastSensorMode = neurondash.session.modelPreferences.battery.calc_local
         end
     end
 
