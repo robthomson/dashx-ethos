@@ -90,7 +90,10 @@ function sensors.wakeup()
 
     -- run smart sensors
     if smart and smart.wakeup then
-        smart.wakeup()
+        if neurondash.session.isConnected then
+            smart.wakeup()
+        end
+
     end   
 
 end
