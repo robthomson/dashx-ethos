@@ -98,7 +98,7 @@ function ui.progressNolinkDisplay()
                                     if not utils.ethosVersionAtLeast() then
                                     msg = string.format("%s < V%d.%d.%d", string.upper("@i18n(ethos)@"), table.unpack(dashx.config.ethosVersion))
                                     elseif not dashx.tasks.active() then
-                                    msg, invalid, abort = "@i18n(app.check_bg_task)@", true, true
+                                    msg, invalid, abort = "@i18n(app.check_bg_task)@", true, false
                                     elseif not moduleEnabled and not app.offlineMode then
                                     msg, invalid = "@i18n(app.check_rf_module_on)@", true
                                     elseif not (sensorSport or sensorElrs) and not app.offlineMode then
