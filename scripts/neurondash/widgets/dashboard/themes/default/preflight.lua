@@ -33,7 +33,7 @@ local darkMode = {
     txaccentcolor   = "grey",
     txfillcolor     = "green",
     txbgfillcolor   = "darkgrey",
-    bgcolortop      = "black",
+    bgcolortop =    lcd.RGB(10, 10, 10),
 }
 
 local lightMode = {
@@ -48,7 +48,7 @@ local lightMode = {
     txaccentcolor   = "darkgrey",
     txfillcolor     = "green",
     txbgfillcolor   = "grey",
-    bgcolortop =    "grey",
+    bgcolortop      = "grey"
 }
 
 -- User voltage min/max override support
@@ -99,11 +99,11 @@ local themeOptions = {
     ls_full = { 
         font = "FONT_XXL", 
         advfont = "FONT_M", 
-        thickness = 25, 
+        thickness = 30, 
         batteryframethickness = 4, 
         titlepaddingbottom = 15, 
         valuepaddingleft = 25, 
-        valuepaddingtop = 20, 
+        valuepaddingtop = 40, 
         valuepaddingbottom = 25, 
         gaugepaddingtop = 20, 
         gaugepadding = 20
@@ -112,7 +112,7 @@ local themeOptions = {
     ls_std  = { 
         font = "FONT_XL", 
         advfont = "FONT_M", 
-        thickness = 35, 
+        thickness = 30, 
         batteryframethickness = 4, 
         titlepaddingbottom = 0, 
         valuepaddingleft = 75, 
@@ -195,9 +195,9 @@ local headeropts = utils.getHeaderOptions()
 
 -- Theme Layout
 local layout = {
-    cols    = 8,
-    rows    = 4,
-    padding = 4,
+    cols    = 20,
+    rows    = 8,
+    padding = 1,
     --showgrid = lcd.RGB(100, 100, 100)  -- or any color you prefer
 }
 
@@ -216,147 +216,152 @@ local function buildBoxes(W)
     local opts = themeOptions[getThemeOptionKey(W)] or themeOptions.unknown
 
 return {
+
   {
-    col = 1,
-    row = 1,
-    rowspan = 2,
-    colspan = 2,
-    type = "image",
-    subtype = "model"
+    col     = 1,
+    row     = 1,
+    colspan = 8,
+    rowspan = 3,
+    type    = "image",
+    subtype = "model",
+    bgcolor = colorMode.bgcolor,
   },
   {
-    col = 1,
-    row = 3,
-    rowspan = 2,
-    colspan = 2,    
-    type = "time",
+    col     = 1,
+    row     = 4,
+    colspan = 8,
+    rowspan = 3,
+    type    = "time",
     subtype = "flight",
-    titlepos = "bottom",
-    title = "TIMER",
-    titlecolor = colorMode.textcolor,
-    textcolor = colorMode.textcolor,   
-  },  
+    title   = "TIME",
+    titlepos= "bottom",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+  },
   {
-    col = 3,
-    row = 1,
+    col     = 1,
+    row     = 7,
+    colspan = 4,
     rowspan = 2,
-    colspan = 3,
-    type = "text",
+    type    = "text",
     subtype = "telemetry",
-    source = "voltage",
-    nosource = "-",
-    title = "VOLTAGE",
-    unit = "v",
+    source  = "rssi",
+    nosource= "-",
+    unit    = "dB",
+    title   = "LQ",
+    titlepos= "bottom",
+    transform = "floor",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+  },
+  {
+    col     = 5,
+    row     = 7,
+    colspan = 4,
+    rowspan = 2,
+    type    = "time",
+    subtype = "count",
+    title   = "FLIGHTS",
+    titlepos= "bottom",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+  },
+  {
+    col     = 9,
+    row     = 1,
+    colspan = 12,
+    rowspan = 8,
+    type    = "gauge",
+    subtype = "arc",
+    source  = "voltage",
+    fillbgcolor = colorMode.fillbgcolor,
+    title    = "VOLTAGE",
+    font     = opts.font,
+    thickness= opts.thickness,
+    gaugepadding = opts.gaugepadding,
     titlepos = "bottom",
-    titlecolor = colorMode.textcolor,
-    textcolor = colorMode.textcolor,
-    -- (same as before: these live here if you ever need .min/.max)
+    fillcolor= colorMode.fillcolor,
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+    valuepaddingtop = opts.valuepaddingtop,
+    --valuepaddingbottom = opts.valuepaddingbottom,
+    --gaugepaddingtop = opts.gaugepaddingtop,
     min = function()
-      local cfg   = neurondash.session.batteryConfig
-      local cells = (cfg and cfg.batteryCellCount) or 3
-      local minV  = (cfg and cfg.vbatmincellvoltage) or 3.0
-      return math.max(0, cells * minV)
+        local cfg = neurondash.session.batteryConfig
+        local cells = (cfg and cfg.batteryCellCount) or 3
+        local minV  = (cfg and cfg.vbatmincellvoltage) or 3.0
+        return math.max(0, cells * minV)
     end,
+
     max = function()
-      local cfg   = neurondash.session.batteryConfig
-      local cells = (cfg and cfg.batteryCellCount) or 3
-      local maxV  = (cfg and cfg.vbatmaxcellvoltage) or 4.2
-      return math.max(0, cells * maxV)
+        local cfg = neurondash.session.batteryConfig
+        local cells = (cfg and cfg.batteryCellCount) or 3
+        local maxV  = (cfg and cfg.vbatfullcellvoltage) or 4.2
+        return math.max(0, cells * maxV)
     end,
 
+    -- (b) The “dynamic” thresholds (using functions that no longer reference box._cache)
     thresholds = {
-      {
-        -- 30% of (gmin→gmax) → red
-        value = function(box, currentValue)
-          local cfg   = neurondash.session.batteryConfig
-          local cells = (cfg and cfg.batteryCellCount) or 3
-          local minV  = (cfg and cfg.vbatmincellvoltage) or 3.0
-          local maxV  = (cfg and cfg.vbatmaxcellvoltage) or 4.2
-          local gmin  = math.max(0, cells * minV)
-          local gmax  = math.max(0, cells * maxV)
-          return gmin + 0.30 * (gmax - gmin)
-        end,
-        textcolor = "red"
-      },
-      {
-        -- 50% of (gmin→gmax) → orange
-        value = function(box, currentValue)
-          local cfg   = neurondash.session.batteryConfig
-          local cells = (cfg and cfg.batteryCellCount) or 3
-          local minV  = (cfg and cfg.vbatmincellvoltage) or 3.0
-          local maxV  = (cfg and cfg.vbatmaxcellvoltage) or 4.2
-          local gmin  = math.max(0, cells * minV)
-          local gmax  = math.max(0, cells * maxV)
-          return gmin + 0.50 * (gmax - gmin)
-        end,
-        textcolor = "orange"
-      },
-      {
-        -- 100% of (gmin→gmax) → green
-        value = function(box, currentValue)
-          local cfg   = neurondash.session.batteryConfig
-          local cells = (cfg and cfg.batteryCellCount) or 3
-          local maxV  = (cfg and cfg.vbatmaxcellvoltage) or 4.2
-          return math.max(0, cells * maxV)
-        end,
-        textcolor = "green"
-      }
-    }
-  },
-  {
-    col = 3,
-    row = 3,
-    rowspan = 2,
-    colspan = 3,
-    type = "text",
-    subtype = "telemetry",
-    source = "current",
-    nosource = "-",
-    title = "CURRENT",
-    unit = "A",
-    titlepos = "bottom",
-    titlecolor = colorMode.textcolor,
-    textcolor = colorMode.textcolor,    
-  },
-  {
-    col = 6,
-    row = 1,
-    rowspan = 2,
-    colspan = 3,
-    type = "text",
-    subtype = "telemetry",
-    source = "smartfuel",
-    nosource = "-",
-    title = "FUEL",
-    unit = "%",
-    titlepos = "bottom",
-    transform = "floor",
-    thresholds = {
-      { value = 30, textcolor = "red" },
-      { value = 60, textcolor = "orange" },
-      { value = 100, textcolor = "green" }
-    },
-    titlecolor = colorMode.textcolor,
-    textcolor = colorMode.textcolor,    
-  },
-  {
-    col = 6,
-    row = 3,
-    colspan = 3,
-    rowspan = 2,
-    type = "text",
-    subtype = "telemetry",
-    source = "rpm",
-    nosource = "-",
-    title = "RPM",
-    unit = "rpm",
-    titlepos = "bottom",
-    transform = "floor",
-    titlecolor = colorMode.textcolor,
-    textcolor = colorMode.textcolor,    
-  }
+        {
+            value = function(box)
+                -- Fetch the raw gaugemin parameter (could itself be a function)
+                local raw_gm = utils.getParam(box, "min")
+                if type(raw_gm) == "function" then
+                    raw_gm = raw_gm(box)
+                end
+
+                -- Fetch the raw gaugemax parameter (could itself be a function)
+                local raw_gM = utils.getParam(box, "max")
+                if type(raw_gM) == "function" then
+                    raw_gM = raw_gM(box)
+                end
+
+                -- Return 30% above gaugemin
+                return raw_gm + 0.30 * (raw_gM - raw_gm)
+            end,
+            fillcolor = "red",
+            textcolor = colorMode.textcolor
+        },
+        {
+            value = function(box)
+                local raw_gm = utils.getParam(box, "min")
+                if type(raw_gm) == "function" then
+                    raw_gm = raw_gm(box)
+                end
+
+                local raw_gM = utils.getParam(box, "max")
+                if type(raw_gM) == "function" then
+                    raw_gM = raw_gM(box)
+                end
+
+                -- Return 50% above gaugemin
+                return raw_gm + 0.50 * (raw_gM - raw_gm)
+            end,
+            fillcolor = "orange",
+            textcolor = colorMode.textcolor
+        },
+        {
+            value = function(box)
+                local raw_gM = utils.getParam(box, "max")
+                if type(raw_gM) == "function" then
+                    raw_gM = raw_gM(box)
+                end
+
+                -- Top‐end threshold = gaugemax
+                return raw_gM
+            end,
+            fillcolor = colorMode.fillcolor,
+            textcolor = colorMode.textcolor
+        }
     }
 
+
+    }
+}
 end
 
 local header_boxes = {

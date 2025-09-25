@@ -207,7 +207,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5007, unit = UNIT_PERCENT, dec = 0,
-                  value = function() return simSensors('fuel') end,
+                  value = function() return neurondash.utils.simSensors('fuel') end,
                   min = 0, max = 100 },
             },
             sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0600 }, },

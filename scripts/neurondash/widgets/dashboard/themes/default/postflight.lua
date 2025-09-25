@@ -33,7 +33,7 @@ local darkMode = {
     txaccentcolor   = "grey",
     txfillcolor     = "green",
     txbgfillcolor   = "darkgrey",
-    bgcolortop      = "black",
+    bgcolortop =    lcd.RGB(10, 10, 10),
 }
 
 local lightMode = {
@@ -48,7 +48,7 @@ local lightMode = {
     txaccentcolor   = "darkgrey",
     txfillcolor     = "green",
     txbgfillcolor   = "grey",
-    bgcolortop =    "grey",
+    bgcolortop      = "grey"
 }
 
 -- User voltage min/max override support
@@ -99,7 +99,7 @@ local themeOptions = {
     ls_full = { 
         font = "FONT_XXL", 
         advfont = "FONT_M", 
-        thickness = 25, 
+        thickness = 35, 
         batteryframethickness = 4, 
         titlepaddingbottom = 15, 
         valuepaddingleft = 25, 
@@ -195,9 +195,9 @@ local headeropts = utils.getHeaderOptions()
 
 -- Theme Layout
 local layout = {
-    cols    = 2,
+    cols    = 3,
     rows    = 3,
-    padding = 4,
+    padding = 1,
     --showgrid = lcd.RGB(100, 100, 100)  -- or any color you prefer
 }
 
@@ -215,19 +215,23 @@ local function buildBoxes(W)
     -- Object based options determined by screensize
     local opts = themeOptions[getThemeOptionKey(W)] or themeOptions.unknown
 
-    return {
+return {
+    -- Flight info and RPM info
+    {col = 1, row = 1, type = "time", subtype = "flight", title = "Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+    {col = 1, row = 2, type = "time", subtype = "total", title = "Total Model Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+    {col = 1, row = 3, type = "text", subtype = "stats", source = "rpm", title = "RPM Max", unit = " rpm", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
 
-   {col=1, row=1, type="text", subtype="stats", source="voltage", stattype="min", title="MIN VOLTAGE", titlepos="bottom", textcolor=colorMode.textcolor, titlecolor=colorMode.textcolor},
-    {col=2, row=1, type="text", subtype="stats", source="voltage", stattype="max", title="MAX VOLTAGE", titlepos="bottom", textcolor=colorMode.textcolor, titlecolor=colorMode.textcolor},
-    {col=1, row=2, type="text", subtype="stats", source="current", stattype="min", title="MIN CURRENT", titlepos="bottom", transform="floor", textcolor=colorMode.textcolor, titlecolor=colorMode.textcolor},
-    {col=2, row=2, type="text", subtype="stats", source="current", stattype="max", title="MAX CURRENT", titlepos="bottom", transform="floor", textcolor=colorMode.textcolor, titlecolor=colorMode.textcolor},
-    {col=1, row=3, type="text", subtype="stats", source="temp_mcu", stattype="max", title="MAX T.MCU", titlepos="bottom", transform="floor", textcolor=colorMode.textcolor, titlecolor=colorMode.textcolor},
-    {col=2, row=3, type="text", subtype="stats", source="temp_esc", stattype="max", title="MAX E.MCU", titlepos="bottom", transform="floor", textcolor=colorMode.textcolor, titlecolor=colorMode.textcolor}
+    -- Flight max/min stats 1
+    {col = 2, row = 1, type = "text", subtype = "stats", source = "current", title = "Current Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+    {col = 2, row = 2, type = "text", subtype = "stats", source = "temp_esc", title = "ESC Temp Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+    {col = 2, row = 3, type = "text", subtype = "watts", source = "max", title = "Max Watts", unit = "W", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
 
+    -- Flight max/min stats 2
+    {col = 3, row = 1, type = "text", subtype = "stats", stattype = "max", source = "smartconsumption", title = "Consumed mAh", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+    {col = 3, row = 2, type = "text", subtype = "telemetry", source = "smartfuel", title = "Fuel Remaining", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+    {col = 3, row = 3, type = "text", subtype = "stats", stattype = "min", source = "rssi", title = "Link Min", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor}
 
-    }
-
-
+}
 end
 
 local header_boxes = {
