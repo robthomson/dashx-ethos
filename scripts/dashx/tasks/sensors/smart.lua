@@ -120,8 +120,8 @@ local smart_sensors = {
         minimum = 0,
         maximum = 1,
         value = function()
-            if dashx.preferences.model then
-                local settings = dashx.preferences.model
+            if dashx.session.modelPreferences.model then
+                local settings = dashx.session.modelPreferences.model
                 if settings.armswitch then
                     local category, member, options = settings.armswitch:match("([^:]+):([^:]+):([^:]+)")
                     
@@ -143,8 +143,8 @@ local smart_sensors = {
         minimum = 0,
         maximum = 1,
         value = function()
-            if dashx.preferences.model then
-                local settings = dashx.preferences.model
+            if dashx.session.modelPreferences.model then
+                local settings = dashx.session.modelPreferences.model
                 if settings.inflightswitch then
                     local category, member, options = settings.inflightswitch:match("([^:]+):([^:]+):([^:]+)")
                     
