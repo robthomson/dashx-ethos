@@ -69,7 +69,7 @@ local function openPage(pageIdx, title, script)
                 local member = newValue:member()
                 local category = newValue:category()
                 local options = newValue:options()
-                dashx.session.modelPreferences.inflightswitch = category .. ":" .. member .. ":" .. options
+                dashx.session.modelPreferences.model.inflightswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
