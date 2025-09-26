@@ -29,14 +29,12 @@ local function openPage(pageIdx, title, script)
         dashx.app.formLines[formLineCnt],
         nil,
         function()
-            if dashx.session.modelPreferences then
-                if dashx.preferences.model and dashx.preferences.model.armswitch  then
-                    local category, member, options = dashx.preferences.model.armswitch:match("([^:]+):([^:]+):([^:]+)")
+                if dashx.session.modelPreferences and dashx.session.modelPreferences.model.armswitch  then
+                    local category, member, options = dashx.session.modelPreferences.model.armswitch:match("([^:]+):([^:]+):([^:]+)")
                     if category and member then
                         return system.getSource({category = category, member = member, options = options})
                     end
                 end    
-            end
             return nil
         end,
         function(newValue)
@@ -44,11 +42,11 @@ local function openPage(pageIdx, title, script)
                 local member = newValue:member()
                 local category = newValue:category()
                 local options = newValue:options()
-                dashx.preferences.model.armswitch = category .. ":" .. member .. ":" .. options
+                dashx.session.modelPreferences.model.armswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
     -- Inflight Switch
     formFieldCount = formFieldCount + 1
@@ -58,14 +56,12 @@ local function openPage(pageIdx, title, script)
         dashx.app.formLines[formLineCnt],
         nil,
         function()
-            if dashx.session.modelPreferences then
-                if dashx.preferences.model and dashx.preferences.model.inflightswitch  then
-                    local category, member, options = dashx.preferences.model.inflightswitch:match("([^:]+):([^:]+):([^:]+)")
+            if dashx.session.modelPreferences and dashx.session.modelPreferences.model.inflightswitch  then
+                    local category, member, options = dashx.session.modelPreferences.model.inflightswitch:match("([^:]+):([^:]+):([^:]+)")
                     if category and member then
                         return system.getSource({category = category, member = member, options = options})
                     end
                 end    
-            end
             return nil
         end,
         function(newValue)
@@ -73,11 +69,11 @@ local function openPage(pageIdx, title, script)
                 local member = newValue:member()
                 local category = newValue:category()
                 local options = newValue:options()
-                dashx.preferences.model.inflightswitch = category .. ":" .. member .. ":" .. options
+                dashx.session.modelPreferences.inflightswitch = category .. ":" .. member .. ":" .. options
             end
         end
     )
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
     -- Inflight Switch
     formFieldCount = formFieldCount + 1
@@ -89,51 +85,21 @@ local function openPage(pageIdx, title, script)
         0,
         120,
         function()
-            if dashx.session.modelPreferences then
-                if dashx.preferences.model and dashx.preferences.model.inflightswitch_delay  then
-                        return dashx.preferences.model.inflightswitch_delay
-                end    
-            else
-                return 10    
+            if dashx.session.modelPreferences and dashx.session.modelPreferences.model.inflightswitch_delay  then
+                return dashx.session.modelPreferences.model.inflightswitch_delay
             end
             return nil
         end,
         function(newValue)
             if dashx.session.modelPreferences then
-                dashx.preferences.model.inflightswitch_delay = newValue
+                dashx.session.modelPreferences.model.inflightswitch_delay = newValue
             end
         end
     )
-    dashx.app.formFields[formFieldCount]:enable(false)
     dashx.app.formFields[formFieldCount]:suffix("s")
     dashx.app.formFields[formFieldCount]:default(20)
 
-    --[[
-    -- Rate Switch
-    formFieldCount = formFieldCount + 1
-    formLineCnt = formLineCnt + 1
-    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.model_rateswitch)@")
-    dashx.app.formFields[formFieldCount] = form.addSwitchField(
-        dashx.app.formLines[formLineCnt],
-        nil,
-        function()
-            if dashx.session.modelPreferences then
-                local category, member = dashx.preferences.model.rateswitch:match("([^:]+):([^:]+)")
-                if category and member then
-                    return system.getSource({category = category, member = member})
-                end
-            end
-            return nil
-        end,
-        function(newValue)
-            if dashx.session.modelPreferences then
-                local member = newValue:member()
-                local category = newValue:category()
-                dashx.preferences.model.rateswitch = category .. ":" .. member
-            end
-        end
-    )
-        ]]--
+
 end
 
 local function onNavMenu()
@@ -155,10 +121,6 @@ local function onSaveMenu()
 
                 -- save model dashboard dashx.preferences.model
                 if dashx.session.mcu_id and dashx.session.modelPreferencesFile then
-                    for key, value in pairs(dashx.preferences.model) do
-                        dashx.session.modelPreferences.model[key] = value
-                    end
-
 
                     dashx.ini.save_ini_file(
                         dashx.session.modelPreferencesFile,
@@ -206,30 +168,18 @@ local function event(widget, category, value, x, y)
     end
 end
 
-local runOnce = false
+
 local function wakeup()
     if enableWakeup then
 
-
-
-            if dashx.session.isConnected then
-                  if runOnce == false then
-                    for i,v in ipairs(dashx.app.formFields) do
-                        dashx.app.formFields[i]:enable(true)
-                    end
-                    dashx.preferences.model = dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences.battery
-                    runOnce = true
-                else
-                    runOnce = false        
+            if not dashx.session.isConnected then
+                dashx.app.ui.openMainMenu()
             end
-
-
-
-        end   
 
 
     end
 end
+
 return {
     event      = event,
     openPage   = openPage,
