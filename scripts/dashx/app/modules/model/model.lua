@@ -1,4 +1,4 @@
-
+local enableWakeup = false
 
 local S_PAGES = {
     {name = "@i18n(app.modules.model.triggers)@", script = "triggers.lua", image = "triggers.png"},
@@ -131,6 +131,10 @@ local function openPage(pidx, title, script)
         if pvalue.disabled == true then dashx.app.formFields[pidx]:enable(false) end
 
         if dashx.preferences.menulastselected["model"] == pidx then dashx.app.formFields[pidx]:focus() end
+        
+        if not dashx.session.isConnected then
+            dashx.app.formFields[pidx]:enable(false)
+        end
 
         lc = lc + 1
 
@@ -138,6 +142,7 @@ local function openPage(pidx, title, script)
 
     end
 
+    enableWakeup = true
     dashx.app.triggers.closeProgressLoader = true
     collectgarbage()
     return
@@ -145,7 +150,23 @@ end
 
 dashx.app.uiState = dashx.app.uiStatus.pages
 
+local function wakeup()
+    if enableWakeup then
+        if dashx.session.isConnected then
+            for i,v in ipairs(dashx.app.formFields) do
+                dashx.app.formFields[i]:enable(true)
+            end
+        else
+            for i,v in ipairs(dashx.app.formFields) do
+                dashx.app.formFields[i]:enable(false)
+            end    
+        end
+    end
+end
+
+
 return {
+    wakeup = wakeup,
     pages = pages, 
     openPage = openPage,
     API = {},

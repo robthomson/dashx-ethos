@@ -40,7 +40,7 @@ local function openPage(pageIdx, title, script)
             end
         end
     )
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
      -- Battery capacity
     formFieldCount = formFieldCount + 1
@@ -65,7 +65,6 @@ local function openPage(pageIdx, title, script)
     )
     dashx.app.formFields[formFieldCount]:suffix("mAh") 
     dashx.app.formFields[formFieldCount]:default(2200)  
-    dashx.app.formFields[formFieldCount]:enable(false)
 
      -- Cell count
     formFieldCount = formFieldCount + 1
@@ -90,7 +89,7 @@ local function openPage(pageIdx, title, script)
     )
     --dashx.app.formFields[formFieldCount]:suffix("mAh") 
     dashx.app.formFields[formFieldCount]:default(3)  
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
      -- Warning cell voltage
     formFieldCount = formFieldCount + 1
@@ -116,7 +115,7 @@ local function openPage(pageIdx, title, script)
     dashx.app.formFields[formFieldCount]:suffix("v")
     dashx.app.formFields[formFieldCount]:default(35)
     dashx.app.formFields[formFieldCount]:decimals(1)
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
      -- Min cell voltage
     formFieldCount = formFieldCount + 1
@@ -142,7 +141,7 @@ local function openPage(pageIdx, title, script)
     dashx.app.formFields[formFieldCount]:suffix("v")
     dashx.app.formFields[formFieldCount]:default(33)
     dashx.app.formFields[formFieldCount]:decimals(1)
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
      -- Min cell voltage
     formFieldCount = formFieldCount + 1
@@ -168,7 +167,7 @@ local function openPage(pageIdx, title, script)
     dashx.app.formFields[formFieldCount]:suffix("v")
     dashx.app.formFields[formFieldCount]:default(43)
     dashx.app.formFields[formFieldCount]:decimals(1)
-    dashx.app.formFields[formFieldCount]:enable(false)
+ 
 
     -- Full cell voltage
     formFieldCount = formFieldCount + 1
@@ -194,7 +193,7 @@ local function openPage(pageIdx, title, script)
     dashx.app.formFields[formFieldCount]:suffix("v")
     dashx.app.formFields[formFieldCount]:default(41)
     dashx.app.formFields[formFieldCount]:decimals(1)
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
     -- consumptionWarningPercentage
     formFieldCount = formFieldCount + 1
@@ -219,7 +218,7 @@ local function openPage(pageIdx, title, script)
     )
     dashx.app.formFields[formFieldCount]:suffix("%")
     dashx.app.formFields[formFieldCount]:default(30)
-    dashx.app.formFields[formFieldCount]:enable(false)
+
 
 
     enableWakeup = true
@@ -297,32 +296,18 @@ local function event(widget, category, value, x, y)
 end
 
 
-local runOnce = false
+
 local function wakeup()
     if enableWakeup then
 
-
-
-            if dashx.session.isConnected then
-                  if runOnce == false then
-                    for i,v in ipairs(dashx.app.formFields) do
-                        dashx.app.formFields[i]:enable(true)
-                    end
-
-                    if not dashx.tasks.telemetry.getSensorSource("consumption")  then
-                        dashx.session.modelPreferences.battery.calc_local = 1
-                        dashx.app.formFields[1]:enable(false)
-                    end
-
-
-                    runOnce = true
-                else
-                    runOnce = false        
+            if not dashx.tasks.telemetry.getSensorSource("consumption")  then
+                dashx.session.modelPreferences.battery.calc_local = 1
+                dashx.app.formFields[1]:enable(false) 
             end
 
-
-
-        end   
+            if not dashx.session.isConnected then
+                dashx.app.ui.openMainMenu()
+            end
 
 
     end
