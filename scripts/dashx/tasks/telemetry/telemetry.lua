@@ -170,6 +170,8 @@ local sensorTable = {
             sport = {
                 { appId = 0x0B50, subId = 0 },
                 { appId = 0x0210, subId = 0 },
+                { appId = 0xF103, subId = 0 },
+                { appId = 0xF103, subId = 1 },
             },
         },    
     },
