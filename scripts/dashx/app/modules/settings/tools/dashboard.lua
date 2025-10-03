@@ -19,7 +19,6 @@ local function openPage(pidx, title, script)
     dashx.app.lastTitle = title
     dashx.app.lastScript = script
 
-    ESC = {}
 
     -- size of buttons
     if dashx.preferences.general.iconsize == nil or dashx.preferences.general.iconsize == "" then
@@ -37,7 +36,7 @@ local function openPage(pidx, title, script)
     local panel
 
 
-    buttonW = 100
+    local buttonW = 100
     local x = windowWidth - buttonW - 10
 
     dashx.app.ui.fieldHeader(
@@ -84,6 +83,7 @@ local function openPage(pidx, title, script)
     local pages = S_PAGES
     local lc = 0
     local bx = 0
+    local y = 0
 
 
 

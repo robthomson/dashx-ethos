@@ -771,9 +771,6 @@ function app.close()
     dashx.config.useCompiler = true
 
     -- Reset page and navigation state
-    pageLoaded = 100
-    pageTitle = nil
-    pageFile = nil
     app.Page = {}
     app.formFields = {}
     app.formNavigationFields = {}
@@ -802,9 +799,6 @@ function app.close()
     -- Reset audio
     app.audio = {}
 
-    -- Reset telemetry and protocol state
-    ELRS_PAUSE_TELEMETRY = false
-    CRSF_PAUSE_TELEMETRY = false
 
     -- Reset profile/rate state
     dashx.app.triggers.profileswitchLast = nil
