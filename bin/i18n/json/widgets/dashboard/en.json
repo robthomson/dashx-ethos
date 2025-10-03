@@ -14,6 +14,26 @@
     "translation": "TO SMALL",
     "needs_translation": "false"
   },
+  "altitude": {
+    "english": "ALTITUDE",
+    "translation": "ALTITUDE",
+    "needs_translation": "false"
+  },
+  "time": {
+    "english": "TIME",
+    "translation": "TIME",
+    "needs_translation": "false"
+  },
+  "flights": {
+    "english": "FLIGHTS",
+    "translation": "FLIGHTS",
+    "needs_translation": "false"
+  },
+  "lq": {
+    "english": "LQ",
+    "translation": "LQ",
+    "needs_translation": "false"
+  },
   "loading": {
     "english": "ROTORFLIGHT",
     "translation": "ROTORFLIGHT",

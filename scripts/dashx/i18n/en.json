@@ -5348,6 +5348,11 @@
       }
     },
     "dashboard": {
+      "altitude": {
+        "english": "ALTITUDE",
+        "needs_translation": "false",
+        "translation": "ALTITUDE"
+      },
       "check_bg_task": {
         "english": "BG TASK",
         "needs_translation": "false",
@@ -5363,10 +5368,20 @@
         "needs_translation": "false",
         "translation": "RF MODULE"
       },
+      "flights": {
+        "english": "FLIGHTS",
+        "needs_translation": "false",
+        "translation": "FLIGHTS"
+      },
       "loading": {
         "english": "ROTORFLIGHT",
         "needs_translation": "false",
         "translation": "ROTORFLIGHT"
+      },
+      "lq": {
+        "english": "LQ",
+        "needs_translation": "false",
+        "translation": "LQ"
       },
       "no_link": {
         "english": "NO LINK",
@@ -5392,6 +5407,11 @@
         "english": "Your theme did not load correctly. Falling back to default theme.",
         "needs_translation": "false",
         "translation": "Your theme did not load correctly. Falling back to default theme."
+      },
+      "time": {
+        "english": "TIME",
+        "needs_translation": "false",
+        "translation": "TIME"
       },
       "unsupported_resolution": {
         "english": "TO SMALL",
