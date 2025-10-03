@@ -627,12 +627,10 @@ function app.close()
     app.formNavigationFields = {}
     app.gfx_buttons = {}
     app.formLines = nil
-    app.MainMenu = nil
     app.formNavigationFields = {}
     app.PageTmp = nil
     app.moduleList = nil
-    app.utils = nil
-    app.ui = nil
+
 
     -- Reset triggers
     app.triggers.exitAPP = false
@@ -662,12 +660,6 @@ function app.close()
     -- Cleanup
     collectgarbage()
     invalidatePages()
-
-    -- print out whats left
-    --log("Application closed. Remaining tables:", "info")
-    --for i,v in pairs(dashx.app) do
-    --        log("   ->" .. tostring(i) .. " = " .. tostring(v), "info")
-    --end
 
     dashx.utils.reportMemoryUsage("closing application: end")    
 

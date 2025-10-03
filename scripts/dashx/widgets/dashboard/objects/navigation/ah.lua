@@ -27,8 +27,11 @@ local render    = {}
 local utils     = dashx.widgets.dashboard.utils
 local getParam  = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
-local prev =  {}
 
+-- external invalidation hook
+function render.invalidate(box) box._cfg = nil end
+
+-- rotation helper (unchanged)
 local function rotate(px, py, cx, cy, angle)
     local s = math.sin(angle)
     local c = math.cos(angle)
@@ -38,66 +41,89 @@ local function rotate(px, py, cx, cy, angle)
     return xnew + cx, ynew + cy
 end
 
+-- Build/refresh static config once
+local function ensureCfg(box)
+    local theme_version = (dashx and dashx.theme and dashx.theme.version) or 0
+    local param_version = box._param_version or 0
+    local cfg = box._cfg
+    if (not cfg) or (cfg._theme_version ~= theme_version) or (cfg._param_version ~= param_version) then
+        cfg = {}
+        cfg._theme_version     = theme_version
+        cfg._param_version     = param_version
 
+        cfg.ppd                = getParam(box, "pixelsperdeg") or 2.0
+        cfg.dMin               = getParam(box, "dynamicscalemin") or 1.05
+        cfg.dMax               = getParam(box, "dynamicscalemax") or ((getParam(box, "dynamicscalemin") or 1.05) + 0.9)
+
+        cfg.showarc            = getParam(box, "showarc") ~= false
+        cfg.showladder         = getParam(box, "showladder") ~= false
+        cfg.showcompass        = getParam(box, "showcompass") ~= false
+        cfg.showaltitude       = getParam(box, "showaltitude") ~= false
+        cfg.showgroundspeed    = getParam(box, "showgroundspeed") ~= false
+
+        cfg.arccolor           = resolveThemeColor("arccolor", getParam(box, "arccolor") or lcd.RGB(255,255,255))
+        cfg.laddercolor        = resolveThemeColor("laddercolor", getParam(box, "laddercolor") or lcd.RGB(255,255,255))
+        cfg.compasscolor       = resolveThemeColor("compasscolor", getParam(box, "compasscolor") or lcd.RGB(255,255,255))
+        cfg.crosshaircolor     = resolveThemeColor("crosshaircolor", getParam(box, "crosshaircolor") or lcd.RGB(255,255,255))
+        cfg.altitudecolor      = resolveThemeColor("altitudecolor", getParam(box, "altitudecolor") or lcd.RGB(255,255,255))
+        cfg.groundspeedcolor   = resolveThemeColor("groundspeedcolor", getParam(box, "groundspeedcolor") or lcd.RGB(255,255,255))
+
+        cfg.altitudemin        = getParam(box, "altitudemin") or 0
+        cfg.altitudemax        = getParam(box, "altitudemax") or 200
+        cfg.groundspeedmin     = getParam(box, "groundspeedmin") or 0
+        cfg.groundspeedmax     = getParam(box, "groundspeedmax") or 100
+
+        box._cfg = cfg
+    end
+    return box._cfg
+end
+
+-- Only repaint when telemetry-driven display actually changed
 function render.dirty(box)
-    return box._dirty == true 
+    local d = box._dyn
+    if not d then return false end
+    local l = box._last
+    if not l
+        or d.pitch ~= l.pitch
+        or d.roll  ~= l.roll
+        or d.yaw   ~= l.yaw
+        or d.altitude ~= l.altitude
+        or d.groundspeed ~= l.groundspeed
+    then
+        box._last = { pitch = d.pitch, roll = d.roll, yaw = d.yaw, altitude = d.altitude, groundspeed = d.groundspeed }
+        return true
+    end
+    return false
 end
 
 function render.wakeup(box)
+    ensureCfg(box)
 
     local telemetry = dashx.tasks.telemetry
-    
-    if not telemetry then
-        return -- No telemetry available, cannot update
-    end
-
+    if not telemetry then return end
     local getSensor = telemetry.getSensor
+
+    -- Dynamic values only
     local pitch = getSensor("attpitch") or 0
     local roll  = getSensor("attroll")  or 0
     local yaw   = getSensor("attyaw")   or 0
-    local altitude = getSensor("altitude") or 20
+    local altitude    = getSensor("altitude")    or 20
     local groundspeed = getSensor("groundspeed") or 20
 
-    if prev.pitch ~= pitch or prev.roll ~= roll or prev.yaw ~= yaw then
-        box._dirty = true
-    else
-        box._dirty = false
-    end
-
-    box._cache = {
+    box._dyn = {
         pitch = pitch,
         roll = roll,
         yaw = yaw,
         altitude = altitude,
         groundspeed = groundspeed,
-        ppd = getParam(box, "pixelsperdeg") or 2.0,
-        dMin = getParam(box, "dynamicscalemin") or 1.05,
-        dMax = getParam(box, "dynamicscalemax") or ((getParam(box, "dynamicscalemin") or 1.05) + 0.9),
-        showarc = getParam(box, "showarc") ~= false,
-        showladder = getParam(box, "showladder") ~= false,
-        showcompass = getParam(box, "showcompass") ~= false,
-        showaltitude = getParam(box, "showaltitude") ~= false,
-        showgroundspeed = getParam(box, "showgroundspeed") ~= false,
-        arccolor = resolveThemeColor("arccolor", getParam(box, "arccolor") or lcd.RGB(255,255,255)),
-        laddercolor = resolveThemeColor("laddercolor", getParam(box, "laddercolor") or lcd.RGB(255,255,255)),
-        compasscolor = resolveThemeColor("compasscolor", getParam(box, "compasscolor") or lcd.RGB(255,255,255)),
-        crosshaircolor = resolveThemeColor("crosshaircolor", getParam(box, "crosshaircolor") or lcd.RGB(255,255,255)),
-        altitudecolor = resolveThemeColor("altitudecolor", getParam(box, "altitudecolor") or lcd.RGB(255,255,255)),
-        groundspeedcolor = resolveThemeColor("groundspeedcolor", getParam(box, "groundspeedcolor") or lcd.RGB(255,255,255)),
-        altitudemin = getParam(box, "altitudemin") or 0,
-        altitudemax = getParam(box, "altitudemax") or 200,
-        groundspeedmin = getParam(box, "groundspeedmin") or 0,
-        groundspeedmax = getParam(box, "groundspeedmax") or 100
     }
-
-    box._last = { pitch = pitch, roll = roll, yaw = yaw }
 end
 
 function render.paint(x, y, w, h, box)
-    local c = box._cache
-    if not c then return end
+    local c = box._cfg; if not c then return end
+    local d = box._dyn; if not d then return end
 
-    local pitch, roll, yaw = c.pitch, c.roll, c.yaw
+    local pitch, roll, yaw = d.pitch, d.roll, d.yaw
     local ppd = c.ppd
     local cx, cy = x + w / 2, y + h / 2
 
@@ -111,30 +137,37 @@ function render.paint(x, y, w, h, box)
     lcd.color(pitch >= 0 and skyColor or groundColor)
     lcd.drawFilledRectangle(x, y, w, h)
 
-    -- 2. Draw full-screen base in dominant color
-    local dominantColor = pitch >= 0 and skyColor or groundColor
-    local overlayColor  = pitch >= 0 and groundColor or skyColor
-    lcd.color(dominantColor)
-    lcd.drawFilledRectangle(x, y, w, h)
-
-    -- 3. Overlay two triangles in the other color to cover below or above horizon
-    lcd.color(overlayColor)
+    -- 3. Overlay the opposite half-plane using a normal to the rotated horizon
     local horizonY = cy + pitch * ppd
-    local rollRad = math.rad(roll)
+    local rollRad  = math.rad(roll)
 
-    -- Extend points far beyond width to ensure coverage
-    local xL, yL = rotate(cx - 2*w, horizonY, cx, horizonY, rollRad)
-    local xR, yR = rotate(cx + 2*w, horizonY, cx, horizonY, rollRad)
+    -- Two far apart points on the horizon line (rotate a long segment)
+    local xL, yL = rotate(cx - 3*w, horizonY, cx, horizonY, rollRad)
+    local xR, yR = rotate(cx + 3*w, horizonY, cx, horizonY, rollRad)
 
+    -- Normal pointing "down" from the horizon line (screen coords: y+ is down)
+    local nx, ny = -math.sin(rollRad), math.cos(rollRad)
+
+    -- Pick which side to paint as the overlay (opposite of the base color)
+    local overlayColor  = (pitch >= 0) and groundColor or skyColor
+    lcd.color(overlayColor)
+
+    -- Big extension to cover the whole box even at steep rolls
+    local BIG = 4 * math.max(w, h)
+    local sx, sy
     if pitch >= 0 then
-        -- Drawing ground area below the horizon
-        lcd.drawFilledTriangle(xL, yL, xR, yR, cx - 2*w, y + h)
-        lcd.drawFilledTriangle(xR, yR, cx + 2*w, y + h, cx - 2*w, y + h)
+        sx, sy = nx*BIG, ny*BIG   -- ground side
     else
-        -- Drawing sky area above the horizon
-        lcd.drawFilledTriangle(xL, yL, xR, yR, cx - 2*w, y)
-        lcd.drawFilledTriangle(xR, yR, cx + 2*w, y, cx - 2*w, y)
+        sx, sy = -nx*BIG, -ny*BIG -- sky side
     end
+    -- Build a quad for the chosen half-plane and draw as two triangles
+    local p1x, p1y = xL + sx, yL + sy
+    local p2x, p2y = xR + sx, yR + sy
+    local p3x, p3y = xR,      yR
+    local p4x, p4y = xL,      yL
+
+    lcd.drawFilledTriangle(p1x, p1y, p2x, p2y, p3x, p3y)
+    lcd.drawFilledTriangle(p1x, p1y, p3x, p3y, p4x, p4y)
 
     -- 4. Crosshair
     lcd.color(c.crosshaircolor)
@@ -214,12 +247,12 @@ function render.paint(x, y, w, h, box)
         local barX = x + w - 10
         local barY = y + 5
         local barH = h - 10
-        local fillH = math.floor((c.altitude - c.altitudemin) / (c.altitudemax - c.altitudemin) * barH)
+        local fillH = math.floor((d.altitude - c.altitudemin) / (c.altitudemax - c.altitudemin) * barH)
         fillH = math.max(0, math.min(barH, fillH))
         lcd.drawRectangle(barX, barY, 6, barH)
         lcd.drawFilledRectangle(barX, barY + barH - fillH, 6, fillH)
         lcd.font(FONT_XS)
-        local label = string.format("%d m", math.floor(c.altitude))
+        local label = string.format("%d m", math.floor(d.altitude))
         lcd.drawText(barX - 4, barY + barH - fillH - 6, label, RIGHT)
     end
 
@@ -229,18 +262,19 @@ function render.paint(x, y, w, h, box)
         local barX = x + 4
         local barY = y + 5
         local barH = h - 10
-        local fillH = math.floor((c.groundspeed - c.groundspeedmin) / (c.groundspeedmax - c.groundspeedmin) * barH)
+        local fillH = math.floor((d.groundspeed - c.groundspeedmin) / (c.groundspeedmax - c.groundspeedmin) * barH)
         fillH = math.max(0, math.min(barH, fillH))
         lcd.drawRectangle(barX, barY, 6, barH)
         lcd.drawFilledRectangle(barX, barY + barH - fillH, 6, fillH)
         lcd.font(FONT_XS)
-        local label = string.format("%d knots", math.floor(c.groundspeed))
+        local label = string.format("%d knots", math.floor(d.groundspeed))
         lcd.drawText(barX + 10, barY + barH - fillH - 6, label, LEFT)
     end
 
     lcd.setClipping(0, 0, lcd.getWindowSize())
-    box._dirty = false
 end
 
+-- Update rate similar to original (fluid horizon)
+render.scheduler = 0.01
 
 return render

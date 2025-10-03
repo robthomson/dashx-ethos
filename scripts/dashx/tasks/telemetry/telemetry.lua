@@ -130,6 +130,7 @@ local sensorTable = {
             sport = {
                 { appId = 0xF010, subId = 0 },
             },
+            crsf = { "Rx Quality" },
         },
     },
 
@@ -148,6 +149,7 @@ local sensorTable = {
             sport = {
                 { appId = 0xF101, subId = 0 },
             },
+            crsf = { "Rx RSSI1" },
         },
     }, 
 
@@ -173,6 +175,7 @@ local sensorTable = {
                 { appId = 0xF103, subId = 0 },
                 { appId = 0xF103, subId = 1 },
             },
+            crsf = { "Rx Batt" },
         },    
     },
 
@@ -213,8 +216,7 @@ local sensorTable = {
                   min = 0, max = 100 },
             },
             sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0600 }, },
-            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1014 }, },
-            crsfLegacy = { "Rx Batt%" },
+            crsf = { "Rx Batt%" },
         },
     },
 
@@ -233,6 +235,9 @@ local sensorTable = {
             },
             sport = {
                 { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1 },
+            },           
+            crsf = {
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1 },
             },
         },
     },
@@ -243,8 +248,13 @@ local sensorTable = {
         stats = true,
         switch_alerts = true,
         unit = UNIT_MILLIAMPERE_HOUR, unit_string = "mAh",
-        sensors = { sim = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDE }, },
-                    sport= { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDE }, },
+        sensors = { sim = { 
+                        { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDE }, 
+                    },
+                    sport= { 
+                            { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDE }, 
+                    },
+                    crsf = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDE }, },
                      },
     },
 
@@ -267,6 +277,7 @@ local sensorTable = {
                 { appId = 0x0B50, subId = 1 }, 
                 { appId = 0x0200, subId = 0 },                             
             },
+            crsf = { "Rx Current" },
         },
     },
 
@@ -325,6 +336,7 @@ local sensorTable = {
                 { appId = 0x0B60, subId = 1 },
                 { appId = 0x0B30, subId = 0 },
             },
+            crsf = { "Rx Cons" },
         },
     },
 
@@ -365,7 +377,51 @@ local sensorTable = {
             },
         },
     },    
-    
+
+    attyaw = {
+        name = "@i18n(sensors.attyaw)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5022, unit = UNIT_DEGREE, dec = 1,
+                  value = function() return simSensors('attyaw') end,
+                  min = -1800, max = 3600 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5210 }, },
+            crsf = { "Yaw" },
+        },
+    },
+
+    attroll = {
+        name = "@i18n(sensors.attroll)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5023, unit = UNIT_DEGREE, dec = 1,
+                  value = function() return simSensors('attroll') end,
+                  min = -1800, max = 3600 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730 , subId = 0}, },
+            crsf = { "Roll" },
+        },
+    },
+
+    attpitch = {
+        name = "@i18n(sensors.attpitch)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5024, unit = UNIT_DEGREE, dec = 1,
+                  value = function() return simSensors('attpitch') end,
+                  min = -1800, max = 3600 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1 }, },
+            crsf = { "Pitch" },
+        },
+    },    
     
 }
 
@@ -484,7 +540,17 @@ function telemetry.getSensorSource(name)
                 end                
             end    
         end
-
+    elseif dashx.session.telemetryType == "crsf" then
+            protocol = "crsf"
+            for _, sensor in ipairs(sensorTable[name].sensors.crsf or {}) do
+                local source = system.getSource(sensor)
+                if source then
+                    cache_misses = cache_misses + 1
+                    sensors[name] = source
+                    mark_hot(name)
+                    return source
+                end
+            end
     elseif dashx.session.telemetryType == "sport" then
             protocol = "sport"
             for _, sensor in ipairs(sensorTable[name].sensors.sport or {}) do
