@@ -1,3 +1,7 @@
+# 1.0.1-20251003
+
+Snapshot relase with 'beta' support via themes for both inav and betaflight.  Elrs sensors are now also supported for the regular themes. 
+
 # 1.0.0
 
 Initial functional release of DashX. 
