@@ -62,7 +62,9 @@ local function compileTransform(t, decimals)
         return pow and (math.floor(v * pow + 0.5) / pow) or v
     end
 
-    if type(t) == "number" then
+    if type(t) == "string" then
+        return t
+    elseif type(t) == "number" then
         local mul = t
         return function(v) return round(v * mul) end
     elseif t == "floor" then
@@ -141,7 +143,11 @@ function render.wakeup(box)
     -- Transform and decimals
     local displayValue
     if value ~= nil then
-        displayValue = cfg.transformFn(value)
+        if type(cfg.transformFn) == "string" then
+            displayValue = value
+        else    
+            displayValue = cfg.transformFn(value)
+        end
     else
         -- Animated loading dots if no telemetry value
         local maxDots = 3

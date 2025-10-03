@@ -54,8 +54,8 @@ local lightMode = {
 -- User voltage min/max override support
 local function getUserVoltageOverride(which)
   local prefs = dashx.session and dashx.session.modelPreferences
-  if prefs and prefs["system/@default"] then
-    local v = tonumber(prefs["system/@default"][which])
+  if prefs and prefs["system/@bfelrs"] then
+    local v = tonumber(prefs["system/@bfelrs"][which])
     -- Only use override if it is present and different from the default 6S values
     -- (Defaults: min=18.0, max=25.2)
     if which == "v_min" and v and math.abs(v - 18.0) > 0.05 then return v end
@@ -68,7 +68,7 @@ end
 local colorMode = lcd.darkMode() and darkMode or lightMode
 
 -- Theme based configuration settings
-local theme_section = "system/@default"
+local theme_section = "system/@bfelrs"
 
 local THEME_DEFAULTS = {
     rpm_min      = 0,
@@ -334,8 +334,7 @@ return {
         type = "text",
         subtype = "telemetry",
         nosource = "-",
-        source = "temp_esc",
-        transform = "floor",
+        source = "flightmode",
         bgcolor = colorMode.bgcolor,
         titlecolor = colorMode.titlecolor,
         textcolor = colorMode.titlecolor,
@@ -356,10 +355,10 @@ return {
         rowspan = 2,
         type = "text",
         subtype = "telemetry",
-        source = "rpm",
+        source = "current",
         nosource = "-",
-        unit = "rpm",
-        transform = "floor",
+        unit = "A",
+        --transform = "floor",
         bgcolor = colorMode.bgcolor,
         titlecolor = colorMode.titlecolor,
         textcolor = colorMode.titlecolor,

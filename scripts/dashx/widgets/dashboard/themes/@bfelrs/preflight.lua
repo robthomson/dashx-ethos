@@ -54,8 +54,8 @@ local lightMode = {
 -- User voltage min/max override support
 local function getUserVoltageOverride(which)
   local prefs = dashx.session and dashx.session.modelPreferences
-  if prefs and prefs["system/@default"] then
-    local v = tonumber(prefs["system/@default"][which])
+  if prefs and prefs["system/@bfelrs"] then
+    local v = tonumber(prefs["system/@bfelrs"][which])
     -- Only use override if it is present and different from the default 6S values
     -- (Defaults: min=18.0, max=25.2)
     if which == "v_min" and v and math.abs(v - 18.0) > 0.05 then return v end
@@ -68,7 +68,7 @@ end
 local colorMode = lcd.darkMode() and darkMode or lightMode
 
 -- Theme based configuration settings
-local theme_section = "system/@default"
+local theme_section = "system/@bfelrs"
 
 local THEME_DEFAULTS = {
     rpm_min      = 0,
@@ -99,11 +99,11 @@ local themeOptions = {
     ls_full = { 
         font = "FONT_XXL", 
         advfont = "FONT_M", 
-        thickness = 35, 
+        thickness = 30, 
         batteryframethickness = 4, 
         titlepaddingbottom = 15, 
         valuepaddingleft = 25, 
-        valuepaddingtop = 20, 
+        valuepaddingtop = 40, 
         valuepaddingbottom = 25, 
         gaugepaddingtop = 20, 
         gaugepadding = 20
@@ -112,7 +112,7 @@ local themeOptions = {
     ls_std  = { 
         font = "FONT_XL", 
         advfont = "FONT_M", 
-        thickness = 35, 
+        thickness = 30, 
         batteryframethickness = 4, 
         titlepaddingbottom = 0, 
         valuepaddingleft = 75, 
@@ -195,8 +195,8 @@ local headeropts = utils.getHeaderOptions()
 
 -- Theme Layout
 local layout = {
-    cols    = 3,
-    rows    = 3,
+    cols    = 20,
+    rows    = 8,
     padding = 1,
     --showgrid = lcd.RGB(100, 100, 100)  -- or any color you prefer
 }
@@ -216,21 +216,197 @@ local function buildBoxes(W)
     local opts = themeOptions[getThemeOptionKey(W)] or themeOptions.unknown
 
 return {
-    -- Flight info and RPM info
-    {col = 1, row = 1, type = "time", subtype = "flight", title = "Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 1, row = 2, type = "time", subtype = "total", title = "Total Model Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 1, row = 3, type = "text", subtype = "stats", source = "rpm", title = "RPM Max", unit = " rpm", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
 
-    -- Flight max/min stats 1
-    {col = 2, row = 1, type = "text", subtype = "stats", source = "current", title = "Current Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 2, row = 2, type = "text", subtype = "stats", source = "temp_esc", title = "ESC Temp Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 2, row = 3, type = "text", subtype = "watts", source = "max", title = "Max Watts", unit = "W", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+  {
+    col     = 1,
+    row     = 1,
+    colspan = 8,
+    rowspan = 3,
+    type    = "image",
+    subtype = "model",
+    bgcolor = colorMode.bgcolor,
+  },
+  {
+    col     = 1,
+    row     = 4,
+    colspan = 8,
+    rowspan = 3,
+    type    = "text",
+    subtype = "telemetry",
+    source  = "flightmode",
+    nosource= "-",
+    unit    = "",
+    title   = "FLIGHT MODE",
+    titlepos= "bottom",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+  },
+  {
+    col     = 1,
+    row     = 7,
+    colspan = 8,
+    rowspan = 2,
+    type    = "time",
+    subtype = "count",
+    title   = "FLIGHTS",
+    titlepos= "bottom",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+  },
+  {
+    col     = 9,
+    row     = 7,
+    colspan = 6,
+    rowspan = 2,
+    type    = "time",
+    subtype = "flight",
+    title   = "TIME",
+    titlepos= "bottom",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+  },
+  {
+    col     = 15,
+    row     = 7,
+    colspan = 6,
+    rowspan = 2,
+    type    = "text",
+    subtype = "telemetry",
+    source  = "rssi",
+    nosource= "-",
+    unit    = "dB",
+    title   = "LQ",
+    titlepos= "bottom",
+    transform = "floor",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+  },
+  {
+    type    = "gauge",
+    subtype = "arc",
+    col     = 9,
+    row     = 1,
+    colspan = 6,
+    rowspan = 6,
+    thickness= opts.thickness,
+    source  = "smartfuel",
+    unit    = "%",
+    transform = "floor",
+    min     = 0,
+    max     = 100,
+    font    = opts.font,
+    arcbgcolor = colorMode.arcbgcolor,
+    title   = "FUEL",
+    titlepos= "bottom",
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+    gaugepadding = opts.gaugepadding,
+    valuepaddingtop = opts.valuepaddingtop,
+    --valuepaddingbottom = opts.valuepaddingbottom,
+    --gaugepaddingtop = opts.gaugepaddingtop,
+    thresholds = {
+        { value = 30,  fillcolor = "red",    textcolor = colorMode.textcolor },
+        { value = 50,  fillcolor = "orange", textcolor = colorMode.textcolor },
+        { value = 140, fillcolor = colorMode.fillcolor,  textcolor = colorMode.textcolor }
+    },
+  },
+  {
+    col     = 15,
+    row     = 1,
+    colspan = 6,
+    rowspan = 6,
+    type    = "gauge",
+    subtype = "arc",
+    source  = "voltage",
+    fillbgcolor = colorMode.fillbgcolor,
+    title    = "VOLTAGE",
+    font     = opts.font,
+    thickness= opts.thickness,
+    gaugepadding = opts.gaugepadding,
+    titlepos = "bottom",
+    fillcolor= colorMode.fillcolor,
+    titlecolor = colorMode.titlecolor,
+    textcolor = colorMode.titlecolor,
+    bgcolor = colorMode.bgcolor,
+    valuepaddingtop = opts.valuepaddingtop,
+    --valuepaddingbottom = opts.valuepaddingbottom,
+    --gaugepaddingtop = opts.gaugepaddingtop,
+    min = function()
+        local cfg = dashx.session.batteryConfig
+        local cells = (cfg and cfg.batteryCellCount) or 3
+        local minV  = (cfg and cfg.vbatmincellvoltage) or 3.0
+        return math.max(0, cells * minV)
+    end,
 
-    -- Flight max/min stats 2
-    {col = 3, row = 1, type = "text", subtype = "stats", stattype = "max", source = "smartconsumption", title = "Consumed mAh", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 3, row = 2, type = "text", subtype = "telemetry", source = "smartfuel", title = "Fuel Remaining", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-    {col = 3, row = 3, type = "text", subtype = "stats", stattype = "min", source = "rssi", title = "Link Min", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor}
+    max = function()
+        local cfg = dashx.session.batteryConfig
+        local cells = (cfg and cfg.batteryCellCount) or 3
+        local maxV  = (cfg and cfg.vbatfullcellvoltage) or 4.2
+        return math.max(0, cells * maxV)
+    end,
 
+    -- (b) The “dynamic” thresholds (using functions that no longer reference box._cache)
+    thresholds = {
+        {
+            value = function(box)
+                -- Fetch the raw gaugemin parameter (could itself be a function)
+                local raw_gm = utils.getParam(box, "min")
+                if type(raw_gm) == "function" then
+                    raw_gm = raw_gm(box)
+                end
+
+                -- Fetch the raw gaugemax parameter (could itself be a function)
+                local raw_gM = utils.getParam(box, "max")
+                if type(raw_gM) == "function" then
+                    raw_gM = raw_gM(box)
+                end
+
+                -- Return 30% above gaugemin
+                return raw_gm + 0.30 * (raw_gM - raw_gm)
+            end,
+            fillcolor = "red",
+            textcolor = colorMode.textcolor
+        },
+        {
+            value = function(box)
+                local raw_gm = utils.getParam(box, "min")
+                if type(raw_gm) == "function" then
+                    raw_gm = raw_gm(box)
+                end
+
+                local raw_gM = utils.getParam(box, "max")
+                if type(raw_gM) == "function" then
+                    raw_gM = raw_gM(box)
+                end
+
+                -- Return 50% above gaugemin
+                return raw_gm + 0.50 * (raw_gM - raw_gm)
+            end,
+            fillcolor = "orange",
+            textcolor = colorMode.textcolor
+        },
+        {
+            value = function(box)
+                local raw_gM = utils.getParam(box, "max")
+                if type(raw_gM) == "function" then
+                    raw_gM = raw_gM(box)
+                end
+
+                -- Top‐end threshold = gaugemax
+                return raw_gM
+            end,
+            fillcolor = colorMode.fillcolor,
+            textcolor = colorMode.textcolor
+        }
+    }
+
+
+    }
 }
 end
 

@@ -46,8 +46,10 @@ function flightmode.inFlight()
         if not inflight_start_time then
             -- Start the timer
             inflight_start_time = os.time()
+            print("Starting inflight timer")
         elseif os.difftime(os.time(), inflight_start_time) >= delay then
             -- Delay has passed
+            print("In flight confirmed after delay")
             return true
         end
     else
@@ -80,6 +82,7 @@ local function determineMode()
         return "postflight"
     end
     if flightmode.inFlight() then
+        print("In flight")
         hasBeenInFlight = true
         return "inflight"
     end
