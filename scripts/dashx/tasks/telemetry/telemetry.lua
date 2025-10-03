@@ -385,7 +385,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5022, unit = UNIT_DEGREE, dec = 1,
-                  value = function() return simSensors('attyaw') end,
+                  value = function() return dashx.utils.simSensors('attyaw') end,
                   min = -1800, max = 3600 },
             },
             sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5210 }, },
@@ -400,7 +400,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5023, unit = UNIT_DEGREE, dec = 1,
-                  value = function() return simSensors('attroll') end,
+                  value = function() return dashx.utils.simSensors('attroll') end,
                   min = -1800, max = 3600 },
             },
             sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730 , subId = 0}, },
@@ -415,7 +415,7 @@ local sensorTable = {
         sensors = {
             sim = {
                 { uid = 0x5024, unit = UNIT_DEGREE, dec = 1,
-                  value = function() return simSensors('attpitch') end,
+                  value = function() return dashx.utils.simSensors('attpitch') end,
                   min = -1800, max = 3600 },
             },
             sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1 }, },
