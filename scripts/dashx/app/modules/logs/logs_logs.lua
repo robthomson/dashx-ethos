@@ -65,7 +65,6 @@ local function openPage(pidx, title, script, displaymode)
 
     local logs = utils.getLogs(logDir)   
 
-    print(logDir)
 
 
     local name = utils.resolveModelName(dashx.session.mcu_id or dashx.session.activeLogDir)
@@ -129,7 +128,7 @@ local function openPage(pidx, title, script, displaymode)
 
     if #dates == 0 then
 
-        LCD_W, LCD_H = dashx.utils.getWindowSize()
+        local LCD_W, LCD_H = dashx.utils.getWindowSize()
         local str = "@i18n(app.modules.logs.msg_no_logs_found)@"
         local ew = LCD_W
         local eh = LCD_H
@@ -137,9 +136,9 @@ local function openPage(pidx, title, script, displaymode)
         local eposX = ew / 2 - etsizeW / 2
         local eposY = eh / 2 - etsizeH / 2
 
-        local posErr = {w = etsizeW, h = dashx.app.radio.navbuttonHeight, x = eposX, y = ePosY}
+        local posErr = {w = etsizeW, h = dashx.app.radio.navbuttonHeight, x = eposX, y = eposY}
 
-        line = form.addLine("", nil, false)
+        local line = form.addLine("", nil, false)
         form.addStaticText(line, posErr, str)
 
     else

@@ -1,4 +1,5 @@
 local settings = {}
+local enableWakeup = false
 
 local function openPage(pageIdx, title, script)
     enableWakeup = true

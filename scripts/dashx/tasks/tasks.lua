@@ -760,9 +760,6 @@ function tasks.init()
     schedulerTick              = 0
 
     ethosVersionGood           = nil
-    lastTelemetrySensorName    = nil
-    sportSensor, elrsSensor    = nil, nil
-    lastModuleId               = 0
     lastSensorName             = nil
     lastCheckAt                = nil
 

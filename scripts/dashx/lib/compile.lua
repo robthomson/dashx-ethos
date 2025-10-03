@@ -1,37 +1,31 @@
 --[[
-
- * Copyright (C) dashx Project
- *
+ * dashx - Deferred/Throttled Lua Script Compilation and Caching (ENV-aware)
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * compile.lua - Deferred/Throttled Lua Script Compilation and Caching for dashx Suite (Ethos)
-
- * Usage:
- *   local compile = require("dashx.lib.compile")
- *   local chunk = compile.loadfile("myscript.lua")
- *   chunk() -- executes the loaded script
- *   -- Or use compile.dofile / compile.require as drop-in replacements
-
-]] --
---[[
- * Copyright (C) dashx Project
- * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
- * compile.lua - Deferred/Throttled Lua Script Compilation and Caching for dashx Suite (Ethos)
-
- * Usage:
- *   local compile = require("dashx.lib.compile")
- *   local chunk = compile.loadfile("myscript.lua")
- *   chunk() -- executes the loaded script
- *   -- Or use compile.dofile / compile.require as drop-in replacements
 ]]
 
 local compile = {}
 local arg = {...}
 
+-- Capture the environment we were loaded with so all subsequent loads
+-- run with the same `_ENV` (which includes `dashx` from main.lua).
+local ENV = _ENV or _G
+
+-- Helper to load files inside ENV (Lua 5.2+/5.3) with 5.1 fallback
+local function loadfile_in_env(path)
+  if setfenv and _VERSION == "Lua 5.1" then
+    local chunk, err = loadfile(path)
+    if not chunk then return nil, err end
+    setfenv(chunk, ENV)
+    return chunk
+  else
+    return loadfile(path, "t", ENV)
+  end
+end
+
 compile._startTime = os.clock()
 compile._startupDelay = 15 -- seconds before starting any compiles
 
--- Configuration: expects dashx.config to be globally available
+-- Configuration: expects dashx.config to be available via ENV
 local logTimings = true
 if dashx and dashx.config then
   if type(dashx.preferences.developer.compilerTiming) == "boolean" then
@@ -76,7 +70,7 @@ end
 --------------------------------------------------
 -- Adaptive LRU Cache (in-memory loaders, interval-based eviction)
 --------------------------------------------------
-local LUA_RAM_THRESHOLD = 32 * 1024 -- 32 KB free (adjust as needed)
+local LUA_RAM_THRESHOLD = 32 * 1024 -- 32 KB free (bytes)
 local LRU_HARD_LIMIT = 50           -- absolute maximum (safety)
 local EVICT_INTERVAL = 5            -- seconds between eviction checks
 
@@ -180,11 +174,10 @@ function compile.wakeup()
   end
 end
 
+-- ENV-aware loadfile
 function compile.loadfile(script)
   local startTime
-  if logTimings then
-    startTime = os.clock()
-  end
+  if logTimings then startTime = os.clock() end
 
   local loader, which
   local cache_fname = cachename(script) .. "c"
@@ -195,16 +188,16 @@ function compile.loadfile(script)
     which = "in-memory"
   else
     if not dashx.preferences.developer.compile then
-      loader = loadfile(script)
+      loader = loadfile_in_env(script)
       which = "raw"
     else
       local cache_path = compiledDir .. cache_fname
       if disk_cache[cache_fname] then
-        loader = loadfile(cache_path)
+        loader = loadfile_in_env(cache_path)
         which = "compiled"
       else
         compile._enqueue(script, cache_path, cache_fname)
-        loader = loadfile(script)
+        loader = loadfile_in_env(script)
         which = "raw (queued for deferred compile)"
       end
     end
@@ -235,7 +228,7 @@ function compile.require(modname)
   local chunk
 
   if not dashx.preferences.developer.compile then
-    chunk = assert(loadfile(path))
+    chunk = assert(loadfile_in_env(path))
   else
     chunk = compile.loadfile(path)
   end

@@ -2,6 +2,7 @@
 
 local themesBasePath = "SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/themes/"
 local themesUserPath = "SCRIPTS:/" .. dashx.config.preferences .. "/dashboard/"
+local enableWakeup = false
 
 local function openPage(pidx, title, script)
     -- Get the installed themes
