@@ -20,6 +20,8 @@
 ]] --
 local app = {}
 
+app.initialized = false
+
 local utils = dashx.utils
 local log = utils.log
 local compile = dashx.compiler.loadfile
@@ -27,254 +29,6 @@ local compile = dashx.compiler.loadfile
 local arg = {...}
 
 local config = arg[1]
-
---[[
-triggers table:
-    - exitAPP: boolean, indicates if the app should exit.
-    - noRFMsg: boolean, indicates if there is no RF message.
-    - triggerSave: boolean, indicates if a save operation should be triggered.
-    - triggerSaveNoProgress: boolean, indicates if a save operation without progress should be triggered.
-    - triggerReload: boolean, indicates if a reload operation should be triggered.
-    - triggerReloadFull: boolean, indicates if a full reload operation should be triggered.
-    - triggerReloadNoPrompt: boolean, indicates if a reload without prompt should be triggered.
-    - reloadFull: boolean, indicates if a full reload is in progress.
-    - isReady: boolean, indicates if the app is ready.
-    - isSaving: boolean, indicates if a save operation is in progress.
-    - isSavingFake: boolean, indicates if a fake save operation is in progress.
-    - saveFailed: boolean, indicates if a save operation has failed.
-    - telemetryState: unknown, stores the state of telemetry.
-    - profileswitchLast: unknown, stores the last profile switch state.
-    - rateswitchLast: unknown, stores the last rate switch state.
-    - closeSave: boolean, indicates if the save operation should be closed.
-    - closeSaveFake: boolean, indicates if the fake save operation should be closed.
-    - badMspVersion: boolean, indicates if there is a bad MSP version.
-    - badMspVersionDisplay: boolean, indicates if the bad MSP version should be displayed.
-    - closeProgressLoader: boolean, indicates if the progress loader should be closed.
-    - mspBusy: boolean, indicates if MSP is busy.
-    - disableRssiTimeout: boolean, indicates if RSSI timeout should be disabled.
-    - timeIsSet: boolean, indicates if the time is set.
-    - invalidConnectionSetup: boolean, indicates if the connection setup is invalid.
-    - wasConnected: boolean, indicates if there was a previous connection.
-    - isArmed: boolean, indicates if the system is armed.
-    - showSaveArmedWarning: boolean, indicates if a warning should be shown when saving while armed.
-]]
-local triggers = {}
-triggers.exitAPP = false
-triggers.noRFMsg = false
-triggers.triggerSave = false
-triggers.triggerSaveNoProgress = false
-triggers.triggerReload = false
-triggers.triggerReloadFull = false
-triggers.triggerReloadNoPrompt = false
-triggers.reloadFull = false
-triggers.isReady = false
-triggers.isSaving = false
-triggers.isSavingFake = false
-triggers.saveFailed = false
-triggers.telemetryState = nil
-triggers.profileswitchLast = nil
-triggers.rateswitchLast = nil
-triggers.closeSave = false
-triggers.closeSaveFake = false
-triggers.badMspVersion = false
-triggers.badMspVersionDisplay = false
-triggers.closeProgressLoader = false
-triggers.mspBusy = false
-triggers.disableRssiTimeout = false
-triggers.timeIsSet = false
-triggers.invalidConnectionSetup = false
-triggers.wasConnected = false
-triggers.isArmed = false
-triggers.showSaveArmedWarning = false
-
---[[
-    Initializes the app.triggers table and assigns it to the triggers table.
-    This is used to set up the triggers for the application.
-]]
-app.triggers = {}
-app.triggers = triggers
-
-
---[[
-    Initializes the app.ui table and loads the UI library.
-
-    The app.ui table is first initialized as an empty table.
-    Then, the UI library is loaded from "app/lib/ui.lua" using the compile function,
-    and the result is assigned to app.ui. The config parameter is passed to the loaded file.
-
-]]
-app.ui = nil
-
---[[
-    Initializes the app.utils table and loads utility functions from the specified file.
-    The utility functions are loaded from "app/lib/utils.lua" and are passed the 'config' parameter.
-    If the file cannot be loaded, an error will be thrown.
-]]
-app.utils = nil
-
-
-
---[[
-app.sensors: Table to store sensor data.
-app.formFields: Table to store form fields.
-app.formNavigationFields: Table to store form navigation fields.
-app.PageTmp: Temporary storage for page data.
-app.Page: Table to store page data.
-app.saveTS: Timestamp for the last save operation.
-app.lastPage: Stores the last accessed page.
-app.lastSection: Stores the last accessed section.
-app.lastIdx: Stores the last accessed index.
-app.lastTitle: Stores the last accessed title.
-app.lastScript: Stores the last executed script.
-app.gfx_buttons: Table to store graphical buttons.
-app.uiStatus: Table to store UI status constants.
-app.pageStatus: Table to store page status constants.
-app.telemetryStatus: Table to store telemetry status constants.
-app.uiState: Current state of the UI.
-app.pageState: Current state of the page.
-app.lastLabel: Stores the last accessed label.
-app.NewRateTable: Table to store new rate data.
-app.RateTable: Table to store rate data.
-app.fieldHelpTxt: Stores help text for fields.
-app.radio: Table to store radio data.
-app.sensor: Table to store sensor data.
-app.init: Initialization function.
-app.guiIsRunning: Boolean indicating if the GUI is running.
-app.menuLastSelected: Table to store the last selected menu item.
-app.adjfunctions: Table to store adjustment functions.
-app.profileCheckScheduler: Scheduler for profile checks using os.clock().
-app.offLineMode : Boolean indicating if the app is in offline mode.
-]]
-app.sensors = {}
-app.formFields = {}
-app.formNavigationFields = {}
-app.PageTmp = {}
-app.Page = {}
-app.saveTS = 0
-app.lastPage = nil
-app.lastSection = nil
-app.lastIdx = nil
-app.lastTitle = nil
-app.lastScript = nil
-app.gfx_buttons = {}
-app.uiStatus = {init = 1, mainMenu = 2, pages = 3, confirm = 4}
-app.pageStatus = {display = 1, editing = 2, saving = 3, eepromWrite = 4, rebooting = 5}
-app.telemetryStatus = {ok = 1, noSensor = 2, noTelemetry = 3}
-app.uiState = app.uiStatus.init
-app.pageState = app.pageStatus.display
-app.lastLabel = nil
-app.NewRateTable = nil
-app.RateTable = nil
-app.fieldHelpTxt = nil
-app.radio = {}
-app.sensor = {}
-app.init = nil
-app.guiIsRunning = false
-app.adjfunctions = nil
-app.profileCheckScheduler = os.clock()
-app.offlineMode = false
-
-
---[[
-app.audio: Table containing boolean flags for various audio states.
-    - playTimeout: Flag to indicate if timeout audio should be played.
-    - playSaving: Flag to indicate if saving audio should be played.
-    - playLoading: Flag to indicate if loading audio should be played.
-    - playEscPowerCycle: Flag to indicate if ESC power cycle audio should be played.
-    - playServoOverideDisable: Flag to indicate if servo override disable audio should be played.
-    - playServoOverideEnable: Flag to indicate if servo override enable audio should be played.
-    - playMixerOverideDisable: Flag to indicate if mixer override disable audio should be played.
-    - playMixerOverideEnable: Flag to indicate if mixer override enable audio should be played.
-    - playEraseFlash: Flag to indicate if erase flash audio should be played.
-
-]]
-app.audio = {}
-app.audio.playTimeout = false
-app.audio.playEscPowerCycle = false
-app.audio.playServoOverideDisable = false
-app.audio.playServoOverideEnable = false
-app.audio.playMixerOverideDisable = false
-app.audio.playMixerOverideEnable = false
-app.audio.playEraseFlash = false
-
-
---[[
-    app.dialogs: Table to manage dialog states and properties.
-    - progress: Boolean indicating if a progress dialog is active.
-    - progressDisplay: Boolean indicating if the progress dialog is displayed.
-    - progressWatchDog: Timer or reference to monitor progress dialog.
-    - progressCounter: Counter to track progress updates.
-    - progressRateLimit: Timestamp to limit the rate of progress updates.
-    - progressRate: Number specifying how many times per second the dialog value can change.
-]]
-app.dialogs = {}
-app.dialogs.progress = false
-app.dialogs.progressDisplay = false
-app.dialogs.progressWatchDog = nil
-app.dialogs.progressCounter = 0
-app.dialogs.progressRateLimit = os.clock()
-app.dialogs.progressRate = 0.25 
-
---[[
-    This section of the code initializes several variables related to the progress of ESC (Electronic Speed Controller) operations in the app.
-
-    Variables:
-    - app.dialogs.progressESC: A boolean flag indicating the progress state of the ESC.
-    - app.dialogs.progressDisplayEsc: A boolean flag indicating whether to display the ESC progress.
-    - app.dialogs.progressWatchDogESC: A variable for the ESC watchdog timer.
-    - app.dialogs.progressCounterESC: A counter for tracking ESC progress.
-    - app.dialogs.progressESCRateLimit: A timestamp for rate limiting ESC progress updates.
-    - app.dialogs.progressESCRate: The rate at which ESC progress updates are allowed (in seconds).
-]]
-app.dialogs.progressESC = false
-app.dialogs.progressDisplayEsc = false
-app.dialogs.progressWatchDogESC = nil
-app.dialogs.progressCounterESC = 0
-app.dialogs.progressESCRateLimit = os.clock()
-app.dialogs.progressESCRate = 2.5 
-
---[[
-    Initializes the save dialog properties for the app.
-    
-    Properties:
-    - save: Boolean flag indicating if the save dialog is active.
-    - saveDisplay: Boolean flag indicating if the save dialog should be displayed.
-    - saveWatchDog: Timer or watchdog for the save dialog (initially nil).
-    - saveProgressCounter: Counter to track the progress of the save operation.
-    - saveRateLimit: Timestamp of the last save operation to enforce rate limiting.
-    - saveRate: Minimum time interval (in seconds) between save operations.
-]]
-app.dialogs.save = false
-app.dialogs.saveDisplay = false
-app.dialogs.saveWatchDog = nil
-app.dialogs.saveProgressCounter = 0
-app.dialogs.saveRateLimit = os.clock()
-app.dialogs.saveRate = 0.25
-
---[[
-    Initializes the 'nolink' dialog properties within the 'app' namespace.
-    
-    Properties:
-    - nolink: Boolean flag indicating the presence of a link.
-    - nolinkDisplay: Boolean flag for displaying the 'nolink' dialog.
-    - nolinkValueCounter: Counter for the 'nolink' dialog value.
-    - nolinkRateLimit: Timestamp for rate limiting the 'nolink' dialog updates.
-    - nolinkRate: Time interval (in seconds) for rate limiting the 'nolink' dialog updates.
-]]
-app.dialogs.nolink = false
-app.dialogs.nolinkDisplay = false
-app.dialogs.nolinkValueCounter = 0
-app.dialogs.nolinkRateLimit = os.clock()
-app.dialogs.nolinkRate = 0.25
-
---[[
-    This code snippet initializes two boolean flags within the `app.dialogs` table:
-    - `badversion`: Indicates whether there is a bad version detected.
-    - `badversionDisplay`: Controls the display state of the bad version dialog.
-]]
-app.dialogs.badversion = false
-app.dialogs.badversionDisplay = false
-
 
 -- Function to invalidate the pages variable.
 -- Typically called after writing MSP data.
@@ -622,28 +376,125 @@ end
 ]]
 function app.create()
 
-    app.ui = assert(compile("app/lib/ui.lua"))(config)
+    if not app.initialized then
 
-    -- dashx.session.apiVersion = nil
-    config.environment = system.getVersion()
-    config.ethosRunningVersion = {config.environment.major, config.environment.minor, config.environment.revision}
+      -- dashx.session.apiVersion = nil
+      config.environment = system.getVersion()
+      config.ethosRunningVersion = {config.environment.major, config.environment.minor, config.environment.revision}
 
-    dashx.session.lcdWidth, dashx.session.lcdHeight = utils.getWindowSize()
-    app.radio = assert(compile("app/radios.lua"))()
+      dashx.session.lcdWidth, dashx.session.lcdHeight = utils.getWindowSize()
 
-    app.uiState = app.uiStatus.init
+      app.triggers = {}
+      app.triggers.exitAPP = false
+      app.triggers.noRFMsg = false
+      app.triggers.triggerSave = false
+      app.triggers.triggerSaveNoProgress = false
+      app.triggers.triggerReload = false
+      app.triggers.triggerReloadFull = false
+      app.triggers.triggerReloadNoPrompt = false
+      app.triggers.reloadFull = false
+      app.triggers.isReady = false
+      app.triggers.isSaving = false
+      app.triggers.isSavingFake = false
+      app.triggers.saveFailed = false
+      app.triggers.telemetryState = nil
+      app.triggers.profileswitchLast = nil
+      app.triggers.rateswitchLast = nil
+      app.triggers.closeSave = false
+      app.triggers.closeSaveFake = false
+      app.triggers.badMspVersion = false
+      app.triggers.badMspVersionDisplay = false
+      app.triggers.closeProgressLoader = false
+      app.triggers.mspBusy = false
+      app.triggers.disableRssiTimeout = false
+      app.triggers.timeIsSet = false
+      app.triggers.invalidConnectionSetup = false
+      app.triggers.wasConnected = false
+      app.triggers.isArmed = false
+      app.triggers.showSaveArmedWarning = false
 
-    if not app.MainMenu then
-        app.MainMenu  = assert(compile("app/modules/init.lua"))()
-    end
+      app.sensors = {}
+      app.formFields = {}
+      app.formNavigationFields = {}
+      app.PageTmp = {}
+      app.Page = {}
+      app.saveTS = 0
+      app.lastPage = nil
+      app.lastSection = nil
+      app.lastIdx = nil
+      app.lastTitle = nil
+      app.lastScript = nil
+      app.gfx_buttons = {}
+      app.uiStatus = {init = 1, mainMenu = 2, pages = 3, confirm = 4}
+      app.pageStatus = {display = 1, editing = 2, saving = 3, eepromWrite = 4, rebooting = 5}
+      app.telemetryStatus = {ok = 1, noSensor = 2, noTelemetry = 3}
+      app.uiState = app.uiStatus.init
+      app.pageState = app.pageStatus.display
+      app.lastLabel = nil
+      app.NewRateTable = nil
+      app.RateTable = nil
+      app.fieldHelpTxt = nil
+      app.radio = {}
+      app.sensor = {}
+      app.init = nil
+      app.guiIsRunning = false
+      app.adjfunctions = nil
+      app.profileCheckScheduler = os.clock()
+      app.offlineMode = false
 
-    if not app.ui then
-        app.ui = assert(compile("app/lib/ui.lua"))(config)
-    end
 
-    if not app.utils then
-        app.utils = assert(compile("app/lib/utils.lua"))(config)
-    end    
+      app.audio = {}
+      app.audio.playTimeout = false
+      app.audio.playEscPowerCycle = false
+      app.audio.playServoOverideDisable = false
+      app.audio.playServoOverideEnable = false
+      app.audio.playMixerOverideDisable = false
+      app.audio.playMixerOverideEnable = false
+      app.audio.playEraseFlash = false
+
+      app.dialogs = {}
+      app.dialogs.progress = false
+      app.dialogs.progressDisplay = false
+      app.dialogs.progressWatchDog = nil
+      app.dialogs.progressCounter = 0
+      app.dialogs.progressRateLimit = os.clock()
+      app.dialogs.progressRate = 0.25 
+
+
+      app.dialogs.progressESC = false
+      app.dialogs.progressDisplayEsc = false
+      app.dialogs.progressWatchDogESC = nil
+      app.dialogs.progressCounterESC = 0
+      app.dialogs.progressESCRateLimit = os.clock()
+      app.dialogs.progressESCRate = 2.5 
+
+      app.dialogs.save = false
+      app.dialogs.saveDisplay = false
+      app.dialogs.saveWatchDog = nil
+      app.dialogs.saveProgressCounter = 0
+      app.dialogs.saveRateLimit = os.clock()
+      app.dialogs.saveRate = 0.25
+
+      app.dialogs.nolink = false
+      app.dialogs.nolinkDisplay = false
+      app.dialogs.nolinkValueCounter = 0
+      app.dialogs.nolinkRateLimit = os.clock()
+      app.dialogs.nolinkRate = 0.25
+
+
+      app.dialogs.badversion = false
+      app.dialogs.badversionDisplay = false
+
+      app.radio = assert(compile("app/radios.lua"))()
+
+      app.MainMenu  = assert(compile("app/modules/init.lua"))()
+
+      app.ui = assert(compile("app/lib/ui.lua"))(config)
+
+      app.utils = assert(compile("app/lib/utils.lua"))(config)
+  
+      app.initialized = true
+    end  
 
     app.ui.openMainMenu()
 

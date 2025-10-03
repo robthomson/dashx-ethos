@@ -367,7 +367,7 @@ function tasks.active()
 
     local age = os.clock() - tasks.heartbeat
     tasks.wasOn = age >= 2
-    if dashx.app.triggers.mspBusy or age <= 2 then return true end
+    if dashx.app.triggers and dashx.app.triggers.mspBusy or age <= 2 then return true end
 
     return false
 end
@@ -392,7 +392,7 @@ local function canRunTask(task, now)
     local ok =
         linkOK
         and connOK
-        and (priorityTask or od >= 0 or not dashx.app.triggers.mspBusy)
+        and (priorityTask or od >= 0 or not (dashx.app.triggers and dashx.app.triggers.mspBusy))
         and (not task.simulatoronly or usingSimulator)
 
     return ok, od
