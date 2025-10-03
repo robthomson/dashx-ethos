@@ -1,16 +1,19 @@
 --[[
- * dashx - Deferred/Throttled Lua Script Compilation and Caching (ENV-aware)
+ * dashx - Deferred/Throttled Lua Script Compilation and Caching
+ * ENV-aware, keyed by config.baseDir to allow coexistence with other suites.
  * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
 ]]
 
 local compile = {}
 local arg = {...}
+local config = arg[1] or {}
+-- Use the suite key passed from main.lua (dashx.config.baseDir = "dashx")
+local SUITE = (config and config.baseDir) or "dashx"
 
--- Capture the environment we were loaded with so all subsequent loads
--- run with the same `_ENV` (which includes `dashx` from main.lua).
+-- Environment captured from loader (includes `dashx` from main.lua)
 local ENV = _ENV or _G
 
--- Helper to load files inside ENV (Lua 5.2+/5.3) with 5.1 fallback
+-- Always run loaded chunks under ENV (Lua 5.1 fallback uses setfenv)
 local function loadfile_in_env(path)
   if setfenv and _VERSION == "Lua 5.1" then
     local chunk, err = loadfile(path)
@@ -18,14 +21,15 @@ local function loadfile_in_env(path)
     setfenv(chunk, ENV)
     return chunk
   else
-    return loadfile(path, "t", ENV)
+    -- nil mode = accept text/bytecode; third arg = env (ETHOS-friendly)
+    return loadfile(path, nil, ENV)
   end
 end
 
 compile._startTime = os.clock()
 compile._startupDelay = 15 -- seconds before starting any compiles
 
--- Configuration: expects dashx.config to be available via ENV
+-- Optional timing flag (if present in preferences)
 local logTimings = true
 if dashx and dashx.config then
   if type(dashx.preferences.developer.compilerTiming) == "boolean" then
@@ -33,53 +37,42 @@ if dashx and dashx.config then
   end
 end
 
-local baseDir     = "./"
-local compiledDir = baseDir .. "cache/"
+-- Suite-specific compiled directory to avoid cross-suite clashes
+local compiledDir = "cache/" .. SUITE .. "/"
 local SCRIPT_PREFIX = "SCRIPTS:"
 
--- Ensure cache directory exists
-local function ensure_dir(dir)
-  if os.mkdir then
-    local found = false
-    for _, name in ipairs(system.listFiles(baseDir)) do
-      if name == "cache" then found = true; break end
-    end
-    if not found then os.mkdir(dir) end
-  end
-end
-ensure_dir(compiledDir)
+-- Ensure cache directories exist
+os.mkdir("cache")
+os.mkdir(compiledDir)
 
--- On-disk compiled files index
+-- Index compiled files
 local disk_cache = {}
 do
-  for _, fname in ipairs(system.listFiles(compiledDir)) do
+  local list = system.listFiles and system.listFiles(compiledDir) or {}
+  for _, fname in ipairs(list) do
     disk_cache[fname] = true
   end
 end
 
--- Unified cache-safe name generator
+-- Unique, cache-safe compiled filename (prefix with suite)
 local function cachename(name)
   if name:sub(1, #SCRIPT_PREFIX) == SCRIPT_PREFIX then
     name = name:sub(#SCRIPT_PREFIX + 1)
   end
   name = name:gsub("/", "_")
   name = name:gsub("^_", "", 1)
-  return name
+  return SUITE .. "__" .. name
 end
 
 --------------------------------------------------
 -- Adaptive LRU Cache (in-memory loaders, interval-based eviction)
 --------------------------------------------------
 local LUA_RAM_THRESHOLD = 32 * 1024 -- 32 KB free (bytes)
-local LRU_HARD_LIMIT = 50           -- absolute maximum (safety)
-local EVICT_INTERVAL = 5            -- seconds between eviction checks
+local LRU_HARD_LIMIT    = 50        -- absolute maximum (safety)
+local EVICT_INTERVAL    = 5         -- seconds between eviction checks
 
 local function LRUCache()
-  local self = {
-    cache = {},
-    order = {},
-    _last_evict = 0,
-  }
+  local self = { cache = {}, order = {}, _last_evict = 0 }
 
   function self:get(key)
     local value = self.cache[key]
@@ -145,65 +138,63 @@ compile._queued_map = {}
 
 function compile._enqueue(script, cache_path, cache_fname)
   if not compile._queued_map[cache_fname] then
-    table.insert(compile._queue, {script = script, cache_path = cache_path, cache_fname = cache_fname})
+    table.insert(compile._queue, { script = script, cache_path = cache_path, cache_fname = cache_fname })
     compile._queued_map[cache_fname] = true
   end
 end
 
 function compile.wakeup()
   local now = os.clock()
-  if (now - compile._startTime) < compile._startupDelay then
-    return
-  end
-  if #compile._queue > 0 then
-    local entry = table.remove(compile._queue, 1)
-    compile._queued_map[entry.cache_fname] = nil
-    local ok, err = pcall(function()
-      system.compile(entry.script)
-      os.rename(entry.script .. "c", entry.cache_path)
-      disk_cache[entry.cache_fname] = true
-    end)
-    compile._lastCompile = now
-    if dashx and dashx.utils and log then
-      if ok then
-        dashx.utils.log("Deferred-compiled (throttled): " .. entry.script, "info")
-      else
-        dashx.utils.log("Deferred-compile error: " .. tostring(err), "debug")
-      end
+  if (now - compile._startTime) < compile._startupDelay then return end
+  if #compile._queue == 0 then return end
+
+  local entry = table.remove(compile._queue, 1)
+  compile._queued_map[entry.cache_fname] = nil
+
+  local ok, err = pcall(function()
+    system.compile(entry.script)
+    os.rename(entry.script .. "c", entry.cache_path)
+    disk_cache[entry.cache_fname] = true
+  end)
+
+  if dashx and dashx.utils then
+    if ok then
+      dashx.utils.log("Deferred-compiled (throttled): " .. entry.script, "info")
+    else
+      dashx.utils.log("Deferred-compile error: " .. tostring(err), "debug")
     end
   end
 end
 
--- ENV-aware loadfile
+-- ENV-aware loadfile with compiled fallback
 function compile.loadfile(script)
   local startTime
   if logTimings then startTime = os.clock() end
 
-  local loader, which
   local cache_fname = cachename(script) .. "c"
   local cache_key   = cache_fname
 
-  loader = lru_cache:get(cache_key)
-  if loader then
-    which = "in-memory"
-  else
+  local loader = lru_cache:get(cache_key)
+  local which
+
+  if not loader then
     if not dashx.preferences.developer.compile then
-      loader = loadfile_in_env(script)
-      which = "raw"
+      loader, which = loadfile_in_env(script), "raw"
     else
       local cache_path = compiledDir .. cache_fname
       if disk_cache[cache_fname] then
-        loader = loadfile_in_env(cache_path)
-        which = "compiled"
+        loader, which = loadfile_in_env(cache_path), "compiled"
       else
         compile._enqueue(script, cache_path, cache_fname)
-        loader = loadfile_in_env(script)
-        which = "raw (queued for deferred compile)"
+        loader, which = loadfile_in_env(script), "raw (queued for deferred compile)"
       end
     end
+
     if loader then
       lru_cache:set(cache_key, loader)
     end
+  else
+    which = "in-memory"
   end
 
   if not loader then
@@ -219,23 +210,24 @@ function compile.dofile(script, ...)
 end
 
 function compile.require(modname)
-  if package.loaded[modname] then
-    return package.loaded[modname]
+  -- Suite-scoped module cache to avoid clashes across suites
+  local key = SUITE .. ":" .. modname
+  if package.loaded[key] then
+    return package.loaded[key]
   end
 
   local raw_path = modname:gsub("%%.", "/") .. ".lua"
-  local path     = cachename(raw_path)
   local chunk
 
   if not dashx.preferences.developer.compile then
-    chunk = assert(loadfile_in_env(path))
+    chunk = assert(loadfile_in_env(raw_path))
   else
-    chunk = compile.loadfile(path)
+    chunk = compile.loadfile(raw_path)
   end
 
   local result = chunk()
-  package.loaded[modname] = (result == nil) and true or result
-  return package.loaded[modname]
+  package.loaded[key] = (result == nil) and true or result
+  return package.loaded[key]
 end
 
 return compile
