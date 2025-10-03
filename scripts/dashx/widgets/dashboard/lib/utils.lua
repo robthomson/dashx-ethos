@@ -20,6 +20,196 @@ local utils = {}
 local imageCache = {}
 local fontCache 
 
+function utils.standardHeaderLayout(headeropts)
+    return {
+        height = headeropts.height,
+        cols   = 7,
+        rows   = 1
+    }
+end
+
+function utils.standardHeaderBoxes(i18n, colorMode, headeropts, txbatt_type)
+    local txbatt_min, txbatt_max = utils.getTxBatteryVoltageRange()
+    local txbatt_warn = txbatt_min + 0.2
+    txbatt_type = tonumber(txbatt_type) or 0
+
+    local txBox
+    if txbatt_type == 2 then
+        txBox = txDigitalBox(colorMode, headeropts, txbatt_min, txbatt_max, txbatt_warn)
+    elseif txbatt_type == 1 then
+        txBox = txTextBox(colorMode, headeropts, txbatt_min, txbatt_max, txbatt_warn)
+    else
+        txBox = utils.getTxBox(colorMode, headeropts, txbatt_min, txbatt_max, txbatt_warn)
+    end
+
+    return {
+        -- Craftname
+        { 
+            col = 1, row = 1, colspan = 2, type = "text", subtype = "craftname",
+            font = headeropts.font, valuealign = "left", valuepaddingleft = 5,
+            bgcolor = colorMode.tbbgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.cntextcolor 
+        },
+
+        -- RF Logo
+        { 
+            col = 3, row = 1, colspan = 3, type = "image", subtype = "image",
+            bgcolor = colorMode.tbbgcolor,
+        },
+
+        -- TX Battery (DYNAMIC)
+        txBox,
+
+        -- RSSI
+        { 
+            col = 7, row = 1,
+            type = "gauge", subtype = "step", source = "rssi",
+            font = "FONT_XS", stepgap = 2, stepcount = 5, decimals = 0, valuealign = "left",
+            barpaddingleft = headeropts.barpaddingleft, barpaddingright = headeropts.barpaddingright,
+            barpaddingbottom = headeropts.barpaddingbottom, barpaddingtop = headeropts.barpaddingtop,
+            valuepaddingleft = headeropts.valuepaddingleft, valuepaddingbottom = headeropts.valuepaddingbottom,
+            bgcolor = colorMode.tbbgcolor, textcolor = colorMode.rssitextcolor, 
+            fillcolor = colorMode.rssifillcolor, fillbgcolor = colorMode.rssifillbgcolor,
+        }
+    }
+end
+
+function utils.getTxBox(colorMode, headeropts, txbatt_min, txbatt_max, txbatt_warn)
+    return {
+        col = 6, row = 1,
+        type = "gauge", 
+        subtype = "bar", 
+        source = "txbatt",
+        battery = true, 
+        batteryframe = true, 
+        hidevalue = true,
+        valuealign = "left", 
+        batterysegments = 4, 
+        batteryspacing = 1, 
+        batteryframethickness  = 2,
+        batterysegmentpaddingtop = headeropts.batterysegmentpaddingtop,
+        batterysegmentpaddingbottom = headeropts.batterysegmentpaddingbottom,
+        batterysegmentpaddingleft = headeropts.batterysegmentpaddingleft,
+        batterysegmentpaddingright = headeropts.batterysegmentpaddingright,
+        gaugepaddingright = headeropts.gaugepaddingright,
+        gaugepaddingleft = headeropts.gaugepaddingleft,
+        gaugepaddingbottom = headeropts.gaugepaddingbottom,
+        gaugepaddingtop = headeropts.gaugepaddingtop,
+        cappaddingright = headeropts.cappaddingright,
+        fillbgcolor = colorMode.txbgfillcolor, 
+        bgcolor = colorMode.tbbgcolor,
+        accentcolor = colorMode.txaccentcolor, 
+        min = txbatt_min,
+        max = txbatt_max,
+        thresholds = {
+            { value = txbatt_warn, fillcolor = colorMode.fillwarncolor },
+            { value = txbatt_max, fillcolor = colorMode.txfillcolor }
+        }
+    }
+end
+
+local function txTextBox(colorMode, headeropts)
+    return {
+        col = 6, row = 1,
+        type = "text",
+        subtype = "telemetry",
+        source = "txbatt",
+        title = "Tx Batt",
+        titlepos = "bottom",
+        titlefont = "FONT_XXS",
+        valuealign = "center",
+        unit = "v",
+        valuepaddingtop = 8,
+        valuepaddingleft = 8,
+        font = headeropts.txbattfont,
+        decimals = 1,
+        bgcolor = colorMode.tbbgcolor,
+        textcolor = colorMode.tbtextcolor
+    }
+end
+
+local function txDigitalBox(colorMode, headeropts, txbatt_min, txbatt_max, txbatt_warn)
+    return {
+        col = 6, 
+        row = 1,
+        type = "gauge", 
+        subtype = "bar", 
+        source = "txbatt",
+        font = headeropts.txdbattfont,
+        battery = false, 
+        roundradius = headeropts.roundradius,
+        decimals = 1, 
+        unit = "v", 
+        gaugepaddingright = headeropts.txdgaugepaddingright,
+        gaugepaddingleft = headeropts.txdgaugepaddingleft,
+        gaugepaddingbottom = headeropts.gaugepaddingbottom,
+        gaugepaddingtop = headeropts.gaugepaddingtop,
+        valuepaddingleft = headeropts.txdvaluepaddingleft,
+        valuepaddingtop = headeropts.txdvaluepaddingtop,
+        fillbgcolor = colorMode.txbgfillcolor, 
+        bgcolor = colorMode.tbbgcolor,
+        accentcolor = colorMode.txaccentcolor, 
+        textcolor = colorMode.tbtextcolor,
+        min = txbatt_min,
+        max = txbatt_max,
+        thresholds = {
+            { value = txbatt_warn, fillcolor = colorMode.fillwarncolor },
+            { value = txbatt_max, fillcolor = colorMode.txfillcolor }
+        }                     
+    }
+end
+
+function utils.getTxBatteryVoltageRange()
+    if system and system.voltageRange then
+        local ok, vmin, vmax = pcall(system.voltageRange)
+        if ok and vmin and vmax and vmin < vmax then
+            return vmin, vmax
+        end
+    end
+
+    return 7.2, 8.4
+end
+
+function utils.themeColors()
+    local colorMode = {
+        dark = {
+            textcolor       = "white",
+            titlecolor      = "white",
+            bgcolor         = "black",
+            fillcolor       = "green",
+            fillwarncolor   = "orange",
+            fillcritcolor   = "red",
+            fillbgcolor     = "grey",
+            accentcolor     = "white",
+            rssifillcolor   = "green",
+            rssifillbgcolor = "darkgrey",
+            txaccentcolor   = "grey",
+            txfillcolor     = "green",
+            txbgfillcolor   = "darkgrey",
+            tbbgcolor       = "headergrey",
+            cntextcolor     = "white",
+            tbtextcolor     = "white"
+        },
+        light = {
+            textcolor       = "lmgrey",
+            titlecolor      = "lmgrey",
+            bgcolor         = "white",
+            fillcolor       = "lightgreen",
+            fillwarncolor   = "lightorange",
+            fillcritcolor   = "lightred",
+            fillbgcolor     = "lightgrey",
+            accentcolor     = "darkgrey",
+            rssifillcolor   = "lightgreen",
+            rssifillbgcolor = "grey",
+            txaccentcolor   = "white",
+            txfillcolor     = "lightgreen",
+            txbgfillcolor   = "grey",
+            tbbgcolor       = "darkgrey",
+            cntextcolor     = "white",
+            tbtextcolor     = "white"
+        }
+    }
+    return lcd.darkMode() and colorMode.dark or colorMode.light
+end
 
 -- Determine layout and screensize in use
 function utils.isFullScreen(w, h)

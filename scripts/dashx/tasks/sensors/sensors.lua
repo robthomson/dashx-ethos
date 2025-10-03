@@ -34,6 +34,9 @@ local smart = assert(dashx.compiler.loadfile("tasks/sensors/smart.lua"))(config)
 local log = dashx.utils.log
 local tasks = dashx.tasks
 
+local telemetryStartTime = os.clock()
+local TELEMETRY_TIMEOUT = 20 -- seconds
+
 --[[
     loadSensorModule - Loads the appropriate sensor module based on the current protocol and preferences.
 
@@ -50,13 +53,18 @@ local function loadSensorModule()
     if not tasks.active() then return nil end
     if not dashx.session.apiVersion then return nil end
 
-    local protocol = "crsf"
+    local protocol = dashx.session.telemetryType or "sport"
 
     if system:getVersion().simulation == true then
         if not loadedSensorModule or loadedSensorModule.name ~= "sim" then
             --log("Loading Simulator sensor module","info")
             loadedSensorModule = {name = "sim", module = assert(dashx.compiler.loadfile("tasks/sensors/sim.lua"))(config)}
-        end   
+        end 
+    elseif protocol == "sport" then
+        if not loadedSensorModule or loadedSensorModule.name ~= "frsky" then
+            --log("Loading FrSky sensor module","info")
+            loadedSensorModule = {name = "frsky", module = assert(dashx.compiler.loadfile("tasks/sensors/frsky.lua"))(config)}
+        end
     else
         loadedSensorModule = nil  -- No matching sensor, clear to save memory
     end

@@ -84,6 +84,10 @@ local objectWakeupsPerCycle = nil       -- number of objects to wake per cycle (
 local objectsThreadedWakeupCount = 0
 local lastLoadedBoxCount = 0
 local lastBoxRectsCount = 0
+local lastLoadedBoxCount = 0
+local lastBoxRectsCount = 0
+local lastLoadedBoxSig = nil
+
 
 -- Some placeholders used by dashboard loader
 local moduleState
@@ -321,6 +325,7 @@ function dashboard.loadObjectType(box)
             dashboard._moduleCache[typ] = obj
         else
             log("Failed to load object: " .. tostring(typ), "info")
+            print("Error detail: "..tostring(obj))
             dashboard._moduleCache[typ] = false
         end
     end
@@ -337,6 +342,9 @@ end
 -- @param boxConfigs Table of box configuration tables, each containing a `type` field.
 function dashboard.loadAllObjects(boxConfigs)
     dashboard.objectsByType = {}  -- clear old cache of active objects
+
+
+
     for _, box in ipairs(boxConfigs or {}) do
         local typ = box.type
         if typ then
@@ -344,6 +352,8 @@ function dashboard.loadAllObjects(boxConfigs)
             if not dashboard._moduleCache[typ] then
                 local bdir = baseDir or "default"
                 local objPath = "SCRIPTS:/" .. bdir .. "/widgets/dashboard/objects/" .. typ .. ".lua"
+
+
                 local ok, obj = pcall(function()
                     return assert(compile(objPath))()
                 end)
@@ -351,6 +361,7 @@ function dashboard.loadAllObjects(boxConfigs)
                     dashboard._moduleCache[typ] = obj
                 else
                     log("Failed to load object: " .. tostring(typ), "info")
+                    print("Error detail: "..tostring(obj))
                     -- ensure we don’t retry a broken type endlessly
                     dashboard._moduleCache[typ] = false
                 end
@@ -505,6 +516,27 @@ function dashboard.renderLayout(widget, config)
         for _, b in ipairs(headerBoxes) do table.insert(allBoxes, b) end
         dashboard.loadAllObjects(allBoxes)
         lastLoadedBoxCount = #boxes + #headerBoxes
+    end
+
+    -- Build a stable signature of the box "types" present (order-insensitive)
+    local function makeBoxesSig(bx, hbx)
+        local t = {}
+        for _, b in ipairs(bx or {}) do t[#t+1] = tostring(b.type or "") end
+        for _, b in ipairs(hbx or {}) do t[#t+1] = tostring(b.type or "") end
+        table.sort(t)
+        return table.concat(t, "|")
+    end
+
+    local thisSig = makeBoxesSig(boxes, headerBoxes)
+
+    -- Reload widgets if layout changed (count OR types)
+    if ((#boxes + #headerBoxes) ~= lastLoadedBoxCount) or (thisSig ~= lastLoadedBoxSig) then
+        local allBoxes = {}
+        for _, b in ipairs(boxes)       do allBoxes[#allBoxes+1] = b end
+        for _, b in ipairs(headerBoxes) do allBoxes[#allBoxes+1] = b end
+        dashboard.loadAllObjects(allBoxes)
+        lastLoadedBoxCount = #boxes + #headerBoxes
+        lastLoadedBoxSig   = thisSig   -- remember the types we loaded
     end
 
 
@@ -952,6 +984,8 @@ local function load_state_script(theme_folder, state, isFallback)
     -- run init.lua
     local ok, initTable = pcall(initChunk)
     if not ok or type(initTable) ~= "table" then
+        print("Error running init.lua for theme="..tostring(theme_folder)..", state="..tostring(state))
+        print("Error detail: "..tostring(initTable))      
         if not isFallback then
             return load_state_script(dashboard.DEFAULT_THEME, state, true)
         end
@@ -990,6 +1024,8 @@ local function load_state_script(theme_folder, state, isFallback)
     else
         local ok2, module = pcall(chunk)
         if not ok2 then
+            print("Error running init.lua for theme="..tostring(theme_folder)..", state="..tostring(state))
+            print("Error detail: "..tostring(module))          
             if not isFallback then
                 return load_state_script(dashboard.DEFAULT_THEME, state, true)
             end
@@ -1022,6 +1058,7 @@ local function reload_state_only(state)
     objectWakeupIndex = 1
     objectsThreadedWakeupCount = 0
     objectWakeupsPerCycle = nil
+    lastLoadedBoxSig = nil
     dashboard.boxRects = {}
     if dashboard.boxRects then  
         for k in pairs(dashboard.boxRects) do dashboard.boxRects[k] = nil end
@@ -1054,6 +1091,7 @@ function dashboard.reload_active_theme_only(force)
     lastLoadedBoxCount          = 0
     lastBoxRectsCount           = 0
     objectWakeupsPerCycle       = nil
+    lastLoadedBoxSig = nil
 
     -- Force spinner draw
     lcd.invalidate()
@@ -1669,6 +1707,8 @@ function dashboard.listThemes()
                                     source = sourceType,
                                 }
                             end
+                        else
+                            print("Error detail: "..tostring(initTable))    
                         end
                     end
                 end

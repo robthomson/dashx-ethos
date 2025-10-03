@@ -107,9 +107,11 @@ function render.wakeup(box)
     local pitch = getSensor("attpitch") or 0
     local roll  = getSensor("attroll")  or 0
     local yaw   = getSensor("attyaw")   or 0
-    local altitude    = getSensor("altitude")    or 20
-    local groundspeed = getSensor("groundspeed") or 20
+    local altitude    = getSensor("altitude")    or 0
+    local groundspeed = getSensor("groundspeed") or 0
+    
 
+    
     box._dyn = {
         pitch = pitch,
         roll = roll,

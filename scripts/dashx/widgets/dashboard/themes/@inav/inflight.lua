@@ -16,13 +16,13 @@
 ]]--
 
 
-local utils = inavsuite.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 
 local headeropts = utils.getHeaderOptions()
 local colorMode = utils.themeColors()
 
 -- Theme based configuration settings
-local theme_section = "system/@default"
+local theme_section = "system/@inav"
 
 local THEME_DEFAULTS = {
     v_min = 18.0,
@@ -31,9 +31,9 @@ local THEME_DEFAULTS = {
 
 -- User voltage min/max override support
 local function getUserVoltageOverride(which)
-  local prefs = inavsuite.session and inavsuite.session.modelPreferences
-  if prefs and prefs["system/@default"] then
-    local v = tonumber(prefs["system/@default"][which])
+  local prefs = dashx.session and dashx.session.modelPreferences
+  if prefs and prefs["system/@inav"] then
+    local v = tonumber(prefs["system/@inav"][which])
     -- Only use override if it is present and different from the default 6S values
     -- (Defaults: min=18.0, max=25.2)
     if which == "v_min" and v and math.abs(v - 18.0) > 0.05 then return v end
@@ -45,14 +45,14 @@ end
 local function getThemeValue(key)
     -- Use General preferences for TX values
     if key == "tx_min" or key == "tx_warn" or key == "tx_max" then
-        if inavsuite and inavsuite.preferences and inavsuite.preferences.general then
-            local val = inavsuite.preferences.general[key]
+        if dashx and dashx.preferences and dashx.preferences.general then
+            local val = dashx.preferences.general[key]
             if val ~= nil then return tonumber(val) end
         end
     end
     -- Theme defaults for other values
-    if inavsuite and inavsuite.session and inavsuite.session.modelPreferences and inavsuite.session.modelPreferences[theme_section] then
-        local val = inavsuite.session.modelPreferences[theme_section][key]
+    if dashx and dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences[theme_section] then
+        local val = dashx.session.modelPreferences[theme_section][key]
         val = tonumber(val)
         if val ~= nil then return val end
     end
@@ -134,8 +134,8 @@ local header_layout = utils.standardHeaderLayout(headeropts)
 -- Header Boxes
 local function header_boxes()
     local txbatt_type = 0
-    if inavsuite and inavsuite.preferences and inavsuite.preferences.general then
-        txbatt_type = inavsuite.preferences.general.txbatt_type or 0
+    if dashx and dashx.preferences and dashx.preferences.general then
+        txbatt_type = dashx.preferences.general.txbatt_type or 0
     end
 
     -- Rebuild cache if type changed
@@ -200,7 +200,7 @@ local function buildBoxes(W)
             min = function()
                 local override = getUserVoltageOverride("v_min")
                 if override then return override end
-                local cfg = inavsuite.session.batteryConfig
+                local cfg = dashx.session.batteryConfig
                 local cells = (cfg and cfg.batteryCellCount) or 3
                 local minV  = (cfg and cfg.vbatmincellvoltage) or 3.0
                 return math.max(0, cells * minV)
@@ -209,7 +209,7 @@ local function buildBoxes(W)
             max = function()
                 local override = getUserVoltageOverride("v_max")
                 if override then return override end
-                local cfg = inavsuite.session.batteryConfig
+                local cfg = dashx.session.batteryConfig
                 local cells = (cfg and cfg.batteryCellCount) or 3
                 local maxV  = (cfg and cfg.vbatfullcellvoltage) or 4.2
                 return math.max(0, cells * maxV)
@@ -254,7 +254,7 @@ local function buildBoxes(W)
 end
 
 local function boxes()
-    local config = inavsuite and inavsuite.session and inavsuite.session.modelPreferences and inavsuite.session.modelPreferences[theme_section]
+    local config = dashx and dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences[theme_section]
     local W = lcd.getWindowSize()
     if boxes_cache == nil or themeconfig ~= config or lastScreenW ~= W then
         boxes_cache = buildBoxes(W)

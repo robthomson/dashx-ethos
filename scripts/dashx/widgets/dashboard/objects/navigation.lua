@@ -11,7 +11,9 @@ function wrapper.paint(x, y, w, h, box)
     render.paint(x, y, w, h, box)
 end
 
+
 function wrapper.wakeup(box)
+
 
     -- Ensure model preferences and telemetry are available
     if not utils.isModelPrefsReady() then

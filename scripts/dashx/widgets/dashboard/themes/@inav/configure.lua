@@ -24,18 +24,18 @@ local function clamp(val, min, max)
 end
 
 local function getPref(key)
-    return inavsuite.widgets.dashboard.getPreference(key)
+    return dashx.widgets.dashboard.getPreference(key)
 end
 
 local function setPref(key, value)
-    inavsuite.widgets.dashboard.savePreference(key, value)
+    dashx.widgets.dashboard.savePreference(key, value)
 end
 
 local formFields = {}
 local prevConnectedState = nil
 
 local function isTelemetryConnected()
-    return inavsuite and inavsuite.session and inavsuite.session.isConnected and inavsuite.session.mcu_id and inavsuite.preferences
+    return dashx and dashx.session and dashx.session.isConnected and dashx.session.mcu_id and dashx.preferences
 end
 
 local function configure()

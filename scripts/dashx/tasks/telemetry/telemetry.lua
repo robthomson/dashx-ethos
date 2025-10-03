@@ -317,6 +317,35 @@ local sensorTable = {
         end,
     },
 
+    altitude = {
+        name = "@i18n(sensors.altitude)@",
+        mandatory = false,
+        stats = true,
+        switch_alerts = true,
+        unit = UNIT_METER,
+        sensors = {
+            sim = {
+                { uid = 0x5016, unit = UNIT_METER, dec = 0,
+                  value = function() return dashx.utils.simSensors('altitude') end,
+                  min = 0, max = 50000 },
+            },
+            sport = { 
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0820 } ,                
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0100 } 
+            
+            },
+            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x10B2 }, },
+            crsfLegacy = { nil },
+        },
+        localizations = function(value)
+            local major = UNIT_METER
+            if value == nil then return nil, major, nil end
+            local prefs = dashx.preferences.localizations
+            local isFeet = prefs and prefs.altitude_unit == 1
+            if isFeet then return value * 3.28084, major, "ft" end
+            return value, major, "m"
+        end,
+    },    
 
     consumption = {
         name = "@i18n(telemetry.sensors.consumption)@",
@@ -384,6 +413,97 @@ local sensorTable = {
         },
     },    
 
+   accx = {
+        name = "@i18n(sensors.accx)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5019, unit = UNIT_G, dec = 3,
+                  value = function() return dashx.utils.simSensors('accx') end,
+                  min = -4000, max = 4000 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0700 }, },
+            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1111 }, },
+            crsfLegacy = { nil },
+        },
+    },
+
+    bec_voltage = {
+        name = "@i18n(sensors.bec_voltage)@",
+        mandatory = true,
+        stats = true,
+        set_telemetry_sensors = 43,
+        switch_alerts = true,
+        unit = UNIT_VOLT,
+        unit_string = "V",
+        sensors = {
+            sim = {
+                { uid = 0x5017, unit = UNIT_VOLT, dec = 2,
+                  value = function() return dashx.utils.simSensors('bec_voltage') end,
+                  min = 0, max = 3000 },
+            },
+            sport = {
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0901 },
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0219 },
+            },
+            crsf = {
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1081 },
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1049 },
+            },
+            crsfLegacy = { nil },
+        },
+    },
+
+    accy = {
+        name = "@i18n(sensors.accy)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5020, unit = UNIT_G, dec = 3,
+                  value = function() return dashx.utils.simSensors('accy') end, -- fixed typo
+                  min = -4000, max = 4000 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0710 }, },
+            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1112 }, },
+            crsfLegacy = { nil },
+        },
+    },
+
+    cell_count = {
+        name = "@i18n(sensors.cell_count)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5018, unit = nil, dec = 0,
+                  value = function() return dashx.utils.simSensors('cell_count') end,
+                  min = 0, max = 50 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5260 }, },
+            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1020 }, },
+            crsfLegacy = { nil },
+        },
+    },
+
+
+    accz = {
+        name = "@i18n(sensors.accz)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5021, unit = UNIT_G, dec = 3,
+                  value = function() return dashx.utils.simSensors('accz') end,
+                  min = -4000, max = 4000 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0720 }, },
+            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1113 }, },
+            crsfLegacy = { nil },
+        },
+    },
+
     attyaw = {
         name = "@i18n(sensors.attyaw)@",
         mandatory = false,
@@ -394,7 +514,10 @@ local sensorTable = {
                   value = function() return dashx.utils.simSensors('attyaw') end,
                   min = -1800, max = 3600 },
             },
-            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5210 }, },
+            sport = { 
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5210 }, 
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0830 },
+            },
             crsf = { "Yaw" },
         },
     },
@@ -409,7 +532,10 @@ local sensorTable = {
                   value = function() return dashx.utils.simSensors('attroll') end,
                   min = -1800, max = 3600 },
             },
-            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730 , subId = 0}, },
+            sport = { 
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730 , subId = 0}, 
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0440 , subId = 0}, 
+            },
             crsf = { "Roll" },
         },
     },
@@ -424,7 +550,10 @@ local sensorTable = {
                   value = function() return dashx.utils.simSensors('attpitch') end,
                   min = -1800, max = 3600 },
             },
-            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1 }, },
+            sport = { 
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1 }, 
+                { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0430, subId = 0 }, 
+            },
             crsf = { "Pitch" },
         },
     },    
@@ -444,6 +573,21 @@ local sensorTable = {
         },
     },  
 
+    groundspeed = {
+        name = "@i18n(sensors.groundspeed)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5025, unit = UNIT_KNOT, dec = 1,
+                  value = function() return dashx.utils.simSensors('groundspeed') end,
+                  min = -1800, max = 3600 },
+            },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0830, subId = 1 }, },
+            crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1128 }, },
+            crsfLegacy = { nil },
+        },
+    },    
     
 }
 

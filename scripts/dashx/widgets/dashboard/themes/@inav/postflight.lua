@@ -16,13 +16,13 @@
 ]]--
 
 
-local utils = inavsuite.widgets.dashboard.utils
+local utils = dashx.widgets.dashboard.utils
 
 local headeropts = utils.getHeaderOptions()
 local colorMode = utils.themeColors()
 
 local function maxVoltageToCellVoltage(value)
-    local cfg = inavsuite.session.batteryConfig
+    local cfg = dashx.session.batteryConfig
     local cells = (cfg and cfg.batteryCellCount) or 3
 
     if cfg and cells and value then
@@ -55,14 +55,14 @@ end
 local function getThemeValue(key)
     -- Use General preferences for TX values
     if key == "tx_min" or key == "tx_warn" or key == "tx_max" then
-        if inavsuite and inavsuite.preferences and inavsuite.preferences.general then
-            local val = inavsuite.preferences.general[key]
+        if dashx and dashx.preferences and dashx.preferences.general then
+            local val = dashx.preferences.general[key]
             if val ~= nil then return tonumber(val) end
         end
     end
     -- Theme defaults for other values
-    if inavsuite and inavsuite.session and inavsuite.session.modelPreferences and inavsuite.session.modelPreferences[theme_section] then
-        local val = inavsuite.session.modelPreferences[theme_section][key]
+    if dashx and dashx.session and dashx.session.modelPreferences and dashx.session.modelPreferences[theme_section] then
+        local val = dashx.session.modelPreferences[theme_section][key]
         val = tonumber(val)
         if val ~= nil then return val end
     end
@@ -120,8 +120,8 @@ local header_layout = utils.standardHeaderLayout(headeropts)
 -- Header Boxes
 local function header_boxes()
     local txbatt_type = 0
-    if inavsuite and inavsuite.preferences and inavsuite.preferences.general then
-        txbatt_type = inavsuite.preferences.general.txbatt_type or 0
+    if dashx and dashx.preferences and dashx.preferences.general then
+        txbatt_type = dashx.preferences.general.txbatt_type or 0
     end
 
     -- Rebuild cache if type changed

@@ -1,1 +1,1 @@
-return math.random(0, 1)
+return math.random(1620, 1980)
