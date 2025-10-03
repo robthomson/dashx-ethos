@@ -583,7 +583,7 @@ local sensorTable = {
                   value = function() return dashx.utils.simSensors('groundspeed') end,
                   min = -1800, max = 3600 },
             },
-            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0830, subId = 1 }, },
+            sport = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0830, subId = 0 }, },
             crsf  = { { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1128 }, },
             crsfLegacy = { nil },
         },
