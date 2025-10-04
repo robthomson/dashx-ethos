@@ -119,6 +119,9 @@ function render.wakeup(box)
 end
 
 function render.paint(x, y, w, h, box)
+
+    w = 350
+    h = 250  
     local c = box._cfg; if not c then return end
     local d = box._dyn; if not d then return end
 

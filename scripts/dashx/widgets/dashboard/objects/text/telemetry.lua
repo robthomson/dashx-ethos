@@ -201,6 +201,6 @@ function render.paint(x, y, w, h, box)
 end
 
 -- Reasonable default refresh
-render.scheduler = 0.5
+render.scheduler = 1
 
 return render

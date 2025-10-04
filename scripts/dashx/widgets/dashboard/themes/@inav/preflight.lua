@@ -128,9 +128,9 @@ local last_txbatt_type = nil
 
 -- Theme Layout
 local layout = {
-    cols    = 30,
-    rows    = 8,
-    padding = 1,
+    cols    = 1,
+    rows    = 1,
+    padding = 0,
     --showgrid = lcd.RGB(100, 100, 100)  -- or any color you prefer
 }
 
@@ -165,147 +165,12 @@ return {
     colspan = 15,
     rowspan = 6,
     type    = "navigation",
-    subtype = "ah",
+    subtype = "all",
     bgcolor = colorMode.bgcolor,
-    showaltitude = false,
-    showgroundspeed = false,
-  },
-  {
-    col     = 1,
-    row     = 7,
-    colspan = 4,
-    rowspan = 2,
-    type    = "text",
-    subtype = "telemetry",
-    source = "gps_sats",
-    unit = "",
-    title   = "SATELITES",
-    titlepos= "bottom",
-    titlecolor = colorMode.titlecolor,
-    textcolor = colorMode.titlecolor,
-    bgcolor = colorMode.bgcolor,
-  },
-    {
-    col     = 5,
-    row     = 7,
-    colspan = 5,
-    rowspan = 2,
-    type    = "text",
-    subtype = "telemetry",
-    source = "groundspeed",
-    unit = "m/s",
-    title   = "GROUNDSPEED",
-    titlepos= "bottom",
-    titlecolor = colorMode.titlecolor,
-    textcolor = colorMode.titlecolor,
-    bgcolor = colorMode.bgcolor,
-  },
-  {
-    col     = 10,
-    row     = 7,
-    colspan = 5,
-    rowspan = 2,
-    type    = "text",
-    subtype = "telemetry",
-    source  = "altitude",
-    title   = "@i18n(widgets.dashboard.altitude):upper()@",
-    titlepos= "bottom",
-    decimals = 0,
-    titlecolor = colorMode.titlecolor,
-    textcolor = colorMode.titlecolor,
-    bgcolor = colorMode.bgcolor,
-  },
-  
-  {
-    type    = "gauge",
-    subtype = "arc",
-    col     = 15,
-    row     = 1,
-    colspan = 8,
-    rowspan = 6,
-    thickness= 25,
-    source  = "smartfuel",
-    unit    = "%",
-    transform = "floor",
-    min     = 0,
-    max     = 100,
-    font    = "FONT_STD",
-    arcbgcolor = colorMode.arcbgcolor,
-    title   = "FUEL",
-    titlepos= "bottom",
-    titlecolor = colorMode.titlecolor,
-    textcolor = colorMode.titlecolor,
-    bgcolor = colorMode.bgcolor,
-    gaugepadding = opts.gaugepadding,
-    valuepaddingtop = opts.valuepaddingtop,
-    --valuepaddingbottom = opts.valuepaddingbottom,
-    --gaugepaddingtop = opts.gaugepaddingtop,
-    thresholds = {
-        { value = 30,  fillcolor = "red",    textcolor = colorMode.textcolor },
-        { value = 50,  fillcolor = "orange", textcolor = colorMode.textcolor },
-        { value = 140, fillcolor = colorMode.fillcolor,  textcolor = colorMode.textcolor }
-    },
-  },
-  {
-    type    = "gauge",
-    subtype = "arc",
-    col     = 23,
-    row     = 1,
-    colspan = 8,
-    rowspan = 6,
-    thickness= 25,
-    source  = "voltage",
-    unit    = "v",
-    --transform = "floor",
-    min     = 0,
-    max     = 100,
-    font    = "FONT_STD",
-    arcbgcolor = colorMode.arcbgcolor,
-    title   = "VOLTAGE",
-    titlepos= "bottom",
-    titlecolor = colorMode.titlecolor,
-    textcolor = colorMode.titlecolor,
-    bgcolor = colorMode.bgcolor,
-    gaugepadding = opts.gaugepadding,
-    valuepaddingtop = opts.valuepaddingtop,
-    --valuepaddingbottom = opts.valuepaddingbottom,
-    --gaugepaddingtop = opts.gaugepaddingtop,
-    thresholds = {
-        { value = 30,  fillcolor = "red",    textcolor = colorMode.textcolor },
-        { value = 50,  fillcolor = "orange", textcolor = colorMode.textcolor },
-        { value = 140, fillcolor = colorMode.fillcolor,  textcolor = colorMode.textcolor }
-    },
   },
 
-   {
-    col     = 15,
-    row     = 7,
-    colspan = 8,
-    rowspan = 2,
-    type    = "time",
-    subtype = "flight",
-    title   = "TIMER",
-    titlepos= "bottom",
-    titlecolor = colorMode.titlecolor,
-    textcolor = colorMode.titlecolor,
-    bgcolor = colorMode.bgcolor,
-  },
-  {
-    col     = 23,
-    row     = 7,
-    colspan = 8,
-    rowspan = 2,
-    type    = "text",
-    subtype = "telemetry",
-    source  = "link",
-    unit    = "dB",
-    title   = "@i18n(widgets.dashboard.lq):upper()@",
-    titlepos= "bottom",
-    transform = "floor",
-    titlecolor = colorMode.titlecolor,
-    textcolor = colorMode.titlecolor,
-    bgcolor = colorMode.bgcolor,
-  },
+ 
+
 }
 end
 
@@ -329,6 +194,6 @@ return {
   scheduler = {
         spread_scheduling = false,         -- (optional: spread scheduling over the interval to avoid spikes in CPU usage) 
         spread_scheduling_paint = false,  -- optional: spread scheduling for paint (if true, paint will be spread over the interval) 
-        spread_ratio = 0.5                -- optional: manually override default ratio logic (applies if spread_scheduling is true)
+        spread_ratio = 0.025                -- optional: manually override default ratio logic (applies if spread_scheduling is true)
   }    
 }

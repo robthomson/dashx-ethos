@@ -150,7 +150,7 @@ dashboard._loader_min_duration = 1.5
 dashboard._loader_start_time = nil
 
 -- ===== Repaint governor ==== ------
-dashboard._minPaintInterval   = 0.025   -- 25ms ≈ 40 FPS; tune between 0.033–0.1
+dashboard._minPaintInterval   = 0.0025   -- 25ms ≈ 40 FPS; tune between 0.033–0.1
 dashboard._lastInvalidateTime = 0
 dashboard._pendingInvalidates = {}     -- queued rects to invalidate
 
@@ -171,7 +171,7 @@ local function _flushInvalidatesRespectingBudget()
     end
 
     -- if many rects, full invalidate is cheaper
-    if #dashboard._pendingInvalidates > 6 then
+    if #dashboard._pendingInvalidates > 10 then
         lcd.invalidate()
         dashboard._pendingInvalidates = {}
         dashboard._lastInvalidateTime = now
@@ -299,7 +299,7 @@ end
 -- @param count number The total number of objects to schedule.
 -- @return number The percentage (as a decimal) of objects to process per cycle.
 local function computeObjectSchedulerPercentage(count)
-    if count <= 10 then return 0.8      -- fewer objects → more per cycle
+    if count <= 10 then return 0.9      -- fewer objects → more per cycle
     elseif count <= 15 then return 0.7
     elseif count <= 25 then return 0.6
     elseif count <= 40 then return 0.5
@@ -631,7 +631,7 @@ function dashboard.renderLayout(widget, config)
     -- Scheduler setup
     if not objectWakeupsPerCycle or #dashboard.boxRects ~= lastBoxRectsCount then
         local count = #dashboard.boxRects
-        local percentage = 1.0 --dashboard._spreadRatioOverride or computeObjectSchedulerPercentage(count)
+        local percentage = dashboard._spreadRatioOverride or computeObjectSchedulerPercentage(count)
 
         if objectsThreadedWakeupCount < 1 then
             percentage = 1.0

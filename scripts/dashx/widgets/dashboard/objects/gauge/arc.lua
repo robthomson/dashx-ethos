@@ -361,4 +361,6 @@ function render.paint(x, y, w, h, box)
     end
 end
 
+render.scheduler = 0.5
+
 return render
