@@ -29,7 +29,7 @@ local sensors   = setmetatable({}, { __mode = "v" })
 local cache_hits, cache_misses = 0, 0
 
 -- LRU for hot sources
-local HOT_SIZE  = 25
+local HOT_SIZE  = 40
 local hot_list, hot_index = {}, {}
 
 local function mark_hot(key)
@@ -588,6 +588,26 @@ local sensorTable = {
             crsfLegacy = { nil },
         },
     },    
+
+    gps_sats = {
+        name = "@i18n(sensors.gps_sats)@",
+        mandatory = false,
+        stats = false,
+        sensors = {
+            sim = {
+                { uid = 0x5026, unit = UNIT_KNOT, dec = 0,
+                  value = function() return dashx.utils.simSensors('gps_sats') end,
+                  min = -1800, max = 3600 },
+            },
+            sport = { 
+                    { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0480, subId = 0 }, 
+                    { category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0410, subId = 0 }, 
+                    },
+            crsfLegacy = { "GPS Sats" },
+        },
+    },    
+    
+
     
 }
 

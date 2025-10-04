@@ -46,6 +46,7 @@ local TELEMETRY_TIMEOUT = 20 -- seconds
 local createSensorList = {}
 createSensorList[0x0430] = {name = "Pitch", unit = UNIT_DEGREE, decimals = 1}
 createSensorList[0x0440] = {name = "Roll", unit = UNIT_DEGREE, decimals = 1}
+createSensorList[0x0480] = {name = "GPS Sats", unit = UNIT_RAW, decimals = 0}
 
 
 -- drop
