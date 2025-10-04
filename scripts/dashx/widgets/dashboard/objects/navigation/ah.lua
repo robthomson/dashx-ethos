@@ -80,20 +80,7 @@ end
 
 -- Only repaint when telemetry-driven display actually changed
 function render.dirty(box)
-    local d = box._dyn
-    if not d then return false end
-    local l = box._last
-    if not l
-        or d.pitch ~= l.pitch
-        or d.roll  ~= l.roll
-        or d.yaw   ~= l.yaw
-        or d.altitude ~= l.altitude
-        or d.groundspeed ~= l.groundspeed
-    then
-        box._last = { pitch = d.pitch, roll = d.roll, yaw = d.yaw, altitude = d.altitude, groundspeed = d.groundspeed }
-        return true
-    end
-    return false
+    return true
 end
 
 function render.wakeup(box)
@@ -110,13 +97,17 @@ function render.wakeup(box)
     local altitude    = getSensor("altitude")    or 0
     local groundspeed = getSensor("groundspeed") or 0
     
+    local alpha = 0.75  -- 0 < alpha <= 1 (lower = smoother, slower)
+    local function smooth(prev, new)
+        if prev == nil then return new end
+        return prev + alpha * (new - prev)
+    end
 
-    
     box._dyn = {
-        pitch = pitch,
-        roll = roll,
-        yaw = yaw,
-        altitude = altitude,
+        pitch = smooth((box._dyn and box._dyn.pitch), pitch),
+        roll  = smooth((box._dyn and box._dyn.roll),  roll),
+        yaw   = smooth((box._dyn and box._dyn.yaw),   yaw),
+        altitude    = altitude,
         groundspeed = groundspeed,
     }
 end
@@ -277,6 +268,6 @@ function render.paint(x, y, w, h, box)
 end
 
 -- Update rate similar to original (fluid horizon)
-render.scheduler = 0.01
+render.scheduler = 0.00025
 
 return render

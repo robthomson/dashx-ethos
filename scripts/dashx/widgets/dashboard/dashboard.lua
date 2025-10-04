@@ -631,7 +631,7 @@ function dashboard.renderLayout(widget, config)
     -- Scheduler setup
     if not objectWakeupsPerCycle or #dashboard.boxRects ~= lastBoxRectsCount then
         local count = #dashboard.boxRects
-        local percentage = dashboard._spreadRatioOverride or computeObjectSchedulerPercentage(count)
+        local percentage = 1.0 --dashboard._spreadRatioOverride or computeObjectSchedulerPercentage(count)
 
         if objectsThreadedWakeupCount < 1 then
             percentage = 1.0
