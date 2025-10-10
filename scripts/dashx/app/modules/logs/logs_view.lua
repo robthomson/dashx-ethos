@@ -337,7 +337,7 @@ local function drawKey(name, keyunit, keyminmax, keyfloor, color, minimum, maxim
     -- 10000rpm is prob never going to be hit
     -- but we are safe!
     local min_trunc
-    if keyunit == "rpm" and (minimum >= 10000 or maximum >= 10000) then
+    if keyunit == "rpm" and (minimum >= 100000 or maximum >= 1000000) then
         min_trunc = string.format("%.1fK", minimum / 10000)
         max_trunc = string.format("%.1fK", maximum / 10000)
     end
@@ -349,7 +349,7 @@ local function drawKey(name, keyunit, keyminmax, keyfloor, color, minimum, maxim
         max_str = " ↑ " .. (max_trunc or maximum) .. keyunit
     else
         min_str = ""
-        max_str = "↑ " .. (max_trun or maximum) .. keyunit
+        max_str = "↑ " .. (max_trunc or maximum) .. keyunit
     end
 
     -- left align min value
