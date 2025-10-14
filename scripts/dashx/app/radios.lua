@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 local LCD_W, LCD_H = dashx.utils.getWindowSize()
 local resolution = LCD_W .. "x" .. LCD_H
 

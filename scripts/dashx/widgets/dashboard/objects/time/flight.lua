@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Flight Time Widget
     Configurable Parameters (box table fields):

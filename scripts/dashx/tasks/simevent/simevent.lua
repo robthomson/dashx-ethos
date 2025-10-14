@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 -- simevent.lua
 local simevent = {}
 

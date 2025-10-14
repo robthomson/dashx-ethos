@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Flight Count Widget
     Configurable Parameters (box table fields):

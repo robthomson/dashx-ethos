@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Attitude Horizon Widget (AH)
     Configurable Parameters (box table fields):

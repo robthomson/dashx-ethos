@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
 
  * Copyright (C) DASHX Project
@@ -45,7 +46,7 @@
 
 -- keep these constant / cheap definitions at file scope
 local utils = dashx.utils
-local compiler = dashx.compiler.loadfile
+local compiler = loadfile
 
 local currentTelemetrySensor
 local tasksPerCycle

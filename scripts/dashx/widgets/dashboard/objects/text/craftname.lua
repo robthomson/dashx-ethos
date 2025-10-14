@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Craft Name Widget
     Configurable Parameters (box table fields):

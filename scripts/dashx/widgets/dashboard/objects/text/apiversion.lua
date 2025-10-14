@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     API Version Widget
     Configurable Parameters (box table fields):

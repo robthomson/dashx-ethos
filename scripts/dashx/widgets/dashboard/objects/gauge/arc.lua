@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Arc Gauge Widget
     Configurable Parameters (box table fields):

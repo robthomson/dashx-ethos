@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Governor State Widget
     Configurable Parameters (box table fields):

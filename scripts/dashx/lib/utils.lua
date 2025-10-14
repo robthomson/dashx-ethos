@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
 
  * Copyright (C) dashx Project
@@ -556,7 +557,7 @@ function utils.findModules()
         if v ~= ".." and v ~= "." and not v:match("%.%a+$") then
             local init_path = modules_path .. v .. '/init.lua'
 
-            local func, err = dashx.compiler.loadfile(init_path)
+            local func, err = loadfile(init_path)
             if not func then
                 dashx.utils.log("Failed to load module init " .. init_path .. ": " .. err, "info")
             else
@@ -599,7 +600,7 @@ function utils.findWidgets()
         if v ~= ".." and v ~= "." and not v:match("%.%a+$") then
             local init_path = widgets_path .. v .. '/init.lua'
             -- try loading directly
-            local func, err = dashx.compiler.loadfile(init_path)
+            local func, err = loadfile(init_path)
             if not func then
                 dashx.utils.log(
                   "Failed to load widget init " .. init_path .. ": " .. err,

@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
 
  * Copyright (C) dashx Project
@@ -24,7 +25,7 @@ app.initialized = false
 
 local utils = dashx.utils
 local log = utils.log
-local compile = dashx.compiler.loadfile
+local compile = loadfile
 
 local arg = {...}
 

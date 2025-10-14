@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Stats Display Widget
     Configurable Parameters (box table fields):

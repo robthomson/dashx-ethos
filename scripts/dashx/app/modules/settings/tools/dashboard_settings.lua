@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 
 
 local themesBasePath = "SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/themes/"

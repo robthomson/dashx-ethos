@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 
 
 
@@ -79,7 +80,7 @@ local function openPage(pidx, title, script)
     if dashx.preferences.menulastselected["settings_dashboard"] == nil then dashx.preferences.menulastselected["settings_dashboard"] = 1 end
 
 
-    local Menu = assert(dashx.compiler.loadfile("app/modules/" .. script))()
+    local Menu = assert(loadfile("app/modules/" .. script))()
     local pages = S_PAGES
     local lc = 0
     local bx = 0

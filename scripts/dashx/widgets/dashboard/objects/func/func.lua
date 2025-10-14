@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Custom Function Widget
     Configurable Arguments (box table keys):

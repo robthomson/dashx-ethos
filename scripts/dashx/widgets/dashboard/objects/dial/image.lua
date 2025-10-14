@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Dial Image Widget
     Configurable Parameters (box table fields):

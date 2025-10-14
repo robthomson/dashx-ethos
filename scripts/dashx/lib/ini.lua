@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 local ini = {}
 
 -- Reads a file's full contents into a string, compatible with limited Lua

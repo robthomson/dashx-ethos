@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
 
  * Copyright (C) dashx Project
@@ -29,7 +30,7 @@ local delayDuration = 2  -- seconds
 local delayStartTime = nil
 local delayPending = false
 
-local smart = assert(dashx.compiler.loadfile("tasks/sensors/smart.lua"))(config)
+local smart = assert(loadfile("tasks/sensors/smart.lua"))(config)
 
 local log = dashx.utils.log
 local tasks = dashx.tasks
@@ -58,12 +59,12 @@ local function loadSensorModule()
     if system:getVersion().simulation == true then
         if not loadedSensorModule or loadedSensorModule.name ~= "sim" then
             --log("Loading Simulator sensor module","info")
-            loadedSensorModule = {name = "sim", module = assert(dashx.compiler.loadfile("tasks/sensors/sim.lua"))(config)}
+            loadedSensorModule = {name = "sim", module = assert(loadfile("tasks/sensors/sim.lua"))(config)}
         end 
     elseif protocol == "sport" then
         if not loadedSensorModule or loadedSensorModule.name ~= "frsky" then
             --log("Loading FrSky sensor module","info")
-            loadedSensorModule = {name = "frsky", module = assert(dashx.compiler.loadfile("tasks/sensors/frsky.lua"))(config)}
+            loadedSensorModule = {name = "frsky", module = assert(loadfile("tasks/sensors/frsky.lua"))(config)}
         end
     else
         loadedSensorModule = nil  -- No matching sensor, clear to save memory

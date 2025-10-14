@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Telemetry Value Widget
     Configurable Parameters (box table fields):

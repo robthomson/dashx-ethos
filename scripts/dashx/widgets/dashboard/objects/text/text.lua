@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Text Display Widget (Static/Label)
 

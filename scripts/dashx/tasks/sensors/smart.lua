@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
 
  * Copyright (C) dashx Project
@@ -58,8 +59,8 @@
 
 local smart = {}
 
-local smartfuel = assert(dashx.compiler.loadfile("tasks/sensors/lib/smartfuel.lua"))()
-local smartfuelvoltage = assert(dashx.compiler.loadfile("tasks/sensors/lib/smartfuelvoltage.lua"))()
+local smartfuel = assert(loadfile("tasks/sensors/lib/smartfuel.lua"))()
+local smartfuelvoltage = assert(loadfile("tasks/sensors/lib/smartfuelvoltage.lua"))()
 
 -- container vars
 local log

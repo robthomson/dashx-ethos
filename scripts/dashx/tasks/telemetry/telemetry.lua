@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[ 
  * Copyright (C) dashx Project
  *
@@ -318,7 +319,7 @@ local sensorTable = {
     },
 
     altitude = {
-        name = "@i18n(sensors.altitude)@",
+        name = "@i18n(telemetry.sensors.altitude)@",
         mandatory = false,
         stats = true,
         switch_alerts = true,
@@ -430,7 +431,7 @@ local sensorTable = {
     },
 
     bec_voltage = {
-        name = "@i18n(sensors.bec_voltage)@",
+        name = "@i18n(telemetry.sensors.bec_voltage)@",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 43,

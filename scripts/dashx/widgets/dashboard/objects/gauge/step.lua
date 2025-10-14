@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Step Bar Widget
     Configurable Parameters (box table fields):
