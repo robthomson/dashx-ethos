@@ -12,10 +12,10 @@ dashx.session = {}
 local dashx = {}
 package.loaded.dashx = dashx
 
--- If you still want to ban accidental globals in this chunk:
+-- Print warning if accidental global created
 local _ENV = setmetatable({ dashx = dashx }, {
   __index = _G,
-  __newindex = function(_, k) error("attempt to create global '"..tostring(k).."'", 2) end
+  __newindex = function(_, k) print("attempt to create global '"..tostring(k).."'", 2) end
 })
 -- initialise legacy font if not already set (ethos 1.6 vs 1.7)
 if not FONT_M then FONT_M = FONT_STD end

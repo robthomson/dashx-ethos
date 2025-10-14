@@ -175,7 +175,7 @@ end
 function tasks.initialize()
     local cacheFile, cachePath = "tasks.lua", "cache/tasks.lua"
     if io.open(cachePath, "r") then
-        local ok, cached = pcall(dashx.compiler.dofile, cachePath)
+        local ok, cached = pcall(dofile, cachePath)
         if ok and type(cached) == "table" then
             tasks._initMetadata = cached
             utils.log("[cache] Loaded task metadata from cache", "info")
@@ -188,7 +188,7 @@ function tasks.initialize()
         for _, dir in pairs(system.listFiles(taskPath)) do
             if dir ~= "." and dir ~= ".." and not dir:match("%.%a+$") then
                 local initPath = taskPath .. dir .. "/init.lua"
-                local func, err = compiler(initPath)
+                local func, err = loadfile(initPath)
                 if err then
                     utils.log("Error loading " .. initPath .. ": " .. err, "info")
                 elseif func then
@@ -221,7 +221,7 @@ function tasks.findTasks()
     for _, dir in pairs(system.listFiles(taskPath)) do
         if dir ~= "." and dir ~= ".." and not dir:match("%.%a+$") then
             local initPath = taskPath .. dir .. "/init.lua"
-            local func, err = compiler(initPath)
+            local func, err = loadfile(initPath)
             if err then
                 utils.log("Error loading " .. initPath .. ": " .. err, "info")
             elseif func then
@@ -230,7 +230,7 @@ function tasks.findTasks()
                     utils.log("Invalid configuration in " .. initPath, "debug")
                 else
                     local scriptPath = taskPath .. dir .. "/" .. tconfig.script
-                    local fn, loadErr = compiler(scriptPath)
+                    local fn, loadErr = loadfile(scriptPath)
                     if fn then
                         tasks[dir] = fn(config)  -- assumes global 'config'
                     else
@@ -428,7 +428,7 @@ function tasks.wakeup()
         if key then
             local meta = tasks._initMetadata[key]
             if meta.init then
-                local initFn, err = compiler(meta.init)
+                local initFn, err = loadfile(meta.init)
                 if initFn then
                     pcall(initFn)
                 else
@@ -436,7 +436,7 @@ function tasks.wakeup()
                 end
             end
             local script = "tasks/" .. key .. "/" .. meta.script
-            local module = assert(compiler(script))(config) -- assumes global 'config'
+            local module = assert(loadfile(script))(config) -- assumes global 'config'
             tasks[key] = module
 
             if meta.interval >= 0 then
