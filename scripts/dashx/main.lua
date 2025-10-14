@@ -8,13 +8,15 @@
 local dashx = {}
 dashx.session = {}
 
--- Shared environment so every chunk sees `dashx` without touching _G
-local ENV = setmetatable({ dashx = dashx }, {
-  __index = _G,
-  -- Uncomment to forbid accidental globals from modules:
-   __newindex = function(_, k) error("attempt to create global '"..tostring(k).."'", 2) end
-})
+-- Namespace for the suite (kept local; not global)
+local dashx = {}
+package.loaded.dashx = dashx
 
+-- If you still want to ban accidental globals in this chunk:
+local _ENV = setmetatable({ dashx = dashx }, {
+  __index = _G,
+  __newindex = function(_, k) error("attempt to create global '"..tostring(k).."'", 2) end
+})
 -- initialise legacy font if not already set (ethos 1.6 vs 1.7)
 if not FONT_M then FONT_M = FONT_STD end
 
@@ -37,7 +39,7 @@ config.watchdogParam = 10
 dashx.config = config
 
 -- INI utilities (never compiled) loaded inside ENV
-dashx.ini = assert(loadfile("lib/ini.lua", "t", ENV))(config)
+dashx.ini = assert(loadfile("lib/ini.lua", "t", _ENV))(config)
 
 -- set defaults for user preferences
 local userpref_defaults ={
@@ -94,17 +96,14 @@ end
 dashx.config.bgTaskName = dashx.config.toolName .. " [Background]"
 dashx.config.bgTaskKey = "dshxbg"
 
--- compiler (loaded into ENV so it can load the rest into the same ENV)
-dashx.compiler = assert(loadfile("lib/compile.lua","t",ENV))(dashx.config)
-
 -- library with utility functions used throughout the suite
-dashx.utils = assert(dashx.compiler.loadfile("lib/utils.lua"))(dashx.config)
+dashx.utils = assert(loadfile("lib/utils.lua"))(dashx.config)
 
 -- main app
-dashx.app = assert(dashx.compiler.loadfile("app/app.lua"))(dashx.config)
+dashx.app = assert(loadfile("app/app.lua"))(dashx.config)
 
 -- tasks
-dashx.tasks = assert(dashx.compiler.loadfile("tasks/tasks.lua"))(dashx.config)
+dashx.tasks = assert(loadfile("tasks/tasks.lua"))(dashx.config)
 
 -- configure the flight mode
 dashx.flightmode = { current = "preflight" }
@@ -177,7 +176,7 @@ local function init()
   local cachePath = "cache/" .. cacheFile
   local widgetList
 
-  local loadf, loadErr = dashx.compiler.loadfile(cachePath)
+  local loadf, loadErr = loadfile(cachePath)
   if loadf then
     local ok, cached = pcall(loadf)
     if ok and type(cached) == "table" then
@@ -198,7 +197,7 @@ local function init()
   dashx.widgets = {}
   for _, v in ipairs(widgetList) do
     if v.script then
-      local scriptModule = assert(dashx.compiler.loadfile("widgets/" .. v.folder .. "/" .. v.script))(config)
+      local scriptModule = assert(loadfile("widgets/" .. v.folder .. "/" .. v.script))(config)
       local varname = v.varname or v.script:gsub("%.lua$", "")
       if dashx.widgets[varname] then
         math.randomseed(os.time())

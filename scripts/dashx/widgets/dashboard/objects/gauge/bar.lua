@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Bar Gauge Widget
     Configurable Parameters (box table fields):

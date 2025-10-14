@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
  * Copyright (C) dashx Project
  *

@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[ 
     PID/Rates Profile Display Object
 

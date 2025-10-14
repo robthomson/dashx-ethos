@@ -1,4 +1,5 @@
-local utils = assert(dashx.compiler.loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
+local dashx = require("dashx")
+local utils = assert(loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
 
 local triggerOverRide = false
 local triggerOverRideAll = false

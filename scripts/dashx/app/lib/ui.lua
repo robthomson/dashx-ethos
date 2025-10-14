@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
 
  * Copyright (C) dashx Project
@@ -961,7 +962,7 @@ local function getHelpData(section)
     local helpPath = "app/modules/" .. section .. "/help.lua"
     if dashx.utils.file_exists(helpPath) then
       local ok, helpData = pcall(function()
-        return assert(dashx.compiler.loadfile(helpPath))()
+        return assert(loadfile(helpPath))()
       end)
       ui._helpCache[section] = (ok and type(helpData)=="table") and helpData or false
     else
@@ -1005,14 +1006,14 @@ function ui.openPage(idx, title, script, extra1, extra2, extra3, extra5, extra6)
     -- Load the module
     local modulePath = "app/modules/" .. script
 
-    dashx.app.Page = assert(dashx.compiler.loadfile(modulePath))(idx)
+    dashx.app.Page = assert(loadfile(modulePath))(idx)
 
     -- Load the help file if it exists
     local section = script:match("([^/]+)")
     local helpData = getHelpData(section)
     dashx.app.fieldHelpTxt = helpData and helpData.fields or nil
 
-   -- dashx.app.Page = assert(dashx.compiler.loadfile(modulePath))(idx)
+   -- dashx.app.Page = assert(loadfile(modulePath))(idx)
     -- If the Page has its own openPage function, use it and return early
     if dashx.app.Page.openPage then
         dashx.app.Page.openPage(idx, title, script, extra1, extra2, extra3, extra5, extra6)
@@ -1094,7 +1095,7 @@ function ui.openPageDashboard(idx, title, script, source, folder)
     -- Load the module
     local modulePath =  script
 
-    dashx.app.Page = assert(dashx.compiler.loadfile(modulePath))(idx)
+    dashx.app.Page = assert(loadfile(modulePath))(idx)
 
     -- load up the menu
     local w, h = dashx.utils.getWindowSize()

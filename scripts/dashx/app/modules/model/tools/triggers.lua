@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 
 local enableWakeup = false
 

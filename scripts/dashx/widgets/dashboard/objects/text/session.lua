@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Session Value Widget
     Configurable Parameters (box table fields):

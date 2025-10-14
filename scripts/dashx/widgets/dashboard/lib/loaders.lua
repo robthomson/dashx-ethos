@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 -- loaders.lua
 local loaders = {}
 

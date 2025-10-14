@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 local wrapper = {}
 
 local renders = dashx.widgets.dashboard.renders
@@ -39,7 +40,7 @@ function wrapper.wakeup(box)
 
     if not renders[subtype] then
         local path = folder .. subtype .. ".lua"
-        local loader = dashx.compiler.loadfile(path)
+        local loader = loadfile(path)
         if loader then
             renders[subtype] = loader()
         else

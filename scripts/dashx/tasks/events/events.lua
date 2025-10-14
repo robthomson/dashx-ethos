@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
  * Copyright (C) dashx Project
  *
@@ -28,7 +29,7 @@ local taskExecutionPercent = 50 -- 50% of tasks will run each cycle
 
 -- Dynamically load task modules and populate wakeupHandlers
 for _, name in ipairs(taskNames) do
-    events[name] = assert(dashx.compiler.loadfile("tasks/events/tasks/" .. name .. ".lua"))(dashx.config)
+    events[name] = assert(loadfile("tasks/events/tasks/" .. name .. ".lua"))(dashx.config)
     table.insert(wakeupHandlers, function() events[name].wakeup() end)
 end
 

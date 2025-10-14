@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Arm Flags Widget
     Configurable Parameters (box table fields):

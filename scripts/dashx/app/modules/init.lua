@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
 
  * Copyright (C) dashx Project
@@ -19,7 +20,7 @@
 
 ]] --
 local pages = {}
-local sections = dashx.compiler.loadfile("app/modules/sections.lua")()
+local sections = loadfile("app/modules/sections.lua")()
 
 -- find the modules (this should already have been done in the tasks/tasks.lua script but we catch and retry on the offchance it hasn't)
 if dashx.app.moduleList == nil then dashx.app.moduleList = dashx.utils.findModules() end

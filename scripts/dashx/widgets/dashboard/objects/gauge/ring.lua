@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Rainbow Gauge Widget
     Configurable Parameters (box table fields):

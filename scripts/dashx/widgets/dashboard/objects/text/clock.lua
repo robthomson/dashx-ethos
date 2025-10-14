@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Clock Widget
     Configurable Parameters (box table fields):

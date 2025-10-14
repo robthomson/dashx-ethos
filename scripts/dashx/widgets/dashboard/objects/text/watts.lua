@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Dynamic Power (Watts) Display Widget
 

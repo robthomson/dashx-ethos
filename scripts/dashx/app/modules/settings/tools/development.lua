@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 local settings = {}
 local enableWakeup = false
 
@@ -34,23 +35,6 @@ formFieldCount = formFieldCount + 1
                                                                 settings.devtools = newValue
                                                             end    
                                                         end)    
-
-
-    formFieldCount = formFieldCount + 1
-    dashx.session.formLineCnt = dashx.session.formLineCnt + 1
-    dashx.app.formLines[dashx.session.formLineCnt] = form.addLine("@i18n(app.modules.settings.txt_compilation)@")
-    dashx.app.formFields[formFieldCount] = form.addBooleanField(dashx.app.formLines[dashx.session.formLineCnt], 
-                                                        nil, 
-                                                        function() 
-                                                            if dashx.preferences and dashx.preferences.developer then
-                                                                return settings['compile'] 
-                                                            end
-                                                        end, 
-                                                        function(newValue) 
-                                                            if dashx.preferences and dashx.preferences.developer then
-                                                                settings.compile = newValue
-                                                            end    
-                                                        end)                                                        
 
 
 

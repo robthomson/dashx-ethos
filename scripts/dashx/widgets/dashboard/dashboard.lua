@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
  * Copyright (C) Rotorflight Project
  *
@@ -19,7 +20,7 @@
 local dashboard = {}  -- main namespace for all dashboard functionality
 
 -- cache some functions and variables for performance
-local compile = dashx.compiler.loadfile
+local compile = loadfile
 
 local baseDir = dashx.config.baseDir
 local preferences = dashx.config.preferences

@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 --[[
     Image Box Widget
     Configurable Parameters (box table fields):

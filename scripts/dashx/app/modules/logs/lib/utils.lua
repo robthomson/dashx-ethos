@@ -1,3 +1,4 @@
+local dashx = require("dashx")
 local utils = {}
 
 --- Resolves model name from telemetry folder's configuration file
