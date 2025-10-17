@@ -1,3 +1,8 @@
+--[[
+  Copyright (C) 2025 Rob Thomson
+  GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
+]] --
+
 local dashx = require("dashx")
 local utils = assert(loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
 
@@ -15,35 +20,23 @@ local function getCleanModelName()
     return logdir
 end
 
-
 local function extractHourMinute(filename)
-    -- Capture hour and minute from the time-portion (HH-MM-SS) after the underscore
+
     local hour, minute = filename:match(".-%d%d%d%d%-%d%d%-%d%d_(%d%d)%-(%d%d)%-%d%d")
-    if hour and minute then
-        return hour .. ":" .. minute
-    end
+    if hour and minute then return hour .. ":" .. minute end
     return nil
 end
 
 local function format_date(iso_date)
-  local y, m, d = iso_date:match("^(%d+)%-(%d+)%-(%d+)$")
-  return os.date("%d %B %Y", os.time{
-    year  = tonumber(y),
-    month = tonumber(m),
-    day   = tonumber(d),
-  })
+    local y, m, d = iso_date:match("^(%d+)%-(%d+)%-(%d+)$")
+    return os.date("%d %B %Y", os.time {year = tonumber(y), month = tonumber(m), day = tonumber(d)})
 end
 
 local function openPage(pidx, title, script, displaymode)
 
-    -- hard exit on error
-    if not dashx.utils.ethosVersionAtLeast() then
-        return
-    end
-
+    if not dashx.utils.ethosVersionAtLeast() then return end
 
     currentDisplayMode = displaymode
-
 
     dashx.app.triggers.isReady = false
     dashx.app.uiState = dashx.app.uiStatus.pages
@@ -62,27 +55,25 @@ local function openPage(pidx, title, script, displaymode)
     local sc
     local panel
 
-     local logDir = utils.getLogPath()
+    local logDir = utils.getLogPath()
 
-    local logs = utils.getLogs(logDir)   
-
-
+    local logs = utils.getLogs(logDir)
 
     local name = utils.resolveModelName(dashx.session.mcu_id or dashx.session.activeLogDir)
-    dashx.app.ui.fieldHeader("Logs" )
+    dashx.app.ui.fieldHeader("Logs")
 
     local buttonW
     local buttonH
     local padding
     local numPerRow
 
-   if dashx.preferences.general.iconsize == 0 then
+    if dashx.preferences.general.iconsize == 0 then
         padding = dashx.app.radio.buttonPaddingSmall
         buttonW = (dashx.session.lcdWidth - padding) / dashx.app.radio.buttonsPerRow - padding
         buttonH = dashx.app.radio.navbuttonHeight
         numPerRow = dashx.app.radio.buttonsPerRow
     end
-    -- SMALL ICONS
+
     if dashx.preferences.general.iconsize == 1 then
 
         padding = dashx.app.radio.buttonPaddingSmall
@@ -90,7 +81,7 @@ local function openPage(pidx, title, script, displaymode)
         buttonH = dashx.app.radio.buttonHeightSmall
         numPerRow = dashx.app.radio.buttonsPerRowSmall
     end
-    -- LARGE ICONS
+
     if dashx.preferences.general.iconsize == 2 then
 
         padding = dashx.app.radio.buttonPadding
@@ -98,7 +89,6 @@ local function openPage(pidx, title, script, displaymode)
         buttonH = dashx.app.radio.buttonHeight
         numPerRow = dashx.app.radio.buttonsPerRow
     end
-
 
     local x = windowWidth - buttonW + 10
 
@@ -111,7 +101,6 @@ local function openPage(pidx, title, script, displaymode)
     if dashx.app.gfx_buttons["logs"] == nil then dashx.app.gfx_buttons["logs"] = {} end
     if dashx.preferences.menulastselected["logs_logs"] == nil then dashx.preferences.menulastselected["logs_logs"] = 1 end
 
-    -- Group logs by date
     local groupedLogs = {}
     for _, filename in ipairs(logs) do
         local datePart = filename:match("(%d%d%d%d%-%d%d%-%d%d)_")
@@ -121,11 +110,9 @@ local function openPage(pidx, title, script, displaymode)
         end
     end
 
-    -- Sort dates descending
     local dates = {}
-    for date,_ in pairs(groupedLogs) do table.insert(dates, date) end
-    table.sort(dates, function(a,b) return a > b end)
-
+    for date, _ in pairs(groupedLogs) do table.insert(dates, date) end
+    table.sort(dates, function(a, b) return a > b end)
 
     if #dates == 0 then
 
@@ -148,51 +135,43 @@ local function openPage(pidx, title, script, displaymode)
 
         for idx, section in ipairs(dates) do
 
-                form.addLine(format_date(section))
-                local lc, y = 0, 0
+            form.addLine(format_date(section))
+            local lc, y = 0, 0
 
-                for pidx, page in ipairs(groupedLogs[section]) do
+            for pidx, page in ipairs(groupedLogs[section]) do
 
-                            if lc == 0 then
-                                y = form.height() + (dashx.preferences.general.iconsize == 2 and dashx.app.radio.buttonPadding or dashx.app.radio.buttonPaddingSmall)
-                            end
+                if lc == 0 then y = form.height() + (dashx.preferences.general.iconsize == 2 and dashx.app.radio.buttonPadding or dashx.app.radio.buttonPaddingSmall) end
 
-                            local x = (buttonW + padding) * lc
-                            if dashx.preferences.general.iconsize ~= 0 then
-                                if dashx.app.gfx_buttons["logs_logs"][pidx] == nil then dashx.app.gfx_buttons["logs_logs"][pidx] = lcd.loadMask("app/modules/logs/gfx/logs.png") end
-                            else
-                                dashx.app.gfx_buttons["logs_logs"][pidx] = nil
-                            end
-
-                            dashx.app.formFields[pidx] = form.addButton(line, {x = x, y = y, w = buttonW, h = buttonH}, {
-                                text = extractHourMinute(page),
-                                icon = dashx.app.gfx_buttons["logs_logs"][pidx],
-                                options = FONT_S,
-                                paint = function() end,
-                                press = function()
-                                    dashx.preferences.menulastselected["logs_logs"] = tostring(idx) .. "_" .. tostring(pidx)
-                                    dashx.app.ui.progressDisplay()
-                                    dashx.app.ui.openPage(pidx, "Logs", "logs/logs_view.lua", page)                       
-                                end
-                            })
-
-                            if dashx.preferences.menulastselected["logs_logs"] == tostring(idx) .. "_" .. tostring(pidx) then
-                                dashx.app.formFields[pidx]:focus()
-                            end
-
-                            if not dashx.tasks or not dashx.tasks.active() then
-                                dashx.app.formFields[pidx]:enable(false)
-                            end
-
-                            lc = (lc + 1) % numPerRow
-
+                local x = (buttonW + padding) * lc
+                if dashx.preferences.general.iconsize ~= 0 then
+                    if dashx.app.gfx_buttons["logs_logs"][pidx] == nil then dashx.app.gfx_buttons["logs_logs"][pidx] = lcd.loadMask("app/modules/logs/gfx/logs.png") end
+                else
+                    dashx.app.gfx_buttons["logs_logs"][pidx] = nil
                 end
 
-        end   
+                dashx.app.formFields[pidx] = form.addButton(line, {x = x, y = y, w = buttonW, h = buttonH}, {
+                    text = extractHourMinute(page),
+                    icon = dashx.app.gfx_buttons["logs_logs"][pidx],
+                    options = FONT_S,
+                    paint = function() end,
+                    press = function()
+                        dashx.preferences.menulastselected["logs_logs"] = tostring(idx) .. "_" .. tostring(pidx)
+                        dashx.app.ui.progressDisplay()
+                        dashx.app.ui.openPage(pidx, "Logs", "logs/logs_view.lua", page)
+                    end
+                })
 
-            
+                if dashx.preferences.menulastselected["logs_logs"] == tostring(idx) .. "_" .. tostring(pidx) then dashx.app.formFields[pidx]:focus() end
+
+                if not dashx.tasks or not dashx.tasks.active() then dashx.app.formFields[pidx]:enable(false) end
+
+                lc = (lc + 1) % numPerRow
+
+            end
+
+        end
+
     end
-
 
     dashx.app.triggers.closeProgressLoader = true
 
@@ -202,39 +181,15 @@ local function openPage(pidx, title, script, displaymode)
 end
 
 local function event(widget, category, value, x, y)
-    if  value == 35 then
+    if value == 35 then
         dashx.app.ui.openMainMenu()
         return true
     end
     return false
 end
 
-local function wakeup()
+local function wakeup() if enableWakeup == true then end end
 
-    if enableWakeup == true then
+local function onNavMenu() dashx.app.ui.openMainMenu() end
 
-    end
-
-end
-
-local function onNavMenu()
-
-      --dashx.app.ui.openPage(dashx.app.lastIdx, dashx.app.lastTitle, "logs/logs_dir.lua")
-    dashx.app.ui.openMainMenu()
-
-end
-
-return {
-    event = event,
-    openPage = openPage,
-    wakeup = wakeup,
-    onNavMenu = onNavMenu,
-    navButtons = {
-        menu = true,
-        save = false,
-        reload = false,
-        tool = false,
-        help = true
-    },
-    API = {},
-}
+return {event = event, openPage = openPage, wakeup = wakeup, onNavMenu = onNavMenu, navButtons = {menu = true, save = false, reload = false, tool = false, help = true}, API = {}}
