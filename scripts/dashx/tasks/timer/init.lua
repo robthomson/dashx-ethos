@@ -1,27 +1,9 @@
-local dashx = require("dashx")
 --[[
- * Copyright (C) dashx Project
- *
- *
- * License GPLv3: https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- 
- * Note.  Some icons have been sourced from https://www.flaticon.com/
- * 
+  Copyright (C) 2025 Rob Thomson
+  GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
-local init = {
-    interval        = 0.025,        -- run every 0.025 seconds
-    script          = "timer.lua", -- run this script
-    linkrequired    = true,         -- run this script only if link is established
-    spreadschedule  = false,         -- run on every loop
-    simulatoronly   = false,        -- run this script in simulation mode
-}
+
+local dashx = require("dashx")
+
+local init = {interval = 0.025, script = "timer.lua", linkrequired = true, spreadschedule = false, simulatoronly = false}
 return init

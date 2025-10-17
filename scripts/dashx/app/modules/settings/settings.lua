@@ -1,17 +1,17 @@
+--[[
+  Copyright (C) 2025 Rob Thomson
+  GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
+]] --
+
 local dashx = require("dashx")
 
-
 local S_PAGES = {
-    {name = "@i18n(app.modules.settings.txt_general)@", script = "general.lua", image = "general.png"},
-    {name = "@i18n(app.modules.settings.dashboard)@", script = "dashboard.lua", image = "dashboard.png"},
-    {name = "@i18n(app.modules.settings.localizations)@", script = "localizations.lua", image = "localizations.png"},
-    {name = "@i18n(app.modules.settings.audio)@", script = "audio.lua", image = "audio.png"},
-    {name = "@i18n(app.modules.settings.txt_development)@", script = "development.lua", image = "development.png"},
+    {name = "@i18n(app.modules.settings.txt_general)@", script = "general.lua", image = "general.png"}, {name = "@i18n(app.modules.settings.dashboard)@", script = "dashboard.lua", image = "dashboard.png"},
+    {name = "@i18n(app.modules.settings.localizations)@", script = "localizations.lua", image = "localizations.png"}, {name = "@i18n(app.modules.settings.audio)@", script = "audio.lua", image = "audio.png"},
+    {name = "@i18n(app.modules.settings.txt_development)@", script = "development.lua", image = "development.png"}
 }
 
 local function openPage(pidx, title, script)
-
-
 
     dashx.app.triggers.isReady = false
     dashx.app.uiState = dashx.app.uiStatus.mainMenu
@@ -22,9 +22,6 @@ local function openPage(pidx, title, script)
     dashx.app.lastTitle = title
     dashx.app.lastScript = script
 
-
-
-    -- size of buttons
     if dashx.preferences.general.iconsize == nil or dashx.preferences.general.iconsize == "" then
         dashx.preferences.general.iconsize = 1
     else
@@ -48,8 +45,7 @@ local function openPage(pidx, title, script)
         text = "MENU",
         icon = nil,
         options = FONT_S,
-        paint = function()
-        end,
+        paint = function() end,
         press = function()
             dashx.app.lastIdx = nil
             dashx.session.lastPage = nil
@@ -66,15 +62,13 @@ local function openPage(pidx, title, script)
     local padding
     local numPerRow
 
-    -- TEXT ICONS
-    -- TEXT ICONS
     if dashx.preferences.general.iconsize == 0 then
         padding = dashx.app.radio.buttonPaddingSmall
         buttonW = (dashx.session.lcdWidth - padding) / dashx.app.radio.buttonsPerRow - padding
         buttonH = dashx.app.radio.navbuttonHeight
         numPerRow = dashx.app.radio.buttonsPerRow
     end
-    -- SMALL ICONS
+
     if dashx.preferences.general.iconsize == 1 then
 
         padding = dashx.app.radio.buttonPaddingSmall
@@ -82,7 +76,7 @@ local function openPage(pidx, title, script)
         buttonH = dashx.app.radio.buttonHeightSmall
         numPerRow = dashx.app.radio.buttonsPerRowSmall
     end
-    -- LARGE ICONS
+
     if dashx.preferences.general.iconsize == 2 then
 
         padding = dashx.app.radio.buttonPadding
@@ -91,18 +85,14 @@ local function openPage(pidx, title, script)
         numPerRow = dashx.app.radio.buttonsPerRow
     end
 
-
     if dashx.app.gfx_buttons["settings"] == nil then dashx.app.gfx_buttons["settings"] = {} end
     if dashx.preferences.menulastselected["settings"] == nil then dashx.preferences.menulastselected["settings"] = 1 end
-
 
     local Menu = assert(loadfile("app/modules/" .. script))()
     local pages = S_PAGES
     local lc = 0
     local bx = 0
     local y = 0
-
-
 
     for pidx, pvalue in ipairs(S_PAGES) do
 
@@ -124,8 +114,7 @@ local function openPage(pidx, title, script)
             text = pvalue.name,
             icon = dashx.app.gfx_buttons["settings"][pidx],
             options = FONT_S,
-            paint = function()
-            end,
+            paint = function() end,
             press = function()
                 dashx.preferences.menulastselected["settings"] = pidx
                 dashx.app.ui.progressDisplay()
@@ -150,8 +139,4 @@ end
 
 dashx.app.uiState = dashx.app.uiStatus.pages
 
-return {
-    pages = pages, 
-    openPage = openPage,
-    API = {},
-}
+return {pages = pages, openPage = openPage, API = {}}
