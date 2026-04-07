@@ -8,8 +8,6 @@ Its particually suited to people with neuron esc; however should work with any e
 
 <img src="https://github.com/robthomson/dashx-ethos/blob/main/.github/gfx/logs.png?raw=true" width="800" alt="LOGS">
 
-<img src="https://github.com/robthomson/dashx-ethos/blob/main/.github/gfx/menu.png?raw=true" width="800" alt="MENU">
-
 -----
 Like what you see.  Consider donating..
 

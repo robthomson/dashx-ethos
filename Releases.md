@@ -1,3 +1,7 @@
+# 2.0.0
+
+Total rewrite to simplify and save ram.
+
 # 1.0.1-20251003
 
 Snapshot relase with 'beta' support via themes for both inav and betaflight.  Elrs sensors are now also supported for the regular themes. 
