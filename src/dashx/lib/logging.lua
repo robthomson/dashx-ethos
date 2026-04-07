@@ -65,7 +65,7 @@ end
 function logging.writeLogs(forcewrite)
     local max_lines = forcewrite and #log_queue or 10
     if #log_queue > 0 and logFileName then
-        local filePath = "LOGS:dashx/telemetry/" .. logFileName
+        local filePath = "LOGS:/dashx/telemetry/" .. logFileName
 
         dashx.utils.log(string.format("Write %d (of %d) lines to %s", math.min(#log_queue, max_lines), #log_queue, logFileName), "info")
 
@@ -123,7 +123,7 @@ function logging.wakeup()
     if not dashx.session.mcu_id then return end
 
     if not telemetry then
-        telemetry = dashx.tasks.telemetry
+        telemetry = dashx.telemetry
         return
     end
 
@@ -142,7 +142,7 @@ function logging.wakeup()
             logFileName = generateLogFilename()
             dashx.utils.log("Logging triggered by inFlight() - " .. logFileName, "info")
 
-            local iniName = "LOGS:dashx/telemetry/logs.ini"
+            local iniName = "LOGS:/dashx/telemetry/logs.ini"
             local iniData = dashx.ini.load_ini_file(iniName) or {}
             if not iniData.model then iniData.model = {} end
             iniData.model.name = dashx.session.craftName or model.name() or "Unknown"
@@ -150,7 +150,7 @@ function logging.wakeup()
         end
         if not logHeader then
 
-            local filePath = "LOGS:dashx/telemetry/" .. logFileName
+            local filePath = "LOGS:/dashx/telemetry/" .. logFileName
             local f = io.open(filePath, 'w')
             if f then
                 io.write(f, logging.getLogHeader(), "\n")

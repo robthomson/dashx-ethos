@@ -139,8 +139,9 @@ end
 function utils.getGovernorState(value)
 
     local returnvalue
+    local telemetry = dashx.telemetry
 
-    if not dashx.tasks.telemetry then return "@i18n(widgets.governor.UNKNOWN)@" end
+    if not telemetry then return "@i18n(widgets.governor.UNKNOWN)@" end
 
     local map = {
         [0] = "@i18n(widgets.governor.OFF)@",
@@ -157,7 +158,7 @@ function utils.getGovernorState(value)
     }
 
     if dashx.session and dashx.session.apiVersion and dashx.session.apiVersion > 12.07 then
-        local armflags = dashx.tasks.telemetry.getSensor("armflags")
+        local armflags = telemetry.getSensor("armflags")
         if armflags == 0 or armflags == 2 then value = 101 end
     end
 
@@ -167,7 +168,7 @@ function utils.getGovernorState(value)
         returnvalue = "@i18n(widgets.governor.UNKNOWN)@"
     end
 
-    local armdisableflags = dashx.tasks.telemetry.getSensor("armdisableflags")
+    local armdisableflags = telemetry.getSensor("armdisableflags")
     if armdisableflags ~= nil then
         armdisableflags = math.floor(armdisableflags)
         local armstring = utils.armingDisableFlagsToString(armdisableflags)
@@ -267,8 +268,13 @@ function utils.playFileCommon(file) system.playFile("audio/" .. file) end
 
 function utils.getCurrentProfile()
 
-    local pidProfile = dashx.tasks.telemetry.getSensor("pid_profile")
-    local rateProfile = dashx.tasks.telemetry.getSensor("rate_profile")
+    local telemetry = dashx.telemetry
+    if not telemetry then
+        return
+    end
+
+    local pidProfile = telemetry.getSensor("pid_profile")
+    local rateProfile = telemetry.getSensor("rate_profile")
 
     if (pidProfile ~= nil and rateProfile ~= nil) then
 
@@ -355,7 +361,11 @@ function utils.joinTableItems(tbl, delimiter)
     return table.concat(paddedTable, delimiter, startIndex, #tbl)
 end
 
-function utils.log(msg, level) if dashx.tasks and dashx.tasks.logger then dashx.tasks.logger.add(msg, level or "debug") end end
+function utils.log(msg, level)
+    if dashx.logger and dashx.logger.add then
+        dashx.logger.add(msg, level or "debug")
+    end
+end
 
 function utils.print_r(node, maxDepth, currentDepth)
     maxDepth = maxDepth or 5

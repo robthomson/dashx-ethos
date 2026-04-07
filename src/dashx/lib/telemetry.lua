@@ -58,7 +58,19 @@ local onchangeInitialized = false
 
 local sensorTable = {
 
-    rssi = {name = "@i18n(telemetry.sensors.rssi)@", mandatory = true, stats = true, switch_alerts = true, unit = UNIT_PERCENT, unit_string = "%", sensors = {sim = {{appId = 0xF010, subId = 0}}, sport = {{appId = 0xF010, subId = 0}}, crsf = {"Rx Quality"}}},
+    rssi = {
+        name = "@i18n(telemetry.sensors.rssi)@",
+        mandatory = true,
+        stats = true,
+        switch_alerts = true,
+        unit = UNIT_PERCENT,
+        unit_string = "%",
+        sensors = {
+            sim = {{appId = 0xF010, subId = 0}},
+            sport = {{appId = 0xF010, subId = 0}},
+            crsf = {{crsfId = 0x14, subId = 2}}
+        }
+    },
 
     link = {name = "@i18n(telemetry.sensors.link)@", mandatory = true, stats = true, switch_alerts = false, unit = UNIT_DB, unit_string = "dB", sensors = {sim = {{appId = 0xF101, subId = 0}}, sport = {{appId = 0xF101, subId = 0}}, crsf = {"Rx RSSI1"}}},
 
@@ -182,7 +194,10 @@ local sensorTable = {
         switch_alerts = true,
         unit = UNIT_MILLIAMPERE_HOUR,
         unit_string = "mAh",
-        sensors = {sim = {{uid = 0x5008, unit = UNIT_MILLIAMPERE_HOUR, dec = 0, value = function() return dashx.utils.simSensors('consumption') end, min = 0, max = 5000}}, sport = {{appId = 0x0B60, subId = 1}, {appId = 0x0B30, subId = 0}}, crsf = {"Rx Cons"}}
+        sensors = {
+            sim = {{uid = 0x5008, unit = UNIT_MILLIAMPERE_HOUR, dec = 0, value = function() return dashx.utils.simSensors('consumption') end, min = 0, max = 5000}}, 
+            sport = {{appId = 0x0B60, subId = 1}, {appId = 0x0B30, subId = 0}}, 
+            crsf = {"Rx Cons"}}
     },
 
     armed = {
@@ -193,7 +208,11 @@ local sensorTable = {
         switch_alerts = false,
         unit = UNIT_RAW,
         unit_string = nil,
-        sensors = {sim = {{appId = 0x5FE0, subId = 0}}, sport = {{appId = 0x5FE0, subId = 0}}, crsf = {{appId = 0x5FE0, subId = 0}}}
+        sensors = {
+            sim = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE0}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE0}},
+            crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE0}}
+        }
     },
 
     inflight = {
@@ -204,7 +223,11 @@ local sensorTable = {
         switch_alerts = false,
         unit = UNIT_RAW,
         unit_string = nil,
-        sensors = {sim = {{appId = 0x5FDF, subId = 0}}, sport = {{appId = 0x5FDF, subId = 0}}, crsf = {{appId = 0x5FDF, subId = 0}}}
+        sensors = {
+            sim = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}},
+            crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}}
+        }
     },
 
     accx = {
@@ -433,6 +456,17 @@ end
 
 function telemetry.getSensor(sensorKey)
     local entry = sensorTable[sensorKey]
+    local simEntry = entry and entry.sensors and entry.sensors.sim and entry.sensors.sim[1] or nil
+
+    if system.getVersion().simulation == true and simEntry and type(simEntry.value) == "function" then
+        local value = simEntry.value()
+        local major = entry and entry.unit or simEntry.unit or nil
+        local minor = nil
+
+        if entry and entry.localizations and type(entry.localizations) == "function" then value, major, minor = entry.localizations(value) end
+
+        return value, major, minor
+    end
 
     if entry and type(entry.source) == "function" then
         local src = entry.source()

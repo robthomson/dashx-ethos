@@ -15,8 +15,6 @@ local voltageThreshold = 0.15
 local preStabiliseDelay = 1.5
 
 local telemetry
-local currentMode = dashx.flightmode.current or "preflight"
-local lastMode = currentMode
 local lastSensorMode
 
 local lastFuelPercent = nil
@@ -50,6 +48,17 @@ local function resetVoltageTracking()
     lastVoltages = {}
     voltageStableTime = nil
     voltageStabilised = false
+end
+
+local function resetState()
+    batteryConfigCache = nil
+    lastSensorMode = nil
+    lastFuelPercent = nil
+    lastFuelTimestamp = nil
+    lastFilteredVoltage = nil
+    lastRpm = nil
+    stabilizeNotBefore = nil
+    resetVoltageTracking()
 end
 
 local function isVoltageStable()
@@ -115,7 +124,7 @@ local function fuelPercentageCalcByVoltage(voltage, cellCount)
 end
 
 local function smartFuelCalc()
-    if not telemetry then telemetry = dashx.tasks.telemetry end
+    if not telemetry then telemetry = dashx.telemetry end
 
     if not dashx.session.isConnected or not dashx.session.batteryConfig then
         resetVoltageTracking()
@@ -145,18 +154,7 @@ local function smartFuelCalc()
         return nil
     end
 
-    local now = os.clock()
-
-    if currentMode ~= lastMode then
-        dashx.utils.log("Flight mode changed – resetting voltage state", "info")
-        resetVoltageTracking()
-        stabilizeNotBefore = now + preStabiliseDelay
-        lastMode = currentMode
-        return nil
-    end
-    lastMode = currentMode
-
-    if stabilizeNotBefore and now < stabilizeNotBefore then return nil end
+    if stabilizeNotBefore and os.clock() < stabilizeNotBefore then return nil end
 
     table.insert(lastVoltages, voltage)
     if #lastVoltages > maxVoltageSamples then table.remove(lastVoltages, 1) end
@@ -204,4 +202,4 @@ local function smartFuelCalc()
     return percent
 end
 
-return {calculate = smartFuelCalc, reset = resetVoltageTracking}
+return {calculate = smartFuelCalc, reset = resetState}
