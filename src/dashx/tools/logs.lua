@@ -351,7 +351,7 @@ local function getHeaderMetrics()
     }
 end
 
-local function loadIconAsset(path)
+local function loadIconAsset(path, preferBitmap)
     if not lcd or not path then
         return nil
     end
@@ -362,17 +362,33 @@ local function loadIconAsset(path)
     }
 
     for _, candidate in ipairs(candidates) do
-        if lcd.loadMask then
-            local ok, loaded = pcall(lcd.loadMask, candidate)
-            if ok and loaded then
-                return loaded
+        if preferBitmap then
+            if lcd.loadMask then
+                local ok, loaded = pcall(lcd.loadMask, candidate)
+                if ok and loaded then
+                    return loaded
+                end
             end
-        end
 
-        if lcd.loadBitmap then
-            local ok, loaded = pcall(lcd.loadBitmap, candidate)
-            if ok and loaded then
-                return loaded
+            if lcd.loadBitmap then
+                local ok, loaded = pcall(lcd.loadBitmap, candidate)
+                if ok and loaded then
+                    return loaded
+                end
+            end
+        else
+            if lcd.loadMask then
+                local ok, loaded = pcall(lcd.loadMask, candidate)
+                if ok and loaded then
+                    return loaded
+                end
+            end
+
+            if lcd.loadBitmap then
+                local ok, loaded = pcall(lcd.loadBitmap, candidate)
+                if ok and loaded then
+                    return loaded
+                end
             end
         end
     end
@@ -382,14 +398,14 @@ end
 
 local function ensureIcons()
     if tool.icons.folder == nil then
-        tool.icons.folder = loadIconAsset("widgets/dashboard/gfx/folder.png")
-            or loadIconAsset("app/modules/logs/gfx/folder.png")
+        tool.icons.folder = loadIconAsset("app/modules/logs/gfx/folder.png", true)
+            or loadIconAsset("widgets/dashboard/gfx/folder.png")
             or false
     end
 
     if tool.icons.logs == nil then
-        tool.icons.logs = loadIconAsset("widgets/dashboard/gfx/logs.png")
-            or loadIconAsset("app/modules/logs/gfx/logs.png")
+        tool.icons.logs = loadIconAsset("app/modules/logs/gfx/logs.png", true)
+            or loadIconAsset("widgets/dashboard/gfx/logs.png")
             or false
     end
 end

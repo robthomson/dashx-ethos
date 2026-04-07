@@ -243,16 +243,16 @@ local function calculateFuel()
     return smartfuel.calculate()
 end
 
-local function calculateConsumption()
+local function calculateConsumption(fuelPercent)
     if shouldUseVoltageFuel() then
         local capacity = (dashx.session.batteryConfig and dashx.session.batteryConfig.batteryCapacity) or 1000
-        local smartfuelPercent = telemetry() and telemetry().getSensor and telemetry().getSensor("smartfuel") or nil
         local warningPercentage = (dashx.session.batteryConfig and dashx.session.batteryConfig.consumptionWarningPercentage) or 30
-        if smartfuelPercent then
+        if fuelPercent ~= nil then
             local usableCapacity = capacity * (1 - warningPercentage / 100)
-            local usedPercent = 100 - smartfuelPercent
+            local usedPercent = 100 - fuelPercent
             return (usedPercent / 100) * usableCapacity
         end
+        return nil
     end
 
     return telemetry() and telemetry().getSensor and telemetry().getSensor("consumption") or 0
@@ -261,12 +261,14 @@ end
 local function updateDerivedSensors(rootSource)
     local armed = deriveArmedValue()
     local inflight = deriveInflightValue()
+    local fuel = calculateFuel()
+    local consumption = calculateConsumption(fuel)
     dashx.session.isArmed = armed == 0
 
     setSensorValue(derivedDefinitions.armed, armed, rootSource)
     setSensorValue(derivedDefinitions.inflight, inflight, rootSource)
-    setSensorValue(derivedDefinitions.smartfuel, calculateFuel(), rootSource)
-    setSensorValue(derivedDefinitions.smartconsumption, calculateConsumption(), rootSource)
+    setSensorValue(derivedDefinitions.smartfuel, fuel, rootSource)
+    setSensorValue(derivedDefinitions.smartconsumption, consumption, rootSource)
 end
 
 function sensors.reset()
