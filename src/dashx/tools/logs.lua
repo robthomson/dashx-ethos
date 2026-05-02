@@ -1252,7 +1252,7 @@ end
 
 function tool.paint()
     if tool.page == "view" then
-        paintView()
+        pcall(paintView)
     end
 end
 
