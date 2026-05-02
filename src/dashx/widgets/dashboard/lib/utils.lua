@@ -307,6 +307,24 @@ function utils.getHeaderOptions()
             barpaddingtop = 2,
             valuepaddingbottom = 20
         }
+    else
+        return {
+            height = 30,
+            font = "FONT_L",
+            batterysegmentpaddingtop = 4,
+            batterysegmentpaddingbottom = 4,
+            batterysegmentpaddingleft = 4,
+            batterysegmentpaddingright = 4,
+            gaugepaddingleft = 8,
+            gaugepaddingright = 9,
+            gaugepaddingbottom = 2,
+            gaugepaddingtop = 2,
+            barpaddingleft = 15,
+            barpaddingright = 18,
+            barpaddingbottom = 2,
+            barpaddingtop = 2,
+            valuepaddingbottom = 20
+        }
     end
 end
 

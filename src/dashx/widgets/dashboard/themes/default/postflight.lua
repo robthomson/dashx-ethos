@@ -108,7 +108,7 @@ local header_layout = {height = headeropts.height, cols = 7, rows = 1, padding =
 
 local function buildBoxes(W)
 
-    local opts = themeOptions[getThemeOptionKey(W)] or themeOptions.unknown
+    local opts = themeOptions[getThemeOptionKey(W)] or themeOptions.ms_std
 
     return {
 
