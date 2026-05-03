@@ -68,11 +68,25 @@ local sensorTable = {
         sensors = {
             sim = {{appId = 0xF010, subId = 0}},
             sport = {{appId = 0xF010, subId = 0}},
-            crsf = {{crsfId = 0x14, subId = 2}}
+            crsf = {{crsfId = 0x14, subId = 2}},
+            spektrum = {"Tx RSSI"}
         }
     },
 
-    link = {name = "@i18n(telemetry.sensors.link)@", mandatory = true, stats = true, switch_alerts = false, unit = UNIT_DB, unit_string = "dB", sensors = {sim = {{appId = 0xF101, subId = 0}}, sport = {{appId = 0xF101, subId = 0}}, crsf = {"Rx RSSI1"}}},
+    link = {
+        name = "@i18n(telemetry.sensors.link)@",
+        mandatory = true,
+        stats = true,
+        switch_alerts = false,
+        unit = UNIT_DB,
+        unit_string = "dB",
+        sensors = {
+            sim = {{appId = 0xF101, subId = 0}},
+            sport = {{appId = 0xF101, subId = 0}},
+            crsf = {"Rx RSSI1"},
+            spektrum = {"Tx RSSI"}
+        }
+    },
 
     voltage = {
         name = "@i18n(telemetry.sensors.voltage)@",
@@ -85,7 +99,8 @@ local sensorTable = {
         sensors = {
             sim = {{uid = 0x5002, unit = UNIT_VOLT, dec = 2, value = function() return dashx.utils.simSensors('voltage') end, min = 0, max = 3000}},
             sport = {{appId = 0x0B50, subId = 0}, {appId = 0x0210, subId = 0}, {appId = 0xF103, subId = 0}, {appId = 0xF103, subId = 1}},
-            crsf = {"Rx Batt"}
+            crsf = {"Rx Batt"},
+            spektrum = {"LiPo1", "LiPo2", "RxBatt"}
         }
     },
 
@@ -140,7 +155,12 @@ local sensorTable = {
         switch_alerts = true,
         unit = UNIT_AMPERE,
         unit_string = "A",
-        sensors = {sim = {{uid = 0x5004, unit = UNIT_AMPERE, dec = 0, value = function() return dashx.utils.simSensors('current') end, min = 0, max = 300}}, sport = {{appId = 0x0B50, subId = 1}, {appId = 0x0200, subId = 0}}, crsf = {"Rx Current"}}
+        sensors = {
+            sim = {{uid = 0x5004, unit = UNIT_AMPERE, dec = 0, value = function() return dashx.utils.simSensors('current') end, min = 0, max = 300}}, 
+            sport = {{appId = 0x0B50, subId = 1}, {appId = 0x0200, subId = 0}}, 
+            crsf = {"Rx Current"},
+            spektrum = {"ESC current"}
+        }
     },
 
     temp_esc = {
@@ -150,7 +170,11 @@ local sensorTable = {
         set_telemetry_sensors = 23,
         switch_alerts = true,
         unit = UNIT_DEGREE,
-        sensors = {sim = {{uid = 0x5005, unit = UNIT_DEGREE, dec = 0, value = function() return dashx.utils.simSensors('temp_esc') end, min = 0, max = 100}}, sport = {{appId = 0x0B70, subId = 0}}},
+        sensors = {
+            sim = {{uid = 0x5005, unit = UNIT_DEGREE, dec = 0, value = function() return dashx.utils.simSensors('temp_esc') end, min = 0, max = 100}}, 
+            sport = {{appId = 0x0B70, subId = 0}},
+            spektrum = {"ESC temp"},
+        },
         localizations = function(value)
             local major = UNIT_DEGREE
             if value == nil then return nil, major, nil end
@@ -327,7 +351,10 @@ local sensorTable = {
         name = "@i18n(sensors.flightmode)@",
         mandatory = false,
         stats = false,
-        sensors = {sim = {{uid = 0x5024, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('flightmode') end, min = -1800, max = 3600}}, sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}}, crsf = {"Flight mode"}}
+        sensors = {
+            sim = {{uid = 0x5024, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('flightmode') end, min = -1800, max = 3600}}, 
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}}, 
+            crsf = {"Flight mode"}}
     },
 
     groundspeed = {
@@ -439,6 +466,17 @@ function telemetry.getSensorSource(name)
     elseif dashx.session.telemetryType == "sport" then
         protocol = "sport"
         for _, sensor in ipairs(sensorTable[name].sensors.sport or {}) do
+            local source = system.getSource(sensor)
+            if source then
+                cache_misses = cache_misses + 1
+                sensors[name] = source
+                mark_hot(name)
+                return source
+            end
+        end
+    elseif dashx.session.telemetryType == "spektrum" then
+        protocol = "spektrum"
+        for _, sensor in ipairs(sensorTable[name].sensors.spektrum or {}) do
             local source = system.getSource(sensor)
             if source then
                 cache_misses = cache_misses + 1

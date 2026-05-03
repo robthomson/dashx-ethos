@@ -259,6 +259,11 @@ local function detectProtocol()
         if sportSource then
             return "sport", sportSource, externalModule
         end
+
+        local spektrumSource = system.getSource("Tx RSSI")
+        if spektrumSource then
+            return "spektrum", spektrumSource, externalModule
+        end
     end
 
     return nil, nil, nil
