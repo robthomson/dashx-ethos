@@ -1,3 +1,8 @@
+# 2.0.1
+
+Fix logo display
+Improve log module
+
 # 2.0.0
 
 Total rewrite to simplify and save ram.
