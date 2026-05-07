@@ -105,6 +105,16 @@ local function openPage(pageIdx, title, script)
     dashx.app.formFields[formFieldCount]:suffix("%")
     dashx.app.formFields[formFieldCount]:default(30)
 
+    formFieldCount = formFieldCount + 1
+    formLineCnt = formLineCnt + 1
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.consumption_scale)@")
+    dashx.app.formFields[formFieldCount] = form.addNumberField(dashx.app.formLines[formLineCnt], nil, 50, 200, function()
+        if dashx.session.modelPreferences and dashx.session.modelPreferences.battery then return dashx.session.modelPreferences.battery.consumptionScale end
+        return nil
+    end, function(newValue) if dashx.session.modelPreferences then dashx.session.modelPreferences.battery.consumptionScale = newValue end end)
+    dashx.app.formFields[formFieldCount]:suffix("%")
+    dashx.app.formFields[formFieldCount]:default(100)
+
     enableWakeup = true
 
 end

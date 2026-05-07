@@ -1,3 +1,8 @@
+# 2.0.2
+
+Fix bug when new theme chosen; resulting in dashboard not updating
+Added ablity to scale the fuel locally for current sensors that are not accurate
+
 # 2.0.1
 
 Fix logo display

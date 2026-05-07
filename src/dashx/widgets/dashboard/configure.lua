@@ -205,6 +205,16 @@ function configui.configure(widget)
         reserveField:suffix("%")
     end
 
+    local scaleLine = addLine(batteryPanel, "@i18n(app.modules.model.consumption_scale)@")
+    local scaleField = form.addNumberField(scaleLine, nil, 50, 200, function()
+        return math.floor(tonumber(widget.consumptionScale) or 100)
+    end, function(value)
+        widget.consumptionScale = clamp(math.floor(tonumber(value) or 100), 50, 200)
+    end)
+    if scaleField and scaleField.suffix then
+        scaleField:suffix("%")
+    end
+
     local triggersPanel = form.addExpansionPanel("@i18n(app.modules.model.triggers)@")
     triggersPanel:open(false)
 
