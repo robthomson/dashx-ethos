@@ -36,7 +36,8 @@ local modelPreferenceDefaults = {
         vbatmaxcellvoltage = 43,
         vbatfullcellvoltage = 41,
         lvcPercentage = 30,
-        consumptionWarningPercentage = 30
+        consumptionWarningPercentage = 30,
+        consumptionScale = 100
     }
 }
 
@@ -116,7 +117,8 @@ local function buildBatteryConfig(prefs)
         vbatmaxcellvoltage = (tonumber(battery.vbatmaxcellvoltage) or 43) / 10,
         vbatfullcellvoltage = (tonumber(battery.vbatfullcellvoltage) or 41) / 10,
         lvcPercentage = tonumber(battery.lvcPercentage) or 30,
-        consumptionWarningPercentage = tonumber(battery.consumptionWarningPercentage) or 30
+        consumptionWarningPercentage = tonumber(battery.consumptionWarningPercentage) or 30,
+        consumptionScale = tonumber(battery.consumptionScale) or 100
     }
 end
 
@@ -471,6 +473,7 @@ local function normalizeWidgetSettings(widget)
     widget.vbatmaxcellvoltage = clamp(math.floor(tonumber(widget.vbatmaxcellvoltage) or 43), 5, 600)
     widget.vbatfullcellvoltage = clamp(math.floor(tonumber(widget.vbatfullcellvoltage) or 41), 5, 600)
     widget.consumptionWarningPercentage = clamp(math.floor(tonumber(widget.consumptionWarningPercentage) or 30), 0, 100)
+    widget.consumptionScale = clamp(math.floor(tonumber(widget.consumptionScale) or 100), 50, 200)
     widget.inflightswitch_delay = clamp(math.floor(tonumber(widget.inflightswitch_delay) or 10), 0, 120)
     widget.armswitch = normalizeSwitchValue(widget.armswitch)
     widget.inflightswitch = normalizeSwitchValue(widget.inflightswitch)
@@ -495,6 +498,7 @@ function runtime.readWidgetSettings(widget)
         widget.vbatmaxcellvoltage = tonumber(batteryPrefs.vbatmaxcellvoltage) or 43
         widget.vbatfullcellvoltage = tonumber(batteryPrefs.vbatfullcellvoltage) or 41
         widget.consumptionWarningPercentage = tonumber(batteryPrefs.consumptionWarningPercentage) or 30
+        widget.consumptionScale = tonumber(batteryPrefs.consumptionScale) or 100
         widget.armswitch = modelPrefs.armswitch or false
         widget.inflightswitch = modelPrefs.inflightswitch or false
         widget.inflightswitch_delay = tonumber(modelPrefs.inflightswitch_delay) or 10
@@ -539,6 +543,7 @@ function runtime.writeWidgetSettings(widget)
     prefs.battery.vbatmaxcellvoltage = widget.vbatmaxcellvoltage
     prefs.battery.vbatfullcellvoltage = widget.vbatfullcellvoltage
     prefs.battery.consumptionWarningPercentage = widget.consumptionWarningPercentage
+    prefs.battery.consumptionScale = widget.consumptionScale
 
     dashx.ini.save_ini_file(prefFile, prefs)
 

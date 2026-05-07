@@ -2804,6 +2804,11 @@
           "needs_translation": "false",
           "translation": "Consumption Warning %"
         },
+        "consumption_scale": {
+          "english": "Consumption Scale",
+          "needs_translation": "false",
+          "translation": "Consumption Scale"
+        },
         "battery_full_voltage": {
           "english": "Cell Full Voltage",
           "needs_translation": "false",

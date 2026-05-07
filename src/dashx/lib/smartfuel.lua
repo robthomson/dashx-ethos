@@ -161,6 +161,10 @@ local function smartFuelCalc()
 
     local consumption = telemetry and telemetry.getSensor and telemetry.getSensor("consumption") or nil
 
+    if consumption and bc.consumptionScale and bc.consumptionScale ~= 100 then
+        consumption = consumption * bc.consumptionScale / 100
+    end
+
     if not fuelStartingPercent then
         if voltage and cellCount > 0 then
 
