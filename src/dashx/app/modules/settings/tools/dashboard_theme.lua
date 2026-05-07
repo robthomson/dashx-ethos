@@ -193,7 +193,7 @@ local function onSaveMenu()
                     dashx.ini.save_ini_file(dashx.session.modelPreferencesFile, dashx.session.modelPreferences)
                 end
 
-                dashx.widgets.dashboard.reload_themes(true)
+                dashx.session.dashboardThemeReloadPending = true
 
                 dashx.app.triggers.closeSave = true
                 return true

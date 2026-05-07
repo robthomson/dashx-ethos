@@ -619,6 +619,11 @@ function dashboard.wakeup(widget)
 
     if dashx.session and dashx.session.dashboardThemeReloadPending then
         dashx.session.dashboardThemeReloadPending = false
+        local prefFile = "SCRIPTS:/" .. dashx.config.preferences .. "/preferences.ini"
+        local freshPrefs = dashx.ini.load_ini_file(prefFile)
+        if freshPrefs and freshPrefs.dashboard and dashx.preferences then
+            dashx.preferences.dashboard = freshPrefs.dashboard
+        end
         reloadTheme()
     end
 
