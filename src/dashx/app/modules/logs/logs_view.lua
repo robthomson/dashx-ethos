@@ -6,6 +6,44 @@
 local dashx = require("dashx")
 
 local utils = assert(loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/app/modules/logs/lib/utils.lua"))()
+
+local dashboardUtils = nil
+
+local function getDashboardUtils()
+    if dashboardUtils ~= nil then
+        return dashboardUtils or nil
+    end
+
+    dashboardUtils = dashx.widgets and dashx.widgets.dashboard and dashx.widgets.dashboard.utils
+    if dashboardUtils then
+        return dashboardUtils
+    end
+
+    local loader = loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/lib/utils.lua")
+    if loader then
+        dashboardUtils = loader()
+        return dashboardUtils
+    end
+
+    dashboardUtils = false
+    return nil
+end
+
+local function getThemeState()
+    local du = getDashboardUtils()
+    if du and du.getThemeState then
+        return du.getThemeState()
+    end
+
+    local dark = lcd.darkMode and lcd.darkMode() or false
+    return {
+        darkMode = dark,
+        usesThemeColors = false,
+        primaryColor = dark and lcd.RGB(255, 255, 255) or lcd.RGB(0, 0, 0),
+        secondaryColor = lcd.RGB(160, 160, 160),
+        secondaryBgColor = dark and lcd.RGB(40, 40, 40) or lcd.RGB(240, 240, 240)
+    }
+end
 local res = system.getVersion()
 local LCD_W = res.lcdWidth
 local LCD_H = res.lcdHeight
@@ -266,11 +304,7 @@ local function drawKey(name, keyunit, keyminmax, keyfloor, color, minimum, maxim
     lcd.drawText(x + 5, textY, name, LEFT)
 
     lcd.font(dashx.app.radio.logKeyFontSmall)
-    if lcd.darkMode() then
-        lcd.color(COLOR_WHITE)
-    else
-        lcd.color(COLOR_BLACK)
-    end
+    lcd.color(getThemeState().primaryColor or COLOR_WHITE)
 
     local min_trunc
     if keyunit == "rpm" and (minimum >= 100000 or maximum >= 1000000) then
@@ -337,13 +371,10 @@ local function drawCurrentIndex(points, position, totalPoints, keyindex, keyunit
     if position > 50 then boxPos = boxPos - tw - (boxpadding * 2) end
 
     lcd.color(color)
+    local themeState = getThemeState()
     lcd.drawFilledRectangle(boxPos, boxY, tw + (boxpadding * 2), boxHeight)
 
-    if lcd.darkMode() then
-        lcd.color(COLOR_BLACK)
-    else
-        lcd.color(COLOR_WHITE)
-    end
+    lcd.color(themeState.primaryColor or COLOR_WHITE)
     lcd.drawText(idxPos, textY, value, textAlign)
 
     if laneNumber == 1 then
@@ -365,21 +396,13 @@ local function drawCurrentIndex(points, position, totalPoints, keyindex, keyunit
         lcd.font(dashx.app.radio.logKeyFont)
         local ty = graphPos['height'] + graphPos['menu_offset'] - 10
 
-        lcd.color(COLOR_WHITE)
+        lcd.color(themeState.primaryColor or COLOR_WHITE)
         lcd.drawText(idxPos, ty, full_label, textAlign)
 
-        if lcd.darkMode() then
-            lcd.color(COLOR_WHITE)
-        else
-            lcd.color(COLOR_BLACK)
-        end
+        lcd.color(themeState.primaryColor or COLOR_WHITE)
         lcd.drawLine(linePos, graphPos['menu_offset'] - 5, linePos, graphPos['menu_offset'] + graphPos['height'])
 
-        if lcd.darkMode() then
-            lcd.color(lcd.RGB(40, 40, 40))
-        else
-            lcd.color(lcd.RGB(240, 240, 240))
-        end
+        lcd.color(themeState.secondaryBgColor or lcd.RGB(40, 40, 40))
 
         local z_x = (LCD_W - 25)
         local z_y = graphPos['slider_y']
@@ -392,11 +415,7 @@ local function drawCurrentIndex(points, position, totalPoints, keyindex, keyunit
         lcd.drawFilledRectangle(z_x, z_y, z_w, z_h)
 
         if zoomCount > 1 then
-            if lcd.darkMode() then
-                lcd.color(COLOR_WHITE)
-            else
-                lcd.color(COLOR_BLACK)
-            end
+            lcd.color(themeState.primaryColor or COLOR_WHITE)
         else
             lcd.color(COLOR_GREY)
         end

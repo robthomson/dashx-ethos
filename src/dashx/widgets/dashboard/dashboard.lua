@@ -20,7 +20,9 @@ local themesUserPath = "SCRIPTS:/" .. dashx.config.preferences .. "/dashboard/"
 local currentState = nil
 local loadedStates = {}
 local lastSizeKey = nil
-local darkModeState = lcd.darkMode()
+local themeStateSignature = nil
+local nextThemeStateCheck = 0
+local themeStateCheckInterval = 0.25
 local unsupportedResolution = false
 local forceFullRepaint = true
 local lastInvalidateAt = 0
@@ -224,6 +226,8 @@ local function loadObjects(module)
 end
 
 local function reloadTheme()
+    themeStateSignature = dashboard.utils and dashboard.utils.getThemeSignature and dashboard.utils.getThemeSignature() or themeStateSignature
+    nextThemeStateCheck = os.clock() + themeStateCheckInterval
     loadedStates = {
         preflight = loadStateScript(getThemeForState("preflight"), "preflight"),
         inflight = loadStateScript(getThemeForState("inflight"), "inflight"),
@@ -612,9 +616,14 @@ function dashboard.wakeup(widget)
         return
     end
 
-    if runtimeState.model_changed or lcd.darkMode() ~= darkModeState then
-        darkModeState = lcd.darkMode()
+    if runtimeState.model_changed then
         reloadTheme()
+    elseif now >= nextThemeStateCheck then
+        nextThemeStateCheck = now + themeStateCheckInterval
+        local currentThemeSignature = dashboard.utils.getThemeSignature()
+        if currentThemeSignature ~= themeStateSignature then
+            reloadTheme()
+        end
     end
 
     if dashx.session and dashx.session.dashboardThemeReloadPending then
