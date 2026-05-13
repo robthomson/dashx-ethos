@@ -10,6 +10,143 @@ local utils = {}
 local imageCache = {}
 local fontCache
 
+local THEME_SIGNATURE_MOD = 2147483647
+local THEME_STATE_KEYS = {
+    {key = "focusBgColor", constant = "THEME_FOCUS_BGCOLOR"},
+    {key = "focusColor", constant = "THEME_FOCUS_COLOR"},
+    {key = "primaryColor", constant = "THEME_PRIMARY_COLOR"},
+    {key = "primaryBgColor", constant = "THEME_PRIMARY_BGCOLOR"},
+    {key = "secondaryColor", constant = "THEME_SECONDARY_COLOR"},
+    {key = "secondaryBgColor", constant = "THEME_SECONDARY_BGCOLOR"},
+    {key = "highlightColor", constant = "THEME_HIGHLIGHT_COLOR"},
+    {key = "highlightInvertColor", constant = "THEME_HIGHLIGHT_INVERT_COLOR"},
+    {key = "disableColor", constant = "THEME_DISABLE_COLOR"},
+    {key = "warningColor", constant = "THEME_WARNING_COLOR"},
+    {key = "activeColor", constant = "THEME_ACTIVE_COLOR"},
+    {key = "inactiveColor", constant = "THEME_INACTIVE_COLOR"},
+    {key = "buttonBorderActiveColor", constant = "THEME_BUTTON_BORDER_ACTIVE_COLOR"},
+    {key = "buttonBorderColor", constant = "THEME_BUTTON_BORDER_COLOR"},
+    {key = "mixerOutputColor", constant = "THEME_MIXER_OUTPUT_COLOR"},
+    {key = "pageBgColor", constant = "THEME_PAGE_BGCOLOR"}
+}
+local LEGACY_THEME_STATE = {
+    dark = {
+        primaryColor = lcd.RGB(255, 255, 255),
+        primaryBgColor = lcd.RGB(0, 0, 0),
+        secondaryColor = lcd.RGB(185, 185, 185),
+        secondaryBgColor = lcd.RGB(40, 40, 40),
+        focusBgColor = lcd.RGB(40, 40, 40),
+        focusColor = lcd.RGB(255, 255, 255),
+        highlightColor = lcd.RGB(255, 255, 255),
+        highlightInvertColor = lcd.RGB(0, 0, 0),
+        disableColor = lcd.RGB(90, 90, 90),
+        warningColor = lcd.RGB(255, 0, 0),
+        activeColor = lcd.RGB(0, 188, 4),
+        inactiveColor = lcd.RGB(255, 0, 0),
+        buttonBorderActiveColor = lcd.RGB(255, 255, 255),
+        buttonBorderColor = lcd.RGB(90, 90, 90),
+        mixerOutputColor = lcd.RGB(0, 188, 4),
+        pageBgColor = lcd.RGB(16, 16, 16)
+    },
+    light = {
+        primaryColor = lcd.RGB(0, 0, 0),
+        primaryBgColor = lcd.RGB(255, 255, 255),
+        secondaryColor = lcd.RGB(90, 90, 90),
+        secondaryBgColor = lcd.RGB(211, 211, 211),
+        focusBgColor = lcd.RGB(211, 211, 211),
+        focusColor = lcd.RGB(0, 0, 0),
+        highlightColor = lcd.RGB(90, 90, 90),
+        highlightInvertColor = lcd.RGB(255, 255, 255),
+        disableColor = lcd.RGB(185, 185, 185),
+        warningColor = lcd.RGB(255, 0, 0),
+        activeColor = lcd.RGB(0, 188, 4),
+        inactiveColor = lcd.RGB(255, 0, 0),
+        buttonBorderActiveColor = lcd.RGB(90, 90, 90),
+        buttonBorderColor = lcd.RGB(185, 185, 185),
+        mixerOutputColor = lcd.RGB(0, 188, 4),
+        pageBgColor = lcd.RGB(209, 208, 208)
+    }
+}
+local LEGACY_CHROME_THEME = {
+    dark = {
+        background = lcd.RGB(10, 14, 18),
+        panel = lcd.RGB(22, 28, 34),
+        panelAlt = lcd.RGB(17, 22, 27),
+        button = lcd.RGB(36, 36, 39),
+        buttonDisabled = lcd.RGB(24, 24, 27),
+        text = lcd.RGB(245, 246, 247),
+        muted = lcd.RGB(166, 174, 182),
+        accent = lcd.RGB(231, 116, 58),
+        accentSoft = lcd.RGB(72, 44, 30),
+        accentText = lcd.RGB(245, 246, 247),
+        accentBorder = lcd.RGB(231, 116, 58),
+        border = lcd.RGB(86, 96, 106)
+    },
+    light = {
+        background = lcd.RGB(246, 247, 249),
+        panel = lcd.RGB(255, 255, 255),
+        panelAlt = lcd.RGB(240, 242, 245),
+        button = lcd.RGB(232, 234, 237),
+        buttonDisabled = lcd.RGB(242, 244, 246),
+        text = lcd.RGB(28, 34, 40),
+        muted = lcd.RGB(108, 116, 124),
+        accent = lcd.RGB(215, 98, 38),
+        accentSoft = lcd.RGB(255, 226, 210),
+        accentText = lcd.RGB(28, 34, 40),
+        accentBorder = lcd.RGB(215, 98, 38),
+        border = lcd.RGB(196, 202, 208)
+    }
+}
+local LEGACY_TOOLBAR_THEME = {
+    dark = {
+        background = lcd.RGB(18, 22, 26),
+        panel = lcd.RGB(28, 34, 40),
+        accent = lcd.RGB(231, 116, 58),
+        accentText = lcd.RGB(28, 34, 40),
+        text = lcd.RGB(245, 246, 247),
+        muted = lcd.RGB(160, 168, 176),
+        border = lcd.RGB(72, 82, 90)
+    },
+    light = {
+        background = lcd.RGB(245, 246, 248),
+        panel = lcd.RGB(255, 255, 255),
+        accent = lcd.RGB(215, 98, 38),
+        accentText = lcd.RGB(255, 255, 255),
+        text = lcd.RGB(32, 38, 44),
+        muted = lcd.RGB(108, 116, 124),
+        border = lcd.RGB(196, 202, 208)
+    }
+}
+local cachedThemeSignature
+local cachedThemeState
+local cachedDashboardTheme
+local cachedChromeTheme
+local cachedToolbarTheme
+
+local function isLegacyDarkMode()
+    return lcd.darkMode and lcd.darkMode() or false
+end
+
+local function resolveSystemThemeColor(constantName)
+    local themeColor = lcd.themeColor
+    if type(themeColor) ~= "function" then
+        return nil
+    end
+
+    local constant = _G[constantName]
+    if constant == nil then
+        return nil
+    end
+
+    return themeColor(constant)
+end
+
+local function copyThemeMap(target, source)
+    for key, value in pairs(source) do
+        target[key] = value
+    end
+end
+
 function utils.standardHeaderLayout(headeropts) return {height = headeropts.height, cols = 7, rows = 1} end
 
 function utils.standardHeaderBoxes(i18n, colorMode, headeropts, txbatt_type)
@@ -145,48 +282,6 @@ function utils.getTxBatteryVoltageRange()
     return 7.2, 8.4
 end
 
-function utils.themeColors()
-    local colorMode = {
-        dark = {
-            textcolor = "white",
-            titlecolor = "white",
-            bgcolor = "black",
-            fillcolor = "green",
-            fillwarncolor = "orange",
-            fillcritcolor = "red",
-            fillbgcolor = "grey",
-            accentcolor = "white",
-            rssifillcolor = "green",
-            rssifillbgcolor = "darkgrey",
-            txaccentcolor = "grey",
-            txfillcolor = "green",
-            txbgfillcolor = "darkgrey",
-            tbbgcolor = "headergrey",
-            cntextcolor = "white",
-            tbtextcolor = "white"
-        },
-        light = {
-            textcolor = "lmgrey",
-            titlecolor = "lmgrey",
-            bgcolor = "white",
-            fillcolor = "lightgreen",
-            fillwarncolor = "lightorange",
-            fillcritcolor = "lightred",
-            fillbgcolor = "lightgrey",
-            accentcolor = "darkgrey",
-            rssifillcolor = "lightgreen",
-            rssifillbgcolor = "grey",
-            txaccentcolor = "white",
-            txfillcolor = "lightgreen",
-            txbgfillcolor = "grey",
-            tbbgcolor = "darkgrey",
-            cntextcolor = "white",
-            tbtextcolor = "white"
-        }
-    }
-    return lcd.darkMode() and colorMode.dark or colorMode.light
-end
-
 function utils.isFullScreen(w, h)
 
     if (w == 800 and (h == 458 or h == 480)) then return true end
@@ -209,6 +304,138 @@ function utils.supportedResolution(W, H, supportedResolutions)
 
     for _, res in ipairs(supportedResolutions) do if W == res[1] and H == res[2] then return true end end
     return false
+end
+
+function utils.getThemeSignature()
+    if type(lcd.themeColor) ~= "function" then
+        return isLegacyDarkMode() and 1 or 0
+    end
+
+    local signature = 97
+    local hasThemeColors = false
+
+    for index = 1, #THEME_STATE_KEYS do
+        local color = resolveSystemThemeColor(THEME_STATE_KEYS[index].constant)
+        if color ~= nil then
+            hasThemeColors = true
+            signature = (signature * 131 + (tonumber(color) or 0)) % THEME_SIGNATURE_MOD
+        else
+            signature = (signature * 131 + index) % THEME_SIGNATURE_MOD
+        end
+    end
+
+    if not hasThemeColors then
+        return isLegacyDarkMode() and 1 or 0
+    end
+
+    return signature + 2
+end
+
+local function ensureThemeCache()
+    local signature = utils.getThemeSignature()
+    if cachedThemeSignature == signature and cachedThemeState and cachedDashboardTheme and cachedChromeTheme and cachedToolbarTheme then
+        return
+    end
+
+    local darkMode = isLegacyDarkMode()
+    local baseState = darkMode and LEGACY_THEME_STATE.dark or LEGACY_THEME_STATE.light
+    local themeState = cachedThemeState or {}
+    local dashboardTheme = cachedDashboardTheme or {}
+    local chromeTheme = cachedChromeTheme or {}
+    local toolbarTheme = cachedToolbarTheme or {}
+    local focusFill
+    local focusText
+
+    copyThemeMap(themeState, baseState)
+    themeState.darkMode = darkMode
+    themeState.usesThemeColors = false
+
+    for index = 1, #THEME_STATE_KEYS do
+        local entry = THEME_STATE_KEYS[index]
+        local color = resolveSystemThemeColor(entry.constant)
+        if color ~= nil then
+            themeState[entry.key] = color
+            themeState.usesThemeColors = true
+        end
+    end
+
+    themeState.signature = signature
+
+    dashboardTheme.textcolor = themeState.primaryColor
+    dashboardTheme.titlecolor = themeState.primaryColor
+    dashboardTheme.bgcolor = themeState.primaryBgColor
+    dashboardTheme.fillcolor = themeState.activeColor
+    dashboardTheme.fillbgcolor = themeState.secondaryBgColor
+    dashboardTheme.framecolor = themeState.buttonBorderColor or themeState.secondaryColor
+    dashboardTheme.accentcolor = themeState.buttonBorderActiveColor or themeState.primaryColor
+    dashboardTheme.rssifillcolor = themeState.activeColor
+    dashboardTheme.rssifillbgcolor = themeState.secondaryBgColor
+    dashboardTheme.txaccentcolor = themeState.secondaryColor
+    dashboardTheme.txfillcolor = themeState.activeColor
+    dashboardTheme.txbgfillcolor = themeState.secondaryBgColor
+    dashboardTheme.bgcolortop = themeState.pageBgColor
+    dashboardTheme.pagebgcolor = themeState.pageBgColor
+    dashboardTheme.fillwarncolor = themeState.warningColor
+    dashboardTheme.fillcritcolor = themeState.inactiveColor or themeState.warningColor
+    dashboardTheme.tbbgcolor = themeState.pageBgColor or themeState.primaryBgColor
+    dashboardTheme.cntextcolor = themeState.primaryColor
+    dashboardTheme.tbtextcolor = themeState.primaryColor
+    dashboardTheme.rssitextcolor = themeState.primaryColor
+
+    if themeState.usesThemeColors then
+        focusFill = themeState.focusBgColor or themeState.highlightColor or themeState.buttonBorderActiveColor or themeState.activeColor
+        focusText = themeState.focusColor or themeState.highlightInvertColor or themeState.primaryColor
+
+        chromeTheme.background = themeState.pageBgColor or themeState.primaryBgColor
+        chromeTheme.panel = themeState.primaryBgColor
+        chromeTheme.panelAlt = themeState.secondaryBgColor
+        chromeTheme.button = themeState.secondaryBgColor
+        chromeTheme.buttonDisabled = themeState.primaryBgColor
+        chromeTheme.text = themeState.primaryColor
+        chromeTheme.muted = themeState.secondaryColor
+        chromeTheme.accent = focusFill
+        chromeTheme.accentSoft = focusFill
+        chromeTheme.accentText = focusText
+        chromeTheme.accentBorder = themeState.buttonBorderActiveColor or focusText
+        chromeTheme.border = themeState.buttonBorderColor or themeState.secondaryColor
+
+        toolbarTheme.background = themeState.pageBgColor or themeState.primaryBgColor
+        toolbarTheme.panel = themeState.secondaryBgColor
+        toolbarTheme.accent = focusFill
+        toolbarTheme.accentText = focusText
+        toolbarTheme.text = themeState.primaryColor
+        toolbarTheme.muted = themeState.secondaryColor
+        toolbarTheme.border = themeState.buttonBorderColor or themeState.secondaryColor
+    else
+        copyThemeMap(chromeTheme, darkMode and LEGACY_CHROME_THEME.dark or LEGACY_CHROME_THEME.light)
+        copyThemeMap(toolbarTheme, darkMode and LEGACY_TOOLBAR_THEME.dark or LEGACY_TOOLBAR_THEME.light)
+    end
+
+    cachedThemeSignature = signature
+    cachedThemeState = themeState
+    cachedDashboardTheme = dashboardTheme
+    cachedChromeTheme = chromeTheme
+    cachedToolbarTheme = toolbarTheme
+end
+
+function utils.themeColors()
+    ensureThemeCache()
+    return cachedDashboardTheme
+end
+
+function utils.getThemeState()
+    ensureThemeCache()
+    return cachedThemeState
+end
+
+function utils.getChromeTheme()
+    ensureThemeCache()
+    return cachedChromeTheme
+end
+
+function utils.getToolbarTheme()
+    ensureThemeCache()
+    return cachedToolbarTheme
 end
 
 function utils.drawBarNeedle(cx, cy, length, thickness, angleDeg, color)
@@ -338,7 +565,7 @@ function utils.screenError(msg, border, pct, padX, padY)
     if not padY then padY = 4 end
 
     local w, h = lcd.getWindowSize()
-    local isDarkMode = lcd.darkMode()
+    local themeState = utils.getThemeState()
 
     local fonts = {FONT_XXS, FONT_XS, FONT_S, FONT_M, FONT_L, FONT_XL, FONT_XXL, FONT_XXXXL}
 
@@ -358,7 +585,7 @@ function utils.screenError(msg, border, pct, padX, padY)
 
     lcd.font(bestFont)
 
-    local textColor = isDarkMode and lcd.RGB(255, 255, 255, 1) or lcd.RGB(90, 90, 90)
+    local textColor = themeState.primaryColor or lcd.RGB(255, 255, 255, 1)
     lcd.color(textColor)
 
     local x = (w - bestW) / 2
@@ -466,21 +693,48 @@ function utils.resolveThemeColor(colorkey, value)
         if resolved then return resolved end
     end
 
+    local themeColors = utils.themeColors()
     if colorkey == "fillcolor" then
-        return lcd.darkMode() and lcd.RGB(40, 40, 40) or lcd.RGB(240, 240, 240)
+        return themeColors.fillcolor
     elseif colorkey == "fillbgcolor" then
-        return lcd.darkMode() and lcd.RGB(40, 40, 40) or lcd.RGB(240, 240, 240)
+        return themeColors.fillbgcolor
     elseif colorkey == "framecolor" then
-        return lcd.darkMode() and lcd.RGB(40, 40, 40) or lcd.RGB(240, 240, 240)
+        return themeColors.framecolor
     elseif colorkey == "textcolor" then
-        return lcd.RGB(255, 255, 255)
+        return themeColors.textcolor
     elseif colorkey == "titlecolor" then
-        return lcd.RGB(255, 255, 255)
+        return themeColors.titlecolor
     elseif colorkey == "accentcolor" then
-        return lcd.RGB(255, 255, 255)
+        return themeColors.accentcolor
+    elseif colorkey == "bgcolor" then
+        return themeColors.bgcolor
+    elseif colorkey == "bgcolortop" then
+        return themeColors.bgcolortop
+    elseif colorkey == "fillwarncolor" then
+        return themeColors.fillwarncolor
+    elseif colorkey == "fillcritcolor" then
+        return themeColors.fillcritcolor
+    elseif colorkey == "tbbgcolor" then
+        return themeColors.tbbgcolor
+    elseif colorkey == "cntextcolor" then
+        return themeColors.cntextcolor
+    elseif colorkey == "tbtextcolor" then
+        return themeColors.tbtextcolor
+    elseif colorkey == "rssitextcolor" then
+        return themeColors.rssitextcolor
+    elseif colorkey == "rssifillcolor" then
+        return themeColors.rssifillcolor
+    elseif colorkey == "rssifillbgcolor" then
+        return themeColors.rssifillbgcolor
+    elseif colorkey == "txaccentcolor" then
+        return themeColors.txaccentcolor
+    elseif colorkey == "txfillcolor" then
+        return themeColors.txfillcolor
+    elseif colorkey == "txbgfillcolor" then
+        return themeColors.txbgfillcolor
     end
 
-    return lcd.darkMode() and lcd.RGB(40, 40, 40) or lcd.RGB(240, 240, 240)
+    return themeColors.bgcolor
 end
 
 function utils.resolveThemeColorArray(colorkey, arr)
@@ -702,11 +956,8 @@ end
 
 function utils.setBackgroundColourBasedOnTheme()
     local w, h = lcd.getWindowSize()
-    if lcd.darkMode() then
-        lcd.color(lcd.RGB(16, 16, 16))
-    else
-        lcd.color(lcd.RGB(209, 208, 208))
-    end
+    local themeState = utils.getThemeState()
+    lcd.color(themeState.pageBgColor or themeState.primaryBgColor or lcd.RGB(16, 16, 16))
     lcd.drawFilledRectangle(0, 0, w, h)
 end
 

@@ -3,28 +3,13 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
+local dashx = require("dashx")
+
 local toolbar = {}
+local utils = dashx.widgets.dashboard.utils
 
 local function getThemeColors()
-    if lcd.darkMode() then
-        return {
-            background = lcd.RGB(18, 22, 26),
-            panel = lcd.RGB(28, 34, 40),
-            accent = lcd.RGB(231, 116, 58),
-            text = lcd.RGB(245, 246, 247),
-            muted = lcd.RGB(160, 168, 176),
-            border = lcd.RGB(72, 82, 90)
-        }
-    end
-
-    return {
-        background = lcd.RGB(245, 246, 248),
-        panel = lcd.RGB(255, 255, 255),
-        accent = lcd.RGB(215, 98, 38),
-        text = lcd.RGB(32, 38, 44),
-        muted = lcd.RGB(108, 116, 124),
-        border = lcd.RGB(196, 202, 208)
-    }
+    return utils.getToolbarTheme()
 end
 
 local function getToolbarItems(dashboard)
@@ -84,11 +69,11 @@ local function drawToolbar(dashboard)
         lcd.color(colors.border)
         lcd.drawRectangle(itemX, itemY, itemW, itemH, 2)
 
-        lcd.color(selected and colors.panel or colors.text)
+        lcd.color(selected and (colors.accentText or colors.text) or colors.text)
         lcd.drawText(itemX + math.floor(itemW / 2), itemY + 14, item.name or "@i18n(widgets.dashboard.reset_flight)@", CENTERED)
 
         lcd.font(FONT_XXS)
-        lcd.color(selected and colors.panel or colors.muted)
+        lcd.color(selected and (colors.accentText or colors.text) or colors.muted)
         lcd.drawText(itemX + math.floor(itemW / 2), itemY + itemH - 18, item.subtitle or "", CENTERED)
         lcd.font(FONT_XS)
     end
