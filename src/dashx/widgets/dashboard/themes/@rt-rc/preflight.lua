@@ -110,7 +110,7 @@ local function buildBoxes(W)
             gaugepadding = opts.gaugepadding,
             valuepaddingtop = opts.valuepaddingtop,
 
-            thresholds = {{value = 30, fillcolor = "red", textcolor = colorMode.textcolor}, {value = 50, fillcolor = "orange", textcolor = colorMode.textcolor}, {value = 140, fillcolor = colorMode.fillcolor, textcolor = colorMode.textcolor}}
+            thresholds = {{value = 30, fillcolor = colorMode.fillcritcolor, textcolor = colorMode.textcolor}, {value = 50, fillcolor = colorMode.fillwarncolor, textcolor = colorMode.textcolor}, {value = 140, fillcolor = colorMode.fillcolor, textcolor = colorMode.textcolor}}
         }, {
             col = 15,
             row = 1,
@@ -157,7 +157,7 @@ local function buildBoxes(W)
 
                         return raw_gm + 0.30 * (raw_gM - raw_gm)
                     end,
-                    fillcolor = "red",
+                    fillcolor = colorMode.fillcritcolor,
                     textcolor = colorMode.textcolor
                 }, {
                     value = function(box)
@@ -169,7 +169,7 @@ local function buildBoxes(W)
 
                         return raw_gm + 0.50 * (raw_gM - raw_gm)
                     end,
-                    fillcolor = "orange",
+                    fillcolor = colorMode.fillwarncolor,
                     textcolor = colorMode.textcolor
                 }, {
                     value = function(box)

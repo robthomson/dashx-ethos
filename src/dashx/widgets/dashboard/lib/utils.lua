@@ -9,6 +9,11 @@ local utils = {}
 
 local imageCache = {}
 local fontCache
+local COLOR_WHITE = lcd.RGB(255, 255, 255)
+local COLOR_BLACK = lcd.RGB(0, 0, 0)
+local GAUGE_TRAFFIC_GREEN = lcd.RGB(0, 188, 4)
+local GAUGE_TRAFFIC_AMBER = lcd.RGB(255, 170, 0)
+local GAUGE_TRAFFIC_RED = lcd.RGB(224, 64, 64)
 
 local THEME_SIGNATURE_MOD = 2147483647
 local THEME_STATE_KEYS = {
@@ -173,6 +178,97 @@ local function resolveToolbarDividerColor(themeState, background)
     if divider == background then divider = themeState and themeState.secondaryColor or nil end
     if divider == background then divider = themeState and themeState.primaryColor or nil end
     return divider or background
+end
+
+local function clampColorByte(value)
+    return math.max(0, math.min(255, math.floor(value + 0.5)))
+end
+
+local function normalizeThemeColor(color)
+    if type(color) ~= "number" then return nil end
+    if color > 0xFFFF then
+        local upper = (color >> 16) & 0xFFFF
+        if upper ~= 0 then return upper end
+    end
+    return color & 0xFFFF
+end
+
+local function rgb565ToRgb888(color)
+    local packed = normalizeThemeColor(color)
+    if not packed then return nil end
+    local r5 = (packed >> 11) & 0x1F
+    local g6 = (packed >> 5) & 0x3F
+    local b5 = packed & 0x1F
+    return (r5 * 527 + 23) >> 6, (g6 * 259 + 33) >> 6, (b5 * 527 + 23) >> 6
+end
+
+local function blendThemeColors(colorA, colorB, factor)
+    local r1, g1, b1 = rgb565ToRgb888(colorA)
+    local r2, g2, b2 = rgb565ToRgb888(colorB)
+    if r1 == nil or r2 == nil then return colorA or colorB end
+    local t = type(factor) == "number" and math.max(0, math.min(1, factor)) or 0.5
+    return lcd.RGB(clampColorByte(r1 + (r2 - r1) * t), clampColorByte(g1 + (g2 - g1) * t), clampColorByte(b1 + (b2 - b1) * t), 1)
+end
+
+local function relativeLuminanceChannel(channel)
+    local normalized = channel / 255
+    if normalized <= 0.04045 then return normalized / 12.92 end
+    return ((normalized + 0.055) / 1.055) ^ 2.4
+end
+
+local function relativeLuminance(color)
+    local red, green, blue = rgb565ToRgb888(color)
+    if red == nil then return nil end
+    return 0.2126 * relativeLuminanceChannel(red) + 0.7152 * relativeLuminanceChannel(green) + 0.0722 * relativeLuminanceChannel(blue)
+end
+
+local function contrastRatio(colorA, colorB)
+    local luminanceA = relativeLuminance(colorA)
+    local luminanceB = relativeLuminance(colorB)
+    if luminanceA == nil or luminanceB == nil then return nil end
+    local lighter = math.max(luminanceA, luminanceB)
+    local darker = math.min(luminanceA, luminanceB)
+    return (lighter + 0.05) / (darker + 0.05)
+end
+
+local function chooseContrastTarget(background)
+    local whiteContrast = contrastRatio(COLOR_WHITE, background)
+    local blackContrast = contrastRatio(COLOR_BLACK, background)
+    if whiteContrast == nil then return COLOR_BLACK end
+    if blackContrast == nil or whiteContrast >= blackContrast then return COLOR_WHITE end
+    return COLOR_BLACK
+end
+
+local function ensureThemeColorContrast(color, background, minRatio)
+    if color == nil or background == nil or minRatio == nil then return color end
+
+    local bestColor = color
+    local bestRatio = contrastRatio(color, background)
+    if bestRatio == nil or bestRatio >= minRatio then return color end
+
+    local target = chooseContrastTarget(background)
+    for i = 1, 6 do
+        local adjusted = blendThemeColors(color, target, i * 0.15)
+        local adjustedRatio = contrastRatio(adjusted, background)
+        if adjustedRatio and adjustedRatio > bestRatio then
+            bestColor = adjusted
+            bestRatio = adjustedRatio
+        end
+        if adjustedRatio and adjustedRatio >= minRatio then return adjusted end
+    end
+
+    return bestColor
+end
+
+local function resolveGaugeThresholdPalette(themeState, background)
+    local fillcolor = themeState.activeColor or themeState.mixerOutputColor or GAUGE_TRAFFIC_GREEN
+    local fillwarncolor = GAUGE_TRAFFIC_AMBER
+    local fillcritcolor = GAUGE_TRAFFIC_RED
+    background = background or themeState.secondaryBgColor or themeState.primaryBgColor or themeState.pageBgColor
+    fillcolor = ensureThemeColorContrast(fillcolor, background, 2.2)
+    fillwarncolor = ensureThemeColorContrast(fillwarncolor, background, 2.2)
+    fillcritcolor = ensureThemeColorContrast(fillcritcolor, background, 2.4)
+    return fillcolor, fillwarncolor, fillcritcolor
 end
 
 function utils.standardHeaderLayout(headeropts) return {height = headeropts.height, cols = 7, rows = 1} end
@@ -389,10 +485,13 @@ local function ensureThemeCache()
 
     themeState.signature = signature
 
+    local surfaceBg = resolveDashboardSurfaceBg(themeState)
+    local gaugeFillColor, gaugeWarnColor, gaugeCritColor = resolveGaugeThresholdPalette(themeState, surfaceBg)
+
     dashboardTheme.textcolor = themeState.primaryColor
     dashboardTheme.titlecolor = themeState.primaryColor
-    dashboardTheme.bgcolor = resolveDashboardSurfaceBg(themeState)
-    dashboardTheme.fillcolor = themeState.activeColor
+    dashboardTheme.bgcolor = surfaceBg
+    dashboardTheme.fillcolor = gaugeFillColor
     dashboardTheme.fillbgcolor = themeState.secondaryBgColor
     dashboardTheme.framecolor = themeState.buttonBorderColor or themeState.secondaryColor
     dashboardTheme.accentcolor = themeState.buttonBorderActiveColor or themeState.primaryColor
@@ -403,8 +502,8 @@ local function ensureThemeCache()
     dashboardTheme.txbgfillcolor = themeState.secondaryBgColor
     dashboardTheme.bgcolortop = themeState.pageBgColor
     dashboardTheme.pagebgcolor = themeState.pageBgColor
-    dashboardTheme.fillwarncolor = themeState.warningColor
-    dashboardTheme.fillcritcolor = themeState.inactiveColor or themeState.warningColor
+    dashboardTheme.fillwarncolor = gaugeWarnColor
+    dashboardTheme.fillcritcolor = gaugeCritColor
     dashboardTheme.tbbgcolor = themeState.pageBgColor or themeState.primaryBgColor
     dashboardTheme.cntextcolor = themeState.primaryColor
     dashboardTheme.tbtextcolor = themeState.primaryColor

@@ -124,7 +124,7 @@ local function buildBoxes(W)
 
                         return raw_gm + 0.30 * (raw_gM - raw_gm)
                     end,
-                    fillcolor = "red",
+                    fillcolor = colorMode.fillcritcolor,
                     textcolor = colorMode.textcolor
                 }, {
                     value = function(box)
@@ -136,7 +136,7 @@ local function buildBoxes(W)
 
                         return raw_gm + 0.50 * (raw_gM - raw_gm)
                     end,
-                    fillcolor = "orange",
+                    fillcolor = colorMode.fillwarncolor,
                     textcolor = colorMode.textcolor
                 }, {
                     value = function(box)
@@ -170,7 +170,7 @@ local function buildBoxes(W)
             textcolor = colorMode.titlecolor,
             gaugepadding = opts.gaugepadding,
             valuepaddingtop = opts.valuepaddingtop,
-            thresholds = {{value = 30, fillcolor = "red", textcolor = colorMode.textcolor}, {value = 50, fillcolor = "orange", textcolor = colorMode.textcolor}, {value = 140, fillcolor = colorMode.fillcolor, textcolor = colorMode.textcolor}}
+            thresholds = {{value = 30, fillcolor = colorMode.fillcritcolor, textcolor = colorMode.textcolor}, {value = 50, fillcolor = colorMode.fillwarncolor, textcolor = colorMode.textcolor}, {value = 140, fillcolor = colorMode.fillcolor, textcolor = colorMode.textcolor}}
         }, {col = 1, row = 13, rowspan = 2, type = "text", subtype = "telemetry", nosource = "-", source = "temp_esc", transform = "floor", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
         {col = 4, row = 13, rowspan = 2, type = "time", subtype = "flight", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
         {col = 3, row = 13, rowspan = 2, type = "text", subtype = "telemetry", source = "rpm", nosource = "-", unit = "rpm", transform = "floor", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},

@@ -131,7 +131,7 @@ local function buildBoxes(W)
 
                         return raw_gm + 0.30 * (raw_gM - raw_gm)
                     end,
-                    fillcolor = "red",
+                    fillcolor = colorMode.fillcritcolor,
                     textcolor = colorMode.textcolor
                 }, {
                     value = function(box)
@@ -143,7 +143,7 @@ local function buildBoxes(W)
 
                         return raw_gm + 0.50 * (raw_gM - raw_gm)
                     end,
-                    fillcolor = "orange",
+                    fillcolor = colorMode.fillwarncolor,
                     textcolor = colorMode.textcolor
                 }, {
                     value = function(box)
