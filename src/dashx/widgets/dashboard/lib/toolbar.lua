@@ -50,7 +50,7 @@ local function drawToolbar(dashboard)
 
     lcd.color(colors.background)
     lcd.drawFilledRectangle(x, y, width, height)
-    lcd.color(colors.accent)
+    lcd.color(colors.divider or colors.border or colors.text)
     lcd.drawFilledRectangle(x, y, width, 4)
 
     lcd.font(FONT_XS)

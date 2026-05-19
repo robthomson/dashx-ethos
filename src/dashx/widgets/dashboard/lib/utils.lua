@@ -159,6 +159,22 @@ local function copyThemeMap(target, source)
     end
 end
 
+local function resolveDashboardSurfaceBg(themeState)
+    local pageBg = themeState and themeState.pageBgColor or nil
+    local surfaceBg = themeState and themeState.secondaryBgColor or nil
+    if surfaceBg == pageBg then surfaceBg = themeState and themeState.buttonBorderColor or nil end
+    if surfaceBg == pageBg then surfaceBg = themeState and themeState.primaryBgColor or nil end
+    if surfaceBg == nil then surfaceBg = pageBg or (themeState and themeState.primaryBgColor or nil) end
+    return surfaceBg
+end
+
+local function resolveToolbarDividerColor(themeState, background)
+    local divider = themeState and themeState.buttonBorderColor or nil
+    if divider == background then divider = themeState and themeState.secondaryColor or nil end
+    if divider == background then divider = themeState and themeState.primaryColor or nil end
+    return divider or background
+end
+
 function utils.standardHeaderLayout(headeropts) return {height = headeropts.height, cols = 7, rows = 1} end
 
 function utils.standardHeaderBoxes(i18n, colorMode, headeropts, txbatt_type)
@@ -375,7 +391,7 @@ local function ensureThemeCache()
 
     dashboardTheme.textcolor = themeState.primaryColor
     dashboardTheme.titlecolor = themeState.primaryColor
-    dashboardTheme.bgcolor = themeState.primaryBgColor
+    dashboardTheme.bgcolor = resolveDashboardSurfaceBg(themeState)
     dashboardTheme.fillcolor = themeState.activeColor
     dashboardTheme.fillbgcolor = themeState.secondaryBgColor
     dashboardTheme.framecolor = themeState.buttonBorderColor or themeState.secondaryColor
@@ -418,9 +434,11 @@ local function ensureThemeCache()
         toolbarTheme.text = themeState.primaryColor
         toolbarTheme.muted = themeState.secondaryColor
         toolbarTheme.border = themeState.buttonBorderColor or themeState.secondaryColor
+        toolbarTheme.divider = resolveToolbarDividerColor(themeState, toolbarTheme.background)
     else
         copyThemeMap(chromeTheme, darkMode and LEGACY_CHROME_THEME.dark or LEGACY_CHROME_THEME.light)
         copyThemeMap(toolbarTheme, darkMode and LEGACY_TOOLBAR_THEME.dark or LEGACY_TOOLBAR_THEME.light)
+        toolbarTheme.divider = toolbarTheme.border or toolbarTheme.text
     end
 
     cachedThemeSignature = signature
