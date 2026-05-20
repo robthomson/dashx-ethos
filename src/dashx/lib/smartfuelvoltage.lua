@@ -84,10 +84,11 @@ local function isVoltageStable()
     return (vmax - vmin) <= voltageThreshold
 end
 
-local function getStickLoadFactor()
+local function getControlLoadFactor()
     local rx = dashx.session.rx and dashx.session.rx.values
     if not rx then return 0 end
-    local sum = 1.0 * math.abs(rx.aileron or 0) + 1.0 * math.abs(rx.elevator or 0) + 1.2 * math.abs(rx.collective or 0)
+
+    local sum = math.abs(rx.aileron or 0) + math.abs(rx.elevator or 0) + math.abs(rx.rudder or 0)
     return math.min(1.0, sum / 3000)
 end
 
@@ -108,7 +109,7 @@ local function applySagCompensation(voltage)
     if dashx.flightmode.current ~= "inflight" then return voltage end
     local bc = dashx.session.batteryConfig or {}
     local multiplier = clamp((tonumber(bc.smartFuelSagCompensation) or (DEFAULT_SAG_COMPENSATION * 100)) / 100, 0, 2)
-    local sagFactor = math.max(getStickLoadFactor(), getRpmDropFactor())
+    local sagFactor = math.max(getControlLoadFactor(), getRpmDropFactor())
 
     local compensationScale = multiplier ^ 1.5
     return voltage + (compensationScale * sagFactor * 0.5)
