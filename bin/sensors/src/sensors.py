@@ -77,8 +77,8 @@ class SensorApp:
                 try:
                     self.root.iconbitmap(default=icon)
                     break
-                except Exception as e:
-                    print(f"[DEBUG] Could not set icon: {e}")
+                except Exception:
+                    pass
 
         self.controls = {}
         self.load_config()
@@ -188,7 +188,6 @@ class SensorApp:
                     out_dir = dest / self.tgt_name / 'sim' / 'sensors'
                     out_dir.mkdir(parents=True, exist_ok=True)
                     out_path = out_dir / (name + SENSOR_FILE_EXT)
-                    print(f"[DEBUG] Updating sensor '{name}' at path: {out_path}")
                     try:
                         with open(out_path, 'w') as f:
                             if rand_attr:
@@ -199,7 +198,7 @@ class SensorApp:
                             else:
                                 f.write(f"return {numeric}")
                     except Exception as e:
-                        print(f"[DEBUG] Failed to write {out_path}: {e}")
+                        print(f"Error writing {out_path}: {e}")
             except Exception as e:
                 print(f"Error saving {name}: {e}")
 

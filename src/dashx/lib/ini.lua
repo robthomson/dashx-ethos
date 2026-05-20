@@ -23,7 +23,6 @@ end
 
 function ini.load_ini_file(fileName)
     assert(type(fileName) == 'string', 'Parameter "fileName" must be a string.')
-    local _dbg_ini_t0 = os.clock()
 
     local content, err = ini.load_file_as_string(fileName)
     if not content then return nil end
@@ -61,14 +60,12 @@ function ini.load_ini_file(fileName)
         end
     end
 
-    print(string.format("[DBG] ini.load %.1fms %s", (os.clock() - _dbg_ini_t0) * 1000, fileName))
     return data
 end
 
 function ini.save_ini_file(fileName, data)
     assert(type(fileName) == 'string', 'Parameter "fileName" must be a string.')
     assert(type(data) == 'table', 'Parameter "data" must be a table.')
-    local _dbg_save_t0 = os.clock()
 
     local file, err = io.open(fileName, 'w')
     if not file then return false end
@@ -83,7 +80,6 @@ function ini.save_ini_file(fileName, data)
     end
 
     file:close()
-    print(string.format("[DBG] ini.save %.1fms %s", (os.clock() - _dbg_save_t0) * 1000, fileName))
     return true
 end
 

@@ -184,7 +184,6 @@ local function smartFuelCalc()
     else
 
         if not voltageStabilised or (stabilizeNotBefore and os.clock() < stabilizeNotBefore) then
-            print("Voltage not stabilised or pre-stabilisation delay active, returning nil")
             return nil
         end
         return fuelStartingPercent
