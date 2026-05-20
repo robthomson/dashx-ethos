@@ -16,6 +16,7 @@ local GAUGE_TRAFFIC_AMBER = lcd.RGB(255, 170, 0)
 local GAUGE_TRAFFIC_RED = lcd.RGB(224, 64, 64)
 
 local THEME_SIGNATURE_MOD = 2147483647
+local ETHOS_THEME_MIN_VERSION = {26, 1, 0}
 local THEME_STATE_KEYS = {
     {key = "defaultColor", constant = "THEME_DEFAULT_COLOR"},
     {key = "defaultBgColor", constant = "THEME_DEFAULT_BGCOLOR"},
@@ -141,12 +142,15 @@ local function isLegacyDarkMode()
     return lcd.darkMode and lcd.darkMode() or false
 end
 
+local _supportsThemeChecked = false
+local _supportsTheme = false
+
 local function supportsSystemThemeColors()
-    return dashx
-        and dashx.utils
-        and dashx.utils.ethosVersionAtLeast
-        and dashx.utils.ethosVersionAtLeast({26, 1, 0})
-        or false
+    if not _supportsThemeChecked and dashx and dashx.utils and dashx.utils.ethosVersionAtLeast then
+        _supportsTheme = dashx.utils.ethosVersionAtLeast(ETHOS_THEME_MIN_VERSION) == true
+        _supportsThemeChecked = true
+    end
+    return _supportsTheme
 end
 
 local function resolveSystemThemeColor(constantName)
@@ -489,12 +493,17 @@ function utils.getThemeSignature()
     if not supportsSystemThemeColors() then
         return isLegacyDarkMode() and 1 or 0
     end
+    local themeColorFn = lcd.themeColor
+    if type(themeColorFn) ~= "function" then
+        return isLegacyDarkMode() and 1 or 0
+    end
 
     local signature = 97
     local hasThemeColors = false
 
     for index = 1, #THEME_STATE_KEYS do
-        local color = resolveSystemThemeColor(THEME_STATE_KEYS[index].constant)
+        local constant = _G[THEME_STATE_KEYS[index].constant]
+        local color = constant ~= nil and themeColorFn(constant) or nil
         if color ~= nil then
             hasThemeColors = true
             signature = (signature * 131 + (tonumber(color) or 0)) % THEME_SIGNATURE_MOD
