@@ -51,10 +51,12 @@ local modelPreferenceDefaults = {
 local currentModelKey = nil
 local currentFlightMode = "preflight"
 local currentTelemetryType = nil
+local lastTelemetryAvailable = nil
 local hasBeenInFlight = false
 local lastStatsAt = 0
 local inflightStartTime = nil
 local channelSources = {}
+local telemetryActiveSource = nil
 
 local function telemetry()
     return dashx.telemetry
@@ -241,10 +243,12 @@ local function initializeModel(modelKey)
     dashx.flightmode.current = "preflight"
     currentFlightMode = "preflight"
     currentTelemetryType = nil
+    lastTelemetryAvailable = nil
     hasBeenInFlight = false
     inflightStartTime = nil
     lastStatsAt = 0
     channelSources = {}
+    telemetryActiveSource = nil
     initializeRxMap()
 end
 
@@ -285,6 +289,75 @@ local function detectProtocol()
     return nil, nil, nil
 end
 
+local function getTelemetryActiveSource()
+    if system.getVersion().simulation then
+        return nil
+    end
+
+    if CATEGORY_SYSTEM_EVENT == nil or TELEMETRY_ACTIVE == nil then
+        return nil
+    end
+
+    if telemetryActiveSource == nil then
+        telemetryActiveSource = system.getSource({category = CATEGORY_SYSTEM_EVENT, member = TELEMETRY_ACTIVE})
+    end
+
+    return telemetryActiveSource
+end
+
+local function sourceIsActive(source)
+    if not source then
+        return false
+    end
+
+    if type(source.state) ~= "function" then
+        return true
+    end
+
+    local ok, state = pcall(source.state, source)
+    if not ok then
+        return true
+    end
+
+    return state ~= false
+end
+
+local function telemetryLinkActive(protocol, rootSource)
+    if protocol == "sim" then
+        return not (dashx.simevent and dashx.simevent.telemetry_state == false)
+    end
+
+    local activeSource = getTelemetryActiveSource()
+    if activeSource and type(activeSource.state) == "function" then
+        local ok, state = pcall(activeSource.state, activeSource)
+        if ok then
+            return state ~= false and state ~= nil
+        end
+    end
+
+    return sourceIsActive(rootSource)
+end
+
+local function telemetrySourcesActive(protocol)
+    if protocol == "sim" then
+        return true
+    end
+
+    local telemetryModule = telemetry()
+    if not telemetryModule or not telemetryModule.getSensorSource then
+        return true
+    end
+
+    for _, sensorKey in ipairs({"voltage", "rpm", "rssi"}) do
+        local source = telemetryModule.getSensorSource(sensorKey)
+        if source and not sourceIsActive(source) then
+            return false
+        end
+    end
+
+    return true
+end
+
 local function updateTelemetryState()
     local protocol, rootSource, moduleRef = detectProtocol()
     local sessionProtocol = protocol == "sim" and "sport" or protocol
@@ -304,13 +377,16 @@ local function updateTelemetryState()
         channelSources = {}
     end
 
-    local available = protocol == "sim" or (sessionProtocol ~= nil and rootSource ~= nil)
-
     dashx.session.telemetryTypeChanged = changed
     dashx.session.telemetryType = sessionProtocol
     dashx.session.telemetryProtocol = protocol
     dashx.session.telemetrySensor = rootSource
     dashx.session.telemetryModule = moduleRef
+
+    local available = sessionProtocol ~= nil and telemetryLinkActive(protocol, rootSource) and telemetrySourcesActive(protocol)
+    local recovered = available and lastTelemetryAvailable == false
+    lastTelemetryAvailable = available
+
     dashx.session.telemetryState = available
     dashx.session.isConnected = available
     dashx.session.isConnectedHigh = available
@@ -321,7 +397,7 @@ local function updateTelemetryState()
         dashx.session.isArmed = false
     end
 
-    return protocol, changed
+    return protocol, changed, recovered
 end
 
 local function determineFlightMode()
@@ -629,7 +705,11 @@ function runtime.wakeup()
 
     dashx.session.craftName = model.name and model.name() or dashx.session.craftName
 
-    local protocol, telemetryChanged = updateTelemetryState()
+    local protocol, telemetryChanged, telemetryRecovered = updateTelemetryState()
+    local resetOnTelemetryRecovered = telemetryRecovered and currentFlightMode == "postflight"
+    if resetOnTelemetryRecovered then
+        runtime.resetFlight()
+    end
     updateRxValues(protocol)
 
     if dashx.sensors and dashx.sensors.wakeup then
@@ -654,7 +734,7 @@ function runtime.wakeup()
     end
 
     local nextFlightMode = determineFlightMode()
-    local flightModeChanged = nextFlightMode ~= currentFlightMode
+    local flightModeChanged = resetOnTelemetryRecovered or nextFlightMode ~= currentFlightMode
     currentFlightMode = nextFlightMode
     dashx.flightmode.current = nextFlightMode
 
@@ -666,6 +746,7 @@ function runtime.wakeup()
     return {
         model_changed = modelChanged,
         telemetry_changed = telemetryChanged,
+        telemetry_recovered = telemetryRecovered,
         flightmode_changed = flightModeChanged
     }
 end
