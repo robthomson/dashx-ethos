@@ -226,6 +226,40 @@ function configui.configure(widget)
         scaleField:suffix("%")
     end
 
+    local smartFuelPanel = form.addExpansionPanel("@i18n(app.modules.model.smart_fuel_tuning)@")
+    smartFuelPanel:open(false)
+
+    local sagLine = addLine(smartFuelPanel, "@i18n(app.modules.model.smart_fuel_sag_compensation)@")
+    local sagField = form.addNumberField(sagLine, nil, 0, 200, function()
+        return math.floor(tonumber(widget.smartFuelSagCompensation) or 70)
+    end, function(value)
+        widget.smartFuelSagCompensation = clamp(math.floor(tonumber(value) or 70), 0, 200)
+    end)
+    if sagField and sagField.suffix then
+        sagField:suffix("%")
+    end
+
+    local voltageFallLine = addLine(smartFuelPanel, "@i18n(app.modules.model.smart_fuel_voltage_fall_rate)@")
+    local voltageFallField = form.addNumberField(voltageFallLine, nil, 1, 100, function()
+        return math.floor(tonumber(widget.smartFuelVoltageFallRate) or 5)
+    end, function(value)
+        widget.smartFuelVoltageFallRate = clamp(math.floor(tonumber(value) or 5), 1, 100)
+    end)
+    if voltageFallField then
+        voltageFallField:suffix("V/cell/s")
+        voltageFallField:decimals(2)
+    end
+
+    local fuelDropLine = addLine(smartFuelPanel, "@i18n(app.modules.model.smart_fuel_drop_rate)@")
+    local fuelDropField = form.addNumberField(fuelDropLine, nil, 1, 20, function()
+        return math.floor(tonumber(widget.smartFuelDropRate) or 1)
+    end, function(value)
+        widget.smartFuelDropRate = clamp(math.floor(tonumber(value) or 1), 1, 20)
+    end)
+    if fuelDropField and fuelDropField.suffix then
+        fuelDropField:suffix("%/s")
+    end
+
     local countdownPanel = form.addExpansionPanel("@i18n(app.modules.model.fuel_countdown_audio)@")
     countdownPanel:open(false)
 

@@ -2804,36 +2804,6 @@
           "needs_translation": true,
           "translation": "Consumption Warning %"
         },
-        "consumption_scale": {
-          "english": "Consumption Scale",
-          "needs_translation": true,
-          "translation": "Consumption Scale"
-        },
-        "fuel_countdown_audio": {
-          "english": "Fuel Countdown Audio",
-          "needs_translation": true,
-          "translation": "Fuel Countdown Audio"
-        },
-        "enable_fuel_countdown": {
-          "english": "Enable Fuel Countdown",
-          "needs_translation": true,
-          "translation": "Enable Fuel Countdown"
-        },
-        "fuel_countdown_start": {
-          "english": "Fuel Countdown Start",
-          "needs_translation": true,
-          "translation": "Fuel Countdown Start"
-        },
-        "fuel_countdown_minimum": {
-          "english": "Fuel Countdown Minimum",
-          "needs_translation": true,
-          "translation": "Fuel Countdown Minimum"
-        },
-        "fuel_countdown_step": {
-          "english": "Fuel Countdown Step",
-          "needs_translation": true,
-          "translation": "Fuel Countdown Step"
-        },
         "battery_full_voltage": {
           "english": "Cell Full Voltage",
           "needs_translation": true,
@@ -2869,6 +2839,36 @@
           "needs_translation": true,
           "translation": "Voltage Sensor"
         },
+        "consumption_scale": {
+          "english": "Consumption Scale",
+          "needs_translation": true,
+          "translation": "Consumption Scale"
+        },
+        "enable_fuel_countdown": {
+          "english": "Enable Fuel Countdown",
+          "needs_translation": true,
+          "translation": "Enable Fuel Countdown"
+        },
+        "fuel_countdown_audio": {
+          "english": "Fuel Countdown Audio",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Audio"
+        },
+        "fuel_countdown_minimum": {
+          "english": "Fuel Countdown Minimum",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Minimum"
+        },
+        "fuel_countdown_start": {
+          "english": "Fuel Countdown Start",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Start"
+        },
+        "fuel_countdown_step": {
+          "english": "Fuel Countdown Step",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Step"
+        },
         "model_armswitch": {
           "english": "Arm Switch",
           "needs_translation": true,
@@ -2893,6 +2893,26 @@
           "english": "Model",
           "needs_translation": true,
           "translation": "Model"
+        },
+        "smart_fuel_drop_rate": {
+          "english": "Fuel Drop Rate",
+          "needs_translation": true,
+          "translation": "Fuel Drop Rate"
+        },
+        "smart_fuel_sag_compensation": {
+          "english": "Sag Compensation",
+          "needs_translation": true,
+          "translation": "Sag Compensation"
+        },
+        "smart_fuel_tuning": {
+          "english": "Smart Fuel Tuning",
+          "needs_translation": true,
+          "translation": "Smart Fuel Tuning"
+        },
+        "smart_fuel_voltage_fall_rate": {
+          "english": "Voltage Fall Rate",
+          "needs_translation": true,
+          "translation": "Voltage Fall Rate"
         },
         "triggers": {
           "english": "Triggers",

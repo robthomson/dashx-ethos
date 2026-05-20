@@ -131,6 +131,56 @@
         "translation": "Consumption Warning %",
         "needs_translation": true
       },
+      "consumption_scale": {
+        "english": "Consumption Scale",
+        "translation": "Consumption Scale",
+        "needs_translation": true
+      },
+      "smart_fuel_tuning": {
+        "english": "Smart Fuel Tuning",
+        "translation": "Smart Fuel Tuning",
+        "needs_translation": true
+      },
+      "smart_fuel_sag_compensation": {
+        "english": "Sag Compensation",
+        "translation": "Sag Compensation",
+        "needs_translation": true
+      },
+      "smart_fuel_voltage_fall_rate": {
+        "english": "Voltage Fall Rate",
+        "translation": "Voltage Fall Rate",
+        "needs_translation": true
+      },
+      "smart_fuel_drop_rate": {
+        "english": "Fuel Drop Rate",
+        "translation": "Fuel Drop Rate",
+        "needs_translation": true
+      },
+      "fuel_countdown_audio": {
+        "english": "Fuel Countdown Audio",
+        "translation": "Fuel Countdown Audio",
+        "needs_translation": true
+      },
+      "enable_fuel_countdown": {
+        "english": "Enable Fuel Countdown",
+        "translation": "Enable Fuel Countdown",
+        "needs_translation": true
+      },
+      "fuel_countdown_start": {
+        "english": "Fuel Countdown Start",
+        "translation": "Fuel Countdown Start",
+        "needs_translation": true
+      },
+      "fuel_countdown_minimum": {
+        "english": "Fuel Countdown Minimum",
+        "translation": "Fuel Countdown Minimum",
+        "needs_translation": true
+      },
+      "fuel_countdown_step": {
+        "english": "Fuel Countdown Step",
+        "translation": "Fuel Countdown Step",
+        "needs_translation": true
+      },
       "battery_full_voltage": {
         "english": "Cell Full Voltage",
         "translation": "Cell Full Voltage",

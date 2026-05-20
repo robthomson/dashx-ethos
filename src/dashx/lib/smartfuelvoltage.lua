@@ -20,16 +20,25 @@ local lastSensorMode
 local lastFuelPercent = nil
 local lastFuelTimestamp = nil
 
-local maxFuelDropPerSecond = 1
-
-local maxFuelRisePerSecond = 0.2
-
-local MAX_FALL_PER_SEC = 0.05
+local DEFAULT_MAX_FUEL_DROP_PER_SECOND = 1
+local DEFAULT_MAX_FALL_PER_CELL_PER_SEC = 0.05
+local DEFAULT_SAG_COMPENSATION = 0.7
 local lastFilteredVoltage = nil
+local lastRpm = nil
 
-local function fallingLimitedFilter(current_v, prev_v, dt)
+local function clamp(value, minimum, maximum)
+    if value < minimum then
+        return minimum
+    end
+    if value > maximum then
+        return maximum
+    end
+    return value
+end
+
+local function fallingLimitedFilter(current_v, prev_v, dt, cellCount, maxFallPerCellPerSecond)
     if not prev_v then return current_v end
-    local max_drop = dt * MAX_FALL_PER_SEC
+    local max_drop = dt * maxFallPerCellPerSecond * (cellCount or 1)
     if current_v >= prev_v then
         return current_v
     else
@@ -50,14 +59,18 @@ local function resetVoltageTracking()
     voltageStabilised = false
 end
 
-local function resetState()
-    batteryConfigCache = nil
-    lastSensorMode = nil
+local function resetFuelTracking()
     lastFuelPercent = nil
     lastFuelTimestamp = nil
     lastFilteredVoltage = nil
     lastRpm = nil
+end
+
+local function resetState()
+    batteryConfigCache = nil
+    lastSensorMode = nil
     stabilizeNotBefore = nil
+    resetFuelTracking()
     resetVoltageTracking()
 end
 
@@ -72,13 +85,12 @@ local function isVoltageStable()
 end
 
 local function getStickLoadFactor()
-    local rx = dashx.session.rx.values
+    local rx = dashx.session.rx and dashx.session.rx.values
     if not rx then return 0 end
     local sum = 1.0 * math.abs(rx.aileron or 0) + 1.0 * math.abs(rx.elevator or 0) + 1.2 * math.abs(rx.collective or 0)
     return math.min(1.0, sum / 3000)
 end
 
-local lastRpm = nil
 local function getRpmDropFactor()
     local rpm = telemetry and telemetry.getSensor and telemetry.getSensor("rpm") or nil
     if not rpm or rpm < 100 then return 0 end
@@ -94,7 +106,8 @@ end
 
 local function applySagCompensation(voltage)
     if dashx.flightmode.current ~= "inflight" then return voltage end
-    local multiplier = dashx.session.modelPreferences and dashx.session.modelPreferences.battery and dashx.session.modelPreferences.battery.sag_multiplier or 0.7
+    local bc = dashx.session.batteryConfig or {}
+    local multiplier = clamp((tonumber(bc.smartFuelSagCompensation) or (DEFAULT_SAG_COMPENSATION * 100)) / 100, 0, 2)
     local sagFactor = math.max(getStickLoadFactor(), getRpmDropFactor())
 
     local compensationScale = multiplier ^ 1.5
@@ -128,28 +141,42 @@ local function smartFuelCalc()
 
     if not dashx.session.isConnected or not dashx.session.batteryConfig then
         resetVoltageTracking()
+        resetFuelTracking()
         return nil
     end
 
     if dashx.session.modelPreferences and dashx.session.modelPreferences.battery and dashx.session.modelPreferences.battery.calc_local then
         if lastSensorMode ~= dashx.session.modelPreferences.battery.calc_local then
             resetVoltageTracking()
+            resetFuelTracking()
             lastSensorMode = dashx.session.modelPreferences.battery.calc_local
         end
     end
 
     local bc = dashx.session.batteryConfig
-    local configSig = table.concat({bc.batteryCellCount, bc.batteryCapacity, bc.consumptionWarningPercentage, bc.vbatmaxcellvoltage, bc.vbatmincellvoltage, bc.vbatfullcellvoltage}, ":")
+    local configSig = table.concat({
+        bc.batteryCellCount,
+        bc.batteryCapacity,
+        bc.consumptionWarningPercentage,
+        bc.vbatmaxcellvoltage,
+        bc.vbatmincellvoltage,
+        bc.vbatfullcellvoltage,
+        bc.smartFuelSagCompensation,
+        bc.smartFuelVoltageFallRate,
+        bc.smartFuelDropRate
+    }, ":")
 
     if configSig ~= batteryConfigCache then
         batteryConfigCache = configSig
         resetVoltageTracking()
+        resetFuelTracking()
         stabilizeNotBefore = os.clock() + preStabiliseDelay
     end
 
     local voltage = telemetry and telemetry.getSensor and telemetry.getSensor("voltage") or nil
     if not voltage or voltage < 2 then
         resetVoltageTracking()
+        resetFuelTracking()
         stabilizeNotBefore = nil
         return nil
     end
@@ -169,30 +196,34 @@ local function smartFuelCalc()
         end
     end
 
-    if #lastVoltages >= 1 and dashx.flightmode.current == "preflight" then
+    if #lastVoltages >= 2 and dashx.flightmode.current == "preflight" then
         local prev = lastVoltages[#lastVoltages - 1]
         if voltage > prev + voltageThreshold then
             dashx.utils.log("Voltage increased after stabilization – resetting...", "info")
             resetVoltageTracking()
+            resetFuelTracking()
             stabilizeNotBefore = os.clock() + preStabiliseDelay
             return nil
         end
     end
 
-    local filteredVoltage = fallingLimitedFilter(voltage, lastFilteredVoltage, os.clock() - (lastFuelTimestamp or os.clock()))
+    local now = os.clock()
+    local dt = lastFuelTimestamp and math.max(0, now - lastFuelTimestamp) or 0
+    local maxFallPerCellPerSecond = clamp((tonumber(bc.smartFuelVoltageFallRate) or (DEFAULT_MAX_FALL_PER_CELL_PER_SEC * 100)) / 100, 0.01, 1)
+    local filteredVoltage = fallingLimitedFilter(voltage, lastFilteredVoltage, dt, bc.batteryCellCount, maxFallPerCellPerSecond)
+    lastFilteredVoltage = filteredVoltage
+
     local compensatedVoltage = applySagCompensation(filteredVoltage / bc.batteryCellCount) * bc.batteryCellCount
     local percent = fuelPercentageCalcByVoltage(compensatedVoltage, bc.batteryCellCount)
-    local now = os.clock()
     if (dashx.flightmode.current == "inflight" or dashx.flightmode.current == "postflight") and lastFuelPercent and lastFuelTimestamp then
 
-        local dt = now - lastFuelTimestamp
+        local maxFuelDropPerSecond = clamp(tonumber(bc.smartFuelDropRate) or DEFAULT_MAX_FUEL_DROP_PER_SECOND, 0.1, 20)
         local maxDrop = dt * maxFuelDropPerSecond
-        local maxRise = dt * maxFuelRisePerSecond
 
         if percent < lastFuelPercent then
             percent = math.max(percent, lastFuelPercent - maxDrop)
         elseif percent > lastFuelPercent then
-            percent = math.min(percent, lastFuelPercent + maxRise)
+            percent = lastFuelPercent
         end
     end
 
