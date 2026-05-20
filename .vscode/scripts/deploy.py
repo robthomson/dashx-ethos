@@ -135,7 +135,10 @@ def _lock_path_for_config(config_path: str) -> str:
     return os.path.join(tempfile.gettempdir(), lock_name)
 
 def parse_version(v: str):
-    return tuple(map(int, v.split(".")))
+    m = re.search(r'(\d+)\.(\d+)\.(\d+)', v or "")
+    if not m:
+        raise ValueError(f"Invalid version: {v}")
+    return tuple(map(int, m.groups()))
 
 def check_ethossuite_version(ethossuite_bin, min_version=MIN_ETHOSSUITE_VERSION):
     try:
@@ -157,7 +160,8 @@ def check_ethossuite_version(ethossuite_bin, min_version=MIN_ETHOSSUITE_VERSION)
         return False
 
     lines = [l.strip() for l in (res.stdout or "").splitlines() if l.strip()]
-    version = next((l for l in lines if re.match(r'^\d+\.\d+\.\d+$', l)), None)
+    version_re = re.compile(r'^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$')
+    version = next((l for l in lines if version_re.match(l)), None)
 
     if not version:
         print(f"[ERROR] Could not parse Ethos Suite version from output:\n{res.stdout}")
@@ -1046,8 +1050,13 @@ def main():
         return 1
 
     ethos_bin = config.get('ethossuite_bin')
+    if not ethos_bin and args.radio:
+        print("[ERROR] Missing 'ethossuite_bin' in config; radio deploy/debug requires Ethos Suite.")
+        return 1
     if ethos_bin and not check_ethossuite_version(ethos_bin, min_version=MIN_ETHOSSUITE_VERSION):
-        sys.exit(1)
+        if args.radio:
+            return 1
+        print("[WARN] Ethos Suite version check failed; continuing because simulator deploy does not require Ethos Suite.")
 
     # --- target selection: RADIO vs SIMULATOR ---------------------------------
     targets = []
