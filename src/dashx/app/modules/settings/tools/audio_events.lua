@@ -33,27 +33,29 @@ local function openPage(pageIdx, title, script)
     settings = dashx.preferences.events
 
     for i, v in ipairs(eventList) do
-        local eventKey = v.key or v.sensor
-        local sensorKey = v.sensor or eventKey
-        local eventLabel = eventNames[sensorKey] or eventNames[eventKey] or eventKey or "unknown"
-        if v.key and v.sensor and v.key ~= v.sensor then
-            eventLabel = eventLabel .. " (" .. v.key:gsub("_", " ") .. ")"
-        end
+        if not v.hidden then
+            local eventKey = v.key or v.sensor
+            local sensorKey = v.sensor or eventKey
+            local eventLabel = eventNames[sensorKey] or eventNames[eventKey] or eventKey or "unknown"
+            if v.key and v.sensor and v.key ~= v.sensor then
+                eventLabel = eventLabel .. " (" .. v.key:gsub("_", " ") .. ")"
+            end
 
-        formFieldCount = formFieldCount + 1
-        dashx.session.formLineCnt = dashx.session.formLineCnt + 1
-        dashx.app.formLines[dashx.session.formLineCnt] = form.addLine(eventLabel)
-        dashx.app.formFields[formFieldCount] = form.addBooleanField(dashx.app.formLines[dashx.session.formLineCnt], nil,
-            function()
-                if dashx.preferences and dashx.preferences.events then
-                    return settings[eventKey]
-                end
-            end,
-            function(newValue)
-                if dashx.preferences and dashx.preferences.events then
-                    settings[eventKey] = newValue
-                end
-            end)
+            formFieldCount = formFieldCount + 1
+            dashx.session.formLineCnt = dashx.session.formLineCnt + 1
+            dashx.app.formLines[dashx.session.formLineCnt] = form.addLine(eventLabel)
+            dashx.app.formFields[formFieldCount] = form.addBooleanField(dashx.app.formLines[dashx.session.formLineCnt], nil,
+                function()
+                    if dashx.preferences and dashx.preferences.events then
+                        return settings[eventKey]
+                    end
+                end,
+                function(newValue)
+                    if dashx.preferences and dashx.preferences.events then
+                        settings[eventKey] = newValue
+                    end
+                end)
+        end
     end
 
 end

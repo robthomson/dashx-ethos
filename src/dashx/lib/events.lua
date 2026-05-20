@@ -52,6 +52,15 @@ local function getFuelCountdownConfig()
     return enabled, start, minimum, step
 end
 
+local function isEventEnabled(item, enabledEvents)
+    if item.key == "fuel_countdown" then
+        local enabled = getFuelCountdownConfig()
+        return enabled
+    end
+
+    return enabledEvents[item.key] == true
+end
+
 local eventTable = {
     {
         key = "voltage",
@@ -95,6 +104,7 @@ local eventTable = {
     {
         key = "fuel_countdown",
         sensor = "fuel",
+        hidden = true,
         interval = 1,
         getter = getFuelPercent,
         event = function(value)
@@ -175,7 +185,7 @@ function events.wakeup()
     local now = os.clock()
 
     for _, item in ipairs(eventTable) do
-        if not enabledEvents[item.key] then
+        if not isEventEnabled(item, enabledEvents) then
             goto continue
         end
 
