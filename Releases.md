@@ -1,3 +1,9 @@
+# 2.0.3
+
+Improve smart fuel voltage support
+Support ethos 26 themes
+Small bug fixes
+
 # 2.0.2
 
 Fix bug when new theme chosen; resulting in dashboard not updating
