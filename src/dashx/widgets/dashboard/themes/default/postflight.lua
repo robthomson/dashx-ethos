@@ -85,8 +85,8 @@ local function buildBoxes(W)
         {col = 1, row = 1, type = "time", subtype = "flight", title = "Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
         {col = 1, row = 2, type = "time", subtype = "total", title = "Total Model Flight Duration", titlepos = "bottom", bgcolor = colorMode.bgcolor, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
 
-        {col = 2, row = 1, type = "text", subtype = "stats", source = "voltage", title = "Voltage Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
-        {col = 2, row = 2, type = "text", subtype = "stats", stattype = "min", source = "voltage", title = "Voltage Min", titlepos = "bottom", bgcolor = colorMode.bgcolor, transform = "floor", textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor}
+        {col = 2, row = 1, type = "text", subtype = "stats", source = "voltage", title = "Voltage Max", titlepos = "bottom", bgcolor = colorMode.bgcolor, decimals = 2, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor},
+        {col = 2, row = 2, type = "text", subtype = "stats", stattype = "min", source = "voltage", title = "Voltage Min", titlepos = "bottom", bgcolor = colorMode.bgcolor, decimals = 2, textcolor = colorMode.textcolor, titlecolor = colorMode.titlecolor}
 
     }
 end
