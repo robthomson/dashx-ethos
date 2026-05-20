@@ -2809,6 +2809,31 @@
           "needs_translation": true,
           "translation": "Consumption Scale"
         },
+        "fuel_countdown_audio": {
+          "english": "Fuel Countdown Audio",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Audio"
+        },
+        "enable_fuel_countdown": {
+          "english": "Enable Fuel Countdown",
+          "needs_translation": true,
+          "translation": "Enable Fuel Countdown"
+        },
+        "fuel_countdown_start": {
+          "english": "Fuel Countdown Start",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Start"
+        },
+        "fuel_countdown_minimum": {
+          "english": "Fuel Countdown Minimum",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Minimum"
+        },
+        "fuel_countdown_step": {
+          "english": "Fuel Countdown Step",
+          "needs_translation": true,
+          "translation": "Fuel Countdown Step"
+        },
         "battery_full_voltage": {
           "english": "Cell Full Voltage",
           "needs_translation": true,

@@ -46,6 +46,7 @@ local userPreferenceDefaults = {
         armed = true,
         voltage = true,
         fuel = true,
+        fuel_countdown = false,
         profile = true,
         inflight = true
     },

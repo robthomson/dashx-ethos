@@ -587,16 +587,22 @@ function dashboard.paint()
         return
     end
 
+    local _dbg_paint_t0 = os.clock()
     ensureState()
     paintObjects()
     if dashboard.toolbar and dashboard.toolbar.draw then
         dashboard.toolbar.draw(dashboard)
+    end
+    local _dbg_paint_dt = os.clock() - _dbg_paint_t0
+    if _dbg_paint_dt > 0.01 then
+        print(string.format("[DBG] paint %.1fms", _dbg_paint_dt * 1000))
     end
 end
 
 function dashboard.wakeup(widget)
     local visible = lcd.isVisible(widget)
     local now = os.clock()
+    local _dbg_wake_t0 = now
 
     if not visible then
         if (now - lastHiddenWakeAt) < hiddenWakeInterval then
@@ -643,7 +649,17 @@ function dashboard.wakeup(widget)
         lcd.invalidate(widget)
     end
 
-    if wakeObjects() or runtimeState.flightmode_changed or (now - lastInvalidateAt) >= invalidateInterval then
+    local _dbg_wake_objects_t0 = os.clock()
+    local _dbg_dirty = wakeObjects()
+    local _dbg_wake_objects_dt = os.clock() - _dbg_wake_objects_t0
+    if _dbg_wake_objects_dt > 0.005 then
+        print(string.format("[DBG] wakeObjects %.1fms", _dbg_wake_objects_dt * 1000))
+    end
+    local _dbg_wake_total_dt = os.clock() - _dbg_wake_t0
+    if _dbg_wake_total_dt > 0.010 then
+        print(string.format("[DBG] wakeup total %.1fms", _dbg_wake_total_dt * 1000))
+    end
+    if _dbg_dirty or runtimeState.flightmode_changed or (now - lastInvalidateAt) >= invalidateInterval then
         forceFullRepaint = false
         lastInvalidateAt = now
         lcd.invalidate(widget)

@@ -97,8 +97,17 @@ local function encodeSwitchSource(source)
     return table.concat({source:category(), source:member(), source:options()}, ":")
 end
 
+local function boolFieldValueToFlag(value)
+    if value == true or tonumber(value) == 1 then
+        return 1
+    end
+    return 0
+end
+
 function configui.read(widget)
-    ensureWidgetDefaults(widget)
+    if not widget or not widget._modelKey then
+        ensureWidgetDefaults(widget)
+    end
     return true
 end
 
@@ -107,7 +116,9 @@ function configui.write(widget)
 end
 
 function configui.configure(widget)
-    ensureWidgetDefaults(widget)
+    if not widget or not widget._modelKey then
+        ensureWidgetDefaults(widget)
+    end
 
     local themeLine = addLine(nil, "Theme for this model")
     local themeList = dashx.widgets.dashboard.listThemes()
@@ -119,7 +130,7 @@ function configui.configure(widget)
     end)
 
     local batteryPanel = form.addExpansionPanel("@i18n(app.modules.model.battery)@")
-    batteryPanel:open(true)
+    batteryPanel:open(false)
 
     local fuelModeLine = addLine(batteryPanel, "@i18n(app.modules.model.calcfuel_using)@")
     form.addChoiceField(fuelModeLine, nil, {
@@ -213,6 +224,55 @@ function configui.configure(widget)
     end)
     if scaleField and scaleField.suffix then
         scaleField:suffix("%")
+    end
+
+    local countdownPanel = form.addExpansionPanel("@i18n(app.modules.model.fuel_countdown_audio)@")
+    countdownPanel:open(false)
+
+    local countdownEnabledLine = addLine(countdownPanel, "@i18n(app.modules.model.enable_fuel_countdown)@")
+    form.addBooleanField(countdownEnabledLine, nil, function()
+        return (tonumber(widget.fuelCountdownEnabled) or 0) == 1
+    end, function(value)
+        widget.fuelCountdownEnabled = boolFieldValueToFlag(value)
+    end)
+
+    local countdownStartLine = addLine(countdownPanel, "@i18n(app.modules.model.fuel_countdown_start)@")
+    local countdownStartField = form.addNumberField(countdownStartLine, nil, 1, 100, function()
+        return math.floor(tonumber(widget.fuelCountdownStart) or 50)
+    end, function(value)
+        widget.fuelCountdownStart = clamp(math.floor(tonumber(value) or 50), 1, 100)
+        if (tonumber(widget.fuelCountdownMin) or 10) > widget.fuelCountdownStart then
+            widget.fuelCountdownMin = widget.fuelCountdownStart
+        end
+    end)
+    if countdownStartField and countdownStartField.suffix then
+        countdownStartField:suffix("%")
+    end
+
+    local countdownMinLine = addLine(countdownPanel, "@i18n(app.modules.model.fuel_countdown_minimum)@")
+    local countdownMinField = form.addNumberField(countdownMinLine, nil, 0, 100, function()
+        local minimum = math.floor(tonumber(widget.fuelCountdownMin) or 10)
+        local start = math.floor(tonumber(widget.fuelCountdownStart) or 50)
+        if minimum > start then
+            minimum = start
+        end
+        return minimum
+    end, function(value)
+        local start = math.floor(tonumber(widget.fuelCountdownStart) or 50)
+        widget.fuelCountdownMin = clamp(math.floor(tonumber(value) or 10), 0, start)
+    end)
+    if countdownMinField and countdownMinField.suffix then
+        countdownMinField:suffix("%")
+    end
+
+    local countdownStepLine = addLine(countdownPanel, "@i18n(app.modules.model.fuel_countdown_step)@")
+    local countdownStepField = form.addNumberField(countdownStepLine, nil, 1, 50, function()
+        return math.floor(tonumber(widget.fuelCountdownStep) or 10)
+    end, function(value)
+        widget.fuelCountdownStep = clamp(math.floor(tonumber(value) or 10), 1, 50)
+    end)
+    if countdownStepField and countdownStepField.suffix then
+        countdownStepField:suffix("%")
     end
 
     local triggersPanel = form.addExpansionPanel("@i18n(app.modules.model.triggers)@")

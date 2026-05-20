@@ -9,14 +9,53 @@ local events = {}
 
 local lastEventTimes = {}
 local lastValues = {}
+local nextFuelCountdown = nil
 
 local function telemetry()
     return dashx.telemetry
 end
 
+local function getFuelPercent()
+    local source = telemetry()
+    return source and (source.getSensor("smartfuel") or source.getSensor("fuel")) or nil
+end
+
+local function getFuelCountdownConfig()
+    local battery = dashx.session and dashx.session.batteryConfig or {}
+    local enabled = (tonumber(battery.fuelCountdownEnabled) or 0) == 1
+
+    local start = math.floor(tonumber(battery.fuelCountdownStart) or 50)
+    if start < 1 then
+        start = 1
+    elseif start > 100 then
+        start = 100
+    end
+
+    local minimum = math.floor(tonumber(battery.fuelCountdownMin) or 10)
+    if minimum < 0 then
+        minimum = 0
+    elseif minimum > 100 then
+        minimum = 100
+    end
+
+    if minimum > start then
+        minimum = start
+    end
+
+    local step = math.floor(tonumber(battery.fuelCountdownStep) or 10)
+    if step < 1 then
+        step = 1
+    elseif step > 50 then
+        step = 50
+    end
+
+    return enabled, start, minimum, step
+end
+
 local eventTable = {
     {
         key = "voltage",
+        sensor = "voltage",
         interval = 10,
         getter = function()
             local source = telemetry()
@@ -44,11 +83,9 @@ local eventTable = {
     },
     {
         key = "fuel",
+        sensor = "fuel",
         interval = 10,
-        getter = function()
-            local source = telemetry()
-            return source and (source.getSensor("smartfuel") or source.getSensor("fuel")) or nil
-        end,
+        getter = getFuelPercent,
         event = function(value)
             if value and value <= 10 then
                 dashx.utils.playFile("events", "alerts/lowfuel.wav")
@@ -56,7 +93,62 @@ local eventTable = {
         end
     },
     {
+        key = "fuel_countdown",
+        sensor = "fuel",
+        interval = 1,
+        getter = getFuelPercent,
+        event = function(value)
+            local mode = dashx.flightmode and dashx.flightmode.current or "preflight"
+            if mode ~= "inflight" and mode ~= "postflight" then
+                nextFuelCountdown = nil
+                return
+            end
+
+            local fuel = tonumber(value)
+            if not fuel then
+                return
+            end
+
+            local enabled, start, minimum, step = getFuelCountdownConfig()
+            if not enabled then
+                nextFuelCountdown = nil
+                return
+            end
+
+            if fuel > start then
+                nextFuelCountdown = start
+                return
+            end
+
+            if nextFuelCountdown == nil then
+                local firstThreshold = math.floor((math.min(fuel, start) - 1) / step) * step
+                if firstThreshold >= minimum then
+                    nextFuelCountdown = firstThreshold
+                else
+                    return
+                end
+            end
+
+            if fuel > nextFuelCountdown then
+                return
+            end
+
+            local announcement = nextFuelCountdown
+            nextFuelCountdown = nextFuelCountdown - step
+            if nextFuelCountdown < minimum then
+                nextFuelCountdown = nil
+            end
+
+            if system.playNumber then
+                system.playNumber(announcement, UNIT_PERCENT, 0)
+            else
+                dashx.utils.playFile("events", "alerts/lowfuel.wav")
+            end
+        end
+    },
+    {
         key = "armed",
+        sensor = "armed",
         debounce = 0.25,
         getter = function()
             local source = telemetry()
@@ -75,6 +167,7 @@ local eventTable = {
 function events.reset()
     lastEventTimes = {}
     lastValues = {}
+    nextFuelCountdown = nil
 end
 
 function events.wakeup()
@@ -115,5 +208,7 @@ function events.wakeup()
         ::continue::
     end
 end
+
+events.eventTable = eventTable
 
 return events

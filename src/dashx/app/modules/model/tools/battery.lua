@@ -7,6 +7,13 @@ local dashx = require("dashx")
 local settings = {}
 local enableWakeup = false
 
+local function boolFieldValueToFlag(value)
+    if value == true or tonumber(value) == 1 then
+        return 1
+    end
+    return 0
+end
+
 local function openPage(pageIdx, title, script)
     enableWakeup = true
     dashx.app.triggers.closeProgressLoader = true
@@ -104,6 +111,50 @@ local function openPage(pageIdx, title, script)
     end, function(newValue) if dashx.session.modelPreferences then dashx.session.modelPreferences.battery.consumptionWarningPercentage = newValue end end)
     dashx.app.formFields[formFieldCount]:suffix("%")
     dashx.app.formFields[formFieldCount]:default(30)
+
+    formFieldCount = formFieldCount + 1
+    formLineCnt = formLineCnt + 1
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.enable_fuel_countdown)@")
+    dashx.app.formFields[formFieldCount] = form.addBooleanField(dashx.app.formLines[formLineCnt], nil, function()
+        if dashx.session.modelPreferences and dashx.session.modelPreferences.battery then
+            return (tonumber(dashx.session.modelPreferences.battery.fuelCountdownEnabled) or 0) == 1
+        end
+        return false
+    end, function(newValue)
+        if dashx.session.modelPreferences then
+            dashx.session.modelPreferences.battery.fuelCountdownEnabled = boolFieldValueToFlag(newValue)
+        end
+    end)
+
+    formFieldCount = formFieldCount + 1
+    formLineCnt = formLineCnt + 1
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.fuel_countdown_start)@")
+    dashx.app.formFields[formFieldCount] = form.addNumberField(dashx.app.formLines[formLineCnt], nil, 1, 100, function()
+        if dashx.session.modelPreferences and dashx.session.modelPreferences.battery then return dashx.session.modelPreferences.battery.fuelCountdownStart end
+        return nil
+    end, function(newValue) if dashx.session.modelPreferences then dashx.session.modelPreferences.battery.fuelCountdownStart = newValue end end)
+    dashx.app.formFields[formFieldCount]:suffix("%")
+    dashx.app.formFields[formFieldCount]:default(50)
+
+    formFieldCount = formFieldCount + 1
+    formLineCnt = formLineCnt + 1
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.fuel_countdown_minimum)@")
+    dashx.app.formFields[formFieldCount] = form.addNumberField(dashx.app.formLines[formLineCnt], nil, 0, 100, function()
+        if dashx.session.modelPreferences and dashx.session.modelPreferences.battery then return dashx.session.modelPreferences.battery.fuelCountdownMin end
+        return nil
+    end, function(newValue) if dashx.session.modelPreferences then dashx.session.modelPreferences.battery.fuelCountdownMin = newValue end end)
+    dashx.app.formFields[formFieldCount]:suffix("%")
+    dashx.app.formFields[formFieldCount]:default(10)
+
+    formFieldCount = formFieldCount + 1
+    formLineCnt = formLineCnt + 1
+    dashx.app.formLines[formLineCnt] = form.addLine("@i18n(app.modules.model.fuel_countdown_step)@")
+    dashx.app.formFields[formFieldCount] = form.addNumberField(dashx.app.formLines[formLineCnt], nil, 1, 50, function()
+        if dashx.session.modelPreferences and dashx.session.modelPreferences.battery then return dashx.session.modelPreferences.battery.fuelCountdownStep end
+        return nil
+    end, function(newValue) if dashx.session.modelPreferences then dashx.session.modelPreferences.battery.fuelCountdownStep = newValue end end)
+    dashx.app.formFields[formFieldCount]:suffix("%")
+    dashx.app.formFields[formFieldCount]:default(10)
 
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1

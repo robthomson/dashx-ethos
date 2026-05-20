@@ -37,7 +37,11 @@ local modelPreferenceDefaults = {
         vbatfullcellvoltage = 41,
         lvcPercentage = 30,
         consumptionWarningPercentage = 30,
-        consumptionScale = 100
+        consumptionScale = 100,
+        fuelCountdownEnabled = 0,
+        fuelCountdownStart = 50,
+        fuelCountdownMin = 10,
+        fuelCountdownStep = 10
     }
 }
 
@@ -118,7 +122,11 @@ local function buildBatteryConfig(prefs)
         vbatfullcellvoltage = (tonumber(battery.vbatfullcellvoltage) or 41) / 10,
         lvcPercentage = tonumber(battery.lvcPercentage) or 30,
         consumptionWarningPercentage = tonumber(battery.consumptionWarningPercentage) or 30,
-        consumptionScale = tonumber(battery.consumptionScale) or 100
+        consumptionScale = tonumber(battery.consumptionScale) or 100,
+        fuelCountdownEnabled = tonumber(battery.fuelCountdownEnabled) or 0,
+        fuelCountdownStart = tonumber(battery.fuelCountdownStart) or 50,
+        fuelCountdownMin = tonumber(battery.fuelCountdownMin) or 10,
+        fuelCountdownStep = tonumber(battery.fuelCountdownStep) or 10
     }
 end
 
@@ -474,6 +482,13 @@ local function normalizeWidgetSettings(widget)
     widget.vbatfullcellvoltage = clamp(math.floor(tonumber(widget.vbatfullcellvoltage) or 41), 5, 600)
     widget.consumptionWarningPercentage = clamp(math.floor(tonumber(widget.consumptionWarningPercentage) or 30), 0, 100)
     widget.consumptionScale = clamp(math.floor(tonumber(widget.consumptionScale) or 100), 50, 200)
+    widget.fuelCountdownEnabled = clamp(math.floor(tonumber(widget.fuelCountdownEnabled) or 0), 0, 1)
+    widget.fuelCountdownStart = clamp(math.floor(tonumber(widget.fuelCountdownStart) or 50), 1, 100)
+    widget.fuelCountdownMin = clamp(math.floor(tonumber(widget.fuelCountdownMin) or 10), 0, 100)
+    widget.fuelCountdownStep = clamp(math.floor(tonumber(widget.fuelCountdownStep) or 10), 1, 50)
+    if widget.fuelCountdownMin > widget.fuelCountdownStart then
+        widget.fuelCountdownMin = widget.fuelCountdownStart
+    end
     widget.inflightswitch_delay = clamp(math.floor(tonumber(widget.inflightswitch_delay) or 10), 0, 120)
     widget.armswitch = normalizeSwitchValue(widget.armswitch)
     widget.inflightswitch = normalizeSwitchValue(widget.inflightswitch)
@@ -499,6 +514,10 @@ function runtime.readWidgetSettings(widget)
         widget.vbatfullcellvoltage = tonumber(batteryPrefs.vbatfullcellvoltage) or 41
         widget.consumptionWarningPercentage = tonumber(batteryPrefs.consumptionWarningPercentage) or 30
         widget.consumptionScale = tonumber(batteryPrefs.consumptionScale) or 100
+        widget.fuelCountdownEnabled = tonumber(batteryPrefs.fuelCountdownEnabled) or 0
+        widget.fuelCountdownStart = tonumber(batteryPrefs.fuelCountdownStart) or 50
+        widget.fuelCountdownMin = tonumber(batteryPrefs.fuelCountdownMin) or 10
+        widget.fuelCountdownStep = tonumber(batteryPrefs.fuelCountdownStep) or 10
         widget.armswitch = modelPrefs.armswitch or false
         widget.inflightswitch = modelPrefs.inflightswitch or false
         widget.inflightswitch_delay = tonumber(modelPrefs.inflightswitch_delay) or 10
@@ -544,6 +563,10 @@ function runtime.writeWidgetSettings(widget)
     prefs.battery.vbatfullcellvoltage = widget.vbatfullcellvoltage
     prefs.battery.consumptionWarningPercentage = widget.consumptionWarningPercentage
     prefs.battery.consumptionScale = widget.consumptionScale
+    prefs.battery.fuelCountdownEnabled = widget.fuelCountdownEnabled
+    prefs.battery.fuelCountdownStart = widget.fuelCountdownStart
+    prefs.battery.fuelCountdownMin = widget.fuelCountdownMin
+    prefs.battery.fuelCountdownStep = widget.fuelCountdownStep
 
     dashx.ini.save_ini_file(prefFile, prefs)
 
