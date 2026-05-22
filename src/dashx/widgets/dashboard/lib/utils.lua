@@ -287,6 +287,20 @@ ensureThemeColorContrast = function(color, background, minRatio)
     return bestColor
 end
 
+local function resolveDashboardPanelColors(themeState)
+    local primary = themeState and themeState.primaryBgColor
+    local secondary = themeState and themeState.secondaryBgColor
+    if primary == nil then return secondary, secondary end
+    if secondary == nil then return primary, primary end
+
+    local primaryLuminance = relativeLuminance(primary)
+    local secondaryLuminance = relativeLuminance(secondary)
+    if primaryLuminance ~= nil and secondaryLuminance ~= nil and secondaryLuminance < primaryLuminance then
+        return secondary, primary
+    end
+    return primary, secondary
+end
+
 local function resolveGaugeTrackBg(themeState, background)
     if themeState == nil then return ensureThemeColorContrast(background, background, 2.0) end
 
@@ -555,6 +569,7 @@ local function ensureThemeCache()
     local headerText = resolveDashboardHeaderTextColor(themeState, headerBg) or themeState.primaryColor
     local headerGaugeTrackBg = resolveGaugeTrackBg(themeState, headerBg)
     local gaugeFillColor, gaugeWarnColor, gaugeCritColor = resolveGaugeThresholdPalette(themeState, surfaceBg)
+    local panelBg, panelAltBg = resolveDashboardPanelColors(themeState)
 
     dashboardTheme.textcolor = themeState.primaryColor
     dashboardTheme.titlecolor = themeState.primaryColor
@@ -582,8 +597,8 @@ local function ensureThemeCache()
         focusText = themeState.focusColor or themeState.highlightInvertColor or themeState.primaryColor
 
         chromeTheme.background = themeState.pageBgColor or themeState.primaryBgColor
-        chromeTheme.panel = themeState.primaryBgColor
-        chromeTheme.panelAlt = themeState.secondaryBgColor
+        chromeTheme.panel = panelBg
+        chromeTheme.panelAlt = panelAltBg
         chromeTheme.button = themeState.secondaryBgColor
         chromeTheme.buttonDisabled = themeState.primaryBgColor
         chromeTheme.text = themeState.primaryColor
