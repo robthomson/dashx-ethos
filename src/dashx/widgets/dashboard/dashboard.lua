@@ -83,13 +83,9 @@ local function consumeTouchSequence(value)
         system.killEvents(value)
     end
 
-    if TOUCH_START then
-        system.killEvents(TOUCH_START)
-    end
-
-    if value == TOUCH_END and TOUCH_END then
-        system.killEvents(TOUCH_END)
-    end
+    if TOUCH_START then system.killEvents(TOUCH_START) end
+    if TOUCH_MOVE then system.killEvents(TOUCH_MOVE) end
+    if TOUCH_END then system.killEvents(TOUCH_END) end
 end
 
 local function getThemeForState(state)
