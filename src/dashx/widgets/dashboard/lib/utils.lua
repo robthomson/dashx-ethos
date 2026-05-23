@@ -29,12 +29,15 @@ local THEME_STATE_KEYS = {
     {key = "highlightColor", constant = "THEME_HIGHLIGHT_COLOR"},
     {key = "highlightInvertColor", constant = "THEME_HIGHLIGHT_INVERT_COLOR"},
     {key = "disableColor", constant = "THEME_DISABLE_COLOR"},
+    {key = "safeColor", constant = "THEME_SAFE_COLOR"},
     {key = "warningColor", constant = "THEME_WARNING_COLOR"},
+    {key = "errorColor", constant = "THEME_ERROR_COLOR"},
     {key = "activeColor", constant = "THEME_ACTIVE_COLOR"},
     {key = "inactiveColor", constant = "THEME_INACTIVE_COLOR"},
     {key = "buttonBorderActiveColor", constant = "THEME_BUTTON_BORDER_ACTIVE_COLOR"},
     {key = "buttonBorderColor", constant = "THEME_BUTTON_BORDER_COLOR"},
     {key = "mixerOutputColor", constant = "THEME_MIXER_OUTPUT_COLOR"},
+    {key = "safeContrastingColor", constant = "THEME_SAFE_CONTRASTING_COLOR"},
     {key = "pageBgColor", constant = "THEME_PAGE_BGCOLOR"},
     {key = "topLcdBgColor", constant = "THEME_TOPLCD_BGCOLOR"}
 }
@@ -51,12 +54,15 @@ local LEGACY_THEME_STATE = {
         highlightColor = lcd.RGB(255, 255, 255),
         highlightInvertColor = lcd.RGB(0, 0, 0),
         disableColor = lcd.RGB(90, 90, 90),
+        safeColor = lcd.RGB(0, 188, 4),
         warningColor = lcd.RGB(255, 0, 0),
+        errorColor = lcd.RGB(255, 0, 0),
         activeColor = lcd.RGB(0, 188, 4),
         inactiveColor = lcd.RGB(255, 0, 0),
         buttonBorderActiveColor = lcd.RGB(255, 255, 255),
         buttonBorderColor = lcd.RGB(90, 90, 90),
         mixerOutputColor = lcd.RGB(0, 188, 4),
+        safeContrastingColor = lcd.RGB(0, 0, 0),
         pageBgColor = lcd.RGB(16, 16, 16),
         topLcdBgColor = lcd.RGB(35, 35, 35)
     },
@@ -72,12 +78,15 @@ local LEGACY_THEME_STATE = {
         highlightColor = lcd.RGB(90, 90, 90),
         highlightInvertColor = lcd.RGB(255, 255, 255),
         disableColor = lcd.RGB(185, 185, 185),
+        safeColor = lcd.RGB(0, 188, 4),
         warningColor = lcd.RGB(255, 0, 0),
+        errorColor = lcd.RGB(255, 0, 0),
         activeColor = lcd.RGB(0, 188, 4),
         inactiveColor = lcd.RGB(255, 0, 0),
         buttonBorderActiveColor = lcd.RGB(90, 90, 90),
         buttonBorderColor = lcd.RGB(185, 185, 185),
         mixerOutputColor = lcd.RGB(0, 188, 4),
+        safeContrastingColor = lcd.RGB(0, 0, 0),
         pageBgColor = lcd.RGB(209, 208, 208),
         topLcdBgColor = lcd.RGB(230, 230, 230)
     }
@@ -334,9 +343,10 @@ local function resolveGaugeTrackBg(themeState, background)
 end
 
 local function resolveGaugeThresholdPalette(themeState, background)
-    local fillcolor = themeState.activeColor or themeState.mixerOutputColor or GAUGE_TRAFFIC_GREEN
-    local fillwarncolor = GAUGE_TRAFFIC_AMBER
-    local fillcritcolor = GAUGE_TRAFFIC_RED
+    local useThemeTraffic = themeState.usesThemeColors == true
+    local fillcolor = (useThemeTraffic and themeState.safeColor) or themeState.activeColor or themeState.mixerOutputColor or GAUGE_TRAFFIC_GREEN
+    local fillwarncolor = (useThemeTraffic and themeState.warningColor) or GAUGE_TRAFFIC_AMBER
+    local fillcritcolor = (useThemeTraffic and themeState.errorColor) or themeState.inactiveColor or GAUGE_TRAFFIC_RED
     background = background or themeState.secondaryBgColor or themeState.primaryBgColor or themeState.pageBgColor
     fillcolor = ensureThemeColorContrast(fillcolor, background, 2.2)
     fillwarncolor = ensureThemeColorContrast(fillwarncolor, background, 2.2)
@@ -570,6 +580,7 @@ local function ensureThemeCache()
     local headerGaugeTrackBg = resolveGaugeTrackBg(themeState, headerBg)
     local gaugeFillColor, gaugeWarnColor, gaugeCritColor = resolveGaugeThresholdPalette(themeState, surfaceBg)
     local panelBg, panelAltBg = resolveDashboardPanelColors(themeState)
+    local headerGaugeFillColor = (themeState.usesThemeColors == true and themeState.safeColor) or themeState.activeColor
 
     dashboardTheme.textcolor = themeState.primaryColor
     dashboardTheme.titlecolor = themeState.primaryColor
@@ -578,10 +589,10 @@ local function ensureThemeCache()
     dashboardTheme.fillbgcolor = gaugeTrackBg
     dashboardTheme.framecolor = themeState.buttonBorderColor or themeState.secondaryColor
     dashboardTheme.accentcolor = themeState.buttonBorderActiveColor or themeState.primaryColor
-    dashboardTheme.rssifillcolor = themeState.activeColor
+    dashboardTheme.rssifillcolor = headerGaugeFillColor
     dashboardTheme.rssifillbgcolor = headerGaugeTrackBg
     dashboardTheme.txaccentcolor = themeState.secondaryColor
-    dashboardTheme.txfillcolor = themeState.activeColor
+    dashboardTheme.txfillcolor = headerGaugeFillColor
     dashboardTheme.txbgfillcolor = headerGaugeTrackBg
     dashboardTheme.bgcolortop = headerBg
     dashboardTheme.pagebgcolor = themeState.pageBgColor
