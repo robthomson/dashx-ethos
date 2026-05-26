@@ -13,9 +13,7 @@
         "--step", "sensors"           
       ],
       "options": {
-        "env": {
-          "ETHOS_FIRMWARE": "${config:ethos.firmware}"
-        }
+        "env": {}
       },
       "problemMatcher": [],
       "presentation": { "reveal": "always", "panel": "shared", "clear": true }
@@ -115,27 +113,19 @@
       "presentation": { "reveal": "always", "panel": "shared", "clear": true }
     },
     {
-      "label": "ethos.SetFirmware",
+      "label": "ethos.SetSimulator",
       "type": "process",
-      "command": "${command:ethos.setFirmware}",
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
-    },
-    {
-      "label": "ethos.SetRoot",
-      "type": "process",
-      "command": "${command:ethos.setRoot}",
+      "command": "${command:ethos.setSimulator}",
       "problemMatcher": [],
       "presentation": { "reveal": "always", "panel": "shared", "clear": true }
     },
     {
       "label": "ethos.StartChain",
       "dependsOn": [
-        "ethos.SetFirmware",
-        "ethos.SetRoot",
+        "ethos.SetSimulator",
         "ethos.Start"
       ],
-      "dependsOrder": "sequence"   // ensures they run 1 → 2 → 3
+      "dependsOrder": "sequence"
     },    
     {
       "label": "ethos.OpenTelemetry",

@@ -74,7 +74,7 @@
       "preLaunchTask": "Radio: Serial Debug"
     },
     {
-      "name": "Switch Ethos Firmware",
+      "name": "Simulator: Set Simulator",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/.vscode/scripts/dummy.py", 
@@ -82,7 +82,7 @@
       "subProcess": false,
       "justMyCode": true,
       "stopOnEntry": false,
-      "postDebugTask": "ethos.SetFirmware"
+      "preLaunchTask": "ethos.SetSimulator"
     },      
     {
       "name": "Run Sensor Tool",
