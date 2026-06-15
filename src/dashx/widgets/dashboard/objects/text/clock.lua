@@ -14,25 +14,11 @@ local resolveThemeColor = utils.resolveThemeColor
 function render.invalidate(box) box._cfg = nil end
 
 function render.dirty(box)
-    if box._lastDisplayValue == nil then
-        box._lastDisplayValue = box._currentDisplayValue
-        return true
-    end
-    if box._lastDisplayValue ~= box._currentDisplayValue then
-        box._lastDisplayValue = box._currentDisplayValue
-        return true
-    end
-    return false
+    return utils.dirtyOnDisplayValueChange(box)
 end
 
 local function ensureCfg(box)
-    local theme_version = (dashx and dashx.theme and dashx.theme.version) or 0
-    local param_version = box._param_version or 0
-    local cfg = box._cfg
-    if (not cfg) or (cfg._theme_version ~= theme_version) or (cfg._param_version ~= param_version) then
-        cfg = {}
-        cfg._theme_version = theme_version
-        cfg._param_version = param_version
+    return utils.ensureCfg(box, function(cfg, box)
         cfg.title = getParam(box, "title")
         cfg.titlepos = getParam(box, "titlepos")
         cfg.titlealign = getParam(box, "titlealign")
@@ -54,9 +40,7 @@ local function ensureCfg(box)
         cfg.textcolor = resolveThemeColor("textcolor", getParam(box, "textcolor"))
         cfg.bgcolor = resolveThemeColor("bgcolor", getParam(box, "bgcolor"))
         cfg.unit = getParam(box, "unit")
-        box._cfg = cfg
-    end
-    return box._cfg
+    end)
 end
 
 function render.wakeup(box)

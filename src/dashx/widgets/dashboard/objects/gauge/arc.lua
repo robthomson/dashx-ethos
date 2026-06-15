@@ -11,40 +11,11 @@ local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
 local resolveThresholdColor = utils.resolveThresholdColor
+local drawArc = utils.drawArc
 local lastDisplayValue = nil
 
 function render.dirty(box)
-
-    if box._lastDisplayValue == nil then
-        box._lastDisplayValue = box._currentDisplayValue
-        return true
-    end
-
-    if box._lastDisplayValue ~= box._currentDisplayValue then
-        box._lastDisplayValue = box._currentDisplayValue
-        return true
-    end
-
-    return false
-end
-
-local function drawArc(cx, cy, radius, thickness, startAngle, endAngle, color)
-    lcd.color(color)
-    local outer = radius
-    local inner = math.max(1, radius - (thickness or 6))
-
-    startAngle = startAngle % 360
-    endAngle = endAngle % 360
-    if endAngle <= startAngle then endAngle = endAngle + 360 end
-
-    local sweep = endAngle - startAngle
-    if sweep <= 180 then
-        lcd.drawAnnulusSector(cx, cy, inner, outer, startAngle, endAngle)
-    else
-        local mid = startAngle + sweep / 2
-        lcd.drawAnnulusSector(cx, cy, inner, outer, startAngle, mid)
-        lcd.drawAnnulusSector(cx, cy, inner, outer, mid, endAngle)
-    end
+    return utils.dirtyOnDisplayValueChange(box)
 end
 
 function render.wakeup(box)

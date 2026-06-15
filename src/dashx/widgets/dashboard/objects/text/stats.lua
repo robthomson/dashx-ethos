@@ -10,41 +10,11 @@ local render = {}
 local utils = dashx.widgets.dashboard.utils
 local getParam = utils.getParam
 local resolveThemeColor = utils.resolveThemeColor
+local compileTransform = utils.compileTransform
 local lastDisplayValue = nil
 
 function render.dirty(box)
-
-    if box._lastDisplayValue == nil then
-        box._lastDisplayValue = box._currentDisplayValue
-        return true
-    end
-
-    if box._lastDisplayValue ~= box._currentDisplayValue then
-        box._lastDisplayValue = box._currentDisplayValue
-        return true
-    end
-
-    return false
-end
-
-local function compileTransform(t, decimals)
-    local pow = decimals and (10 ^ decimals) or nil
-    local function round(v) return pow and (math.floor(v * pow + 0.5) / pow) or v end
-
-    if type(t) == "number" then
-        local mul = t
-        return function(v) return round(v * mul) end
-    elseif t == "floor" then
-        return function(v) return math.floor(v) end
-    elseif t == "ceil" then
-        return function(v) return math.ceil(v) end
-    elseif t == "round" or t == nil then
-        return function(v) return round(v) end
-    elseif type(t) == "function" then
-        return t
-    else
-        return function(v) return v end
-    end
+    return utils.dirtyOnDisplayValueChange(box)
 end
 
 function render.wakeup(box)
