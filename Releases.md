@@ -1,3 +1,7 @@
+# 2.0.4
+
+ Improve memory usage
+ 
 # 2.0.3
 
 Improve smart fuel voltage support
